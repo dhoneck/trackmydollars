@@ -1,0 +1,121 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Assets & Debts{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+
+{% block content %}
+      <script>
+          $(document).ready(function(){
+              $(".success").fadeOut(10000);
+          });
+      </script>
+      <h2>Assets & Debts</h2>
+      <div id="net-worth-container">
+        <h3>Net Worth</h3>
+        <table id="net-worth-table">
+          <tr>
+            <td>Assets</td>
+            <td><pre>{{ asset_total }}</pre></td>
+          </tr>
+          <tr>
+            <td>Debts</td>
+            <td><pre>{{ debt_total }}</pre></td>
+          </tr>
+          <tr>
+            <td><strong>Net Worth</strong></td>
+            <td><strong><pre>{{ net_worth_total }}</pre></strong></td>
+          </tr>
+        </table>
+      </div>
+      {% if messages %}
+        {% for message in messages %}
+          <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+
+
+      <h3>Assets</h3>
+      <div class="button-container">
+        <button onclick="window.location.href = '{% url 'add-asset' %}';">Add Asset</button>
+      </div>
+      <table class="asset-debt-table">
+        <tr>
+          <th>Asset Name</th>
+          <th>Asset Type</th>
+          <th>Asset Amount</th>
+          <th>Last Updated</th>
+        {% for item in assets %}
+          <tr>
+            <td><a href="assets/{{ item.id }}/view">{{ item.name }}</a></td>
+            <td><a href="assets/{{ item.id }}/view">{{ item.asset_type }}</a></td>
+            {% if item.balances.first %}
+              <td><a href="assets/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+            {% else %}
+              <td></td>
+            {% endif %}
+            <td><a href="assets/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+      <br>
+      <br>
+
+      <h3>Installment Debts</h3>
+      <div class="button-container">
+        <button onclick="window.location.href = '{% url 'add-installment-debt' %}';">Add Installment Debt</button>
+      </div>
+      <table class="asset-debt-table">
+        <tr>
+          <th>Debt Name</th>
+          <th>Debt Type</th>
+          <th>Debt Amount</th>
+          <th>Initial Amount</th>
+          <th>Minimum Payment</th>
+          <th>Payoff Date</th>
+          <th>Last Updated</th>
+          {% for item in installment_debts %}
+            <tr>
+              <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+              <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% if item.balances.first %}
+                <td><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+              {% else %}
+                <td></td>
+              {% endif %}
+              <td><a href="installment-debts/{{ item.id }}/view">${{ item.initial_balance }}</a></td>
+              <td><a href="installment-debts/{{ item.id }}/view">${{ item.minimum_payment }}</a></td>
+              <td><a href="installment-debts/{{ item.id }}/view">{{ item.payoff_date }}</a></td>
+              <td><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+            </tr>
+          {% endfor %}
+      </table>
+      <br>
+      <br>
+
+      <h3>Revolving Debts</h3>
+      <div class="button-container">
+        <button onclick="window.location.href = '{% url 'add-revolving-debt' %}';">Add Revolving Debt</button>
+      </div>
+      <table class="asset-debt-table">
+        <tr>
+          <th>Debt Name</th>
+          <th>Debt Type</th>
+          <th>Debt Amount</th>
+          <th>Credit Limit</th>
+          <th>Last Updated</th>
+          {% for item in revolving_debts %}
+            <tr>
+              <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+              <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% if item.balances.first %}
+                <td><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+              {% else %}
+                <td></td>
+              {% endif %}
+              <td><a href="revolving-debts/{{ item.id }}/view">{{ item.credit_limit }}</a></td>
+              <td><a href="revolvingdebts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+            </tr>
+          {% endfor %}
+      </table>
+      <br>
+      <br>
+{% endblock %}

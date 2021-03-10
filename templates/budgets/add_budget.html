@@ -1,0 +1,17 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Add Budget{% endblock %}
+{% block content %}
+  <h2>Add Budget</h2>
+  <div class="button-container">
+    <button onclick="window.location.href = '../previous';"><</button>
+    <button>{{ month }}</button>
+    <button>{{ year }}</button>
+    <button onclick="window.location.href = '../next';">></button>
+  </div>
+  <p>You do not have a budget for {{ month }}, {{ year }}. Create one below.</p>
+  {{ test }}
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

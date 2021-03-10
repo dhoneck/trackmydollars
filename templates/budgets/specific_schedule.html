@@ -1,0 +1,46 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Schedule{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+
+{% block content %}
+      <script>
+        $(document).ready(function(){
+          $(".success_notification").fadeOut(10000);
+        });
+      </script>
+
+      <h2>Schedule for {{ month }}, {{ year }}</h2>
+      <div class="button-container">
+        <button><</button>
+        <button>{{month}} {{year}}</button>
+        <button>></button>
+        <button onclick="window.location.href = '{% url 'schedule_add_item' %}';">Add</button>
+      </div>
+      {% if messages %}
+        <div class="success_notification">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+        <table>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Type</th>
+          </tr>
+          {% for item in budget_items %}
+          <tr>
+            <td>{{ item.date }}</td>
+            <td>{{ item.item_description }}</td>
+            {% if item.income_or_expense == "Income" %}
+            <td>+{{ item.amount }}</td>
+            {% else %}
+            <td>-{{ item.amount }}</td>
+            {% endif %}
+            <td>{{ item.income_or_expense }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'budgets/base.html' %}
+{% load static %}
+{% block title %}DollarTracker | View Asset{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+{% block content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+  <h2>View Asset</h2>
+  <br>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+  <div class="button-container">
+    <button onclick="window.location.href = '../update';">Update</button>
+    <button onclick="window.location.href = '../delete';">Delete</button>
+  </div>
+  <p><strong>Asset Name</strong></p>
+  <p>{{ asset.name }}</p>
+  <br>
+  <p><strong>Asset Type</strong></p>
+  <p>{{ asset.asset_type }}</p>
+  <br>
+  <p><strong>Current Balance</strong></p>
+  {% if asset.balances.first == None %}
+  <p>n/a</p>
+  {% else %}
+  <p>${{ asset.balances.first }}</p>
+  {% endif %}
+
+  <br>
+  <div class="button-container">
+    <button onclick="window.location.href = '../add-balance';">Add Balance</button>
+  </div>
+  <p><strong>Balance History</strong></p>
+  <table>
+    <tr>
+      <td>Balance</td>
+      <td>Date</td>
+      <td>Actions</td>
+    </tr>
+    {% for b in asset.balances.all %}
+      <tr>
+        <td>${{ b.balance }}</td>
+        <td>{{ b.date }}</td>
+        <td>
+          <a href="../update-balance/{{ b.id }}"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+          <a href="../delete-balance/{{ b.id }}"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

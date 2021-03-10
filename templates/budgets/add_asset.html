@@ -1,0 +1,9 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Add Asset{% endblock %}
+{% block content %}
+  <h2>Add Asset</h2>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

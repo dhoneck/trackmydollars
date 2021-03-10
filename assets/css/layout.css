@@ -1,0 +1,172 @@
+/*******************************
+General
+*******************************/
+html {
+  min-height: 100%;
+}
+
+body {
+  background-color: #F1F0F4;
+  font-family: Roboto, sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: black
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  color: lightcoral;
+}
+
+/*******************************
+Header, Logo, Nav
+*******************************/
+#logo {
+  display: inline-block;
+  margin: 28px 16px 10px 16px;
+  color: white;
+  font-family: Bahnschrift;
+}
+
+#logo h1 {
+  margin: 0;
+}
+
+#logo h2 {
+  font-size: 1em;
+  margin: 0;
+}
+.sidenav {
+  height: 100%;
+  /*min-height: 400px;*/
+  width: 180px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #527EA5;
+  overflow-x: hidden;
+  box-shadow: 2px 0px 2px #888888;
+}
+
+.sidenav a {
+  padding: 7px 16px 7px 16px;
+  background-color: lightcoral;
+  color: white;
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  box-shadow: 0px 2px 2px #888888;
+}
+
+.sidenav a:hover {
+  opacity: 0.8;
+}
+
+.content-container {
+  margin: 30px 22px 0 200px; /* Same as the width of the sidenav */
+}
+
+/*******************************
+Body
+*******************************/
+pre {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.budget-container {
+  background-color: #527EA5;
+  /*color: darkgray;*/
+  opacity: 0.6;
+  margin: 20px -5px 0 -5px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid dimgray;
+  box-shadow: 2px 2px 2px #888888;
+}
+
+
+
+.button-container {
+  margin: 10px 0;
+}
+
+th {
+  text-align: left;
+}
+
+.asset-debt-table th, .asset-debt-table td {
+  padding: 5px 5px 5px 0;
+  white-space: nowrap;
+  /*text-align: left;*/
+  /*padding: 10px;*/
+}
+
+button {
+  border: 1px solid darkgray;
+  padding: 5px 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  box-shadow: 2px 2px 3px #888888;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+.budget-container td {
+    width: 100px;
+}
+
+#net-worth-container {
+  display: inline-block;
+  margin-left: -10px;
+  padding: 0 10px 5px 10px;
+  background-color: lightgray;
+  border-radius: 5px;
+}
+
+.budget-table {
+  border: 1px solid gray;
+  padding: 10px;
+  margin: 15px 0px 15px -10px;
+  border-radius: 10px;
+
+  /*padding: 5px 75px 5px 0;*/
+  width: 60%;
+  /*margin: 10px;*/
+}
+
+.budget-table th, td {
+  width: 150px;
+  /*margin-bottom: 25px;*/
+}
+
+.action-imgs {
+  width: 20px;
+  height: 20px;
+}
+
+/*******************************
+Notifications
+*******************************/
+.success {
+  background-color: mediumseagreen;
+  list-style-type: none;
+  margin-left: -10px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.success a, .success a:visited, .success a:hover, .success a:active {
+    color: inherit;
+}

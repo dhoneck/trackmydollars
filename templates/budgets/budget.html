@@ -1,0 +1,86 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Budget{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+{% block content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+  <h2>Budget</h2>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  <div class="button-container">
+    <button onclick="window.location.href = 'previous';"><</button>
+    <button>{{ month }}</button>
+    <button>{{ year }}</button>
+    <button onclick="window.location.href = 'next';">></button>
+  </div>
+  <br>
+  <h3>Income</h3>
+  <div class="button-container">
+    <button onclick="window.location.href = 'add-income-budget-item';">Add Income Budget Item</button>
+    <button onclick="window.location.href = 'add-income-transaction';">Add Income Transaction</button>
+  </div>
+  {% if income_budget_items.count > 0 %}
+  <table class="budget-table">
+    <thead>
+      <tr>
+        <th>Income for {{ month }}</th>
+        <th>Planned</th>
+        <th>Received</th>
+        <th>Add</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for x in income_budget_items %}
+      <tr>
+        <td><a href="income-budget-item/{{ x.id }}/view">{{ x.name }}</a></td>
+        <td><a href="income-budget-item/{{ x.id }}/view">{{ x.planned_amount }}</a></td>
+        <td>n/a</td>
+        <td>X</td>
+        <td>X</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <br>
+  <h3>Expenses</h3>
+  <div class="button-container">
+    <button onclick="window.location.href = 'add-expense-category';">Add Expense Category</button>
+  </div>
+  {% for x in expense_categories %}
+  <table class="budget-table">
+    <thead>
+    <tr>
+      <th>{{ x.name }}</th>
+      <th>Planned</th>
+      <th>Spent</th>
+      <th>Add</th>
+      <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for y in x.expense_budget_items.all %}
+      <tr>
+
+        <td>{{ y.name }}</td>
+        <td>{{ y.planned_amount }}</td>
+        <td>n/a</td>
+        <td>X</td>
+        <td>X</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+  <br>
+  <br>
+  <button onclick="window.location.href = 'delete-budget/{{ bp_id }}';">DELETE BUDGET</button>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Delete Installment Debt Balance{% endblock %}
+{% block content %}
+  <h2>Delete Installment Debt Balance</h2>
+  <form method="post">{%  csrf_token %}
+    <p>Are you sure you want to delete "{{ object }}" and all of its related data?</p>
+    <input type="submit" value="Confirm">
+  </form>
+{% endblock %}

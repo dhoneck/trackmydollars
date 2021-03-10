@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+{#    <link rel="stylesheet" href="{% static 'css/reset.css' %}">#}
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    {% block script %}{% endblock %}
+  </head>
+  <body>
+    <header>
+      <nav class="sidenav">
+        <div id="logo">
+            <h1>DollarTracker</h1>
+            <h2>Budgeting Software</h2>
+        </div>
+        <a class='sidebar-links' href="{% url 'dashboard' %}">Dashboard</a>
+        <a class='sidebar-links' href="{% url 'budget' %}">Budget</a>
+        <a class='sidebar-links' href="{% url 'assets_debts' %}">Assets & Debts</a>
+{#        <a class='sidebar-links' href="{% url 'schedule' %}">Schedule</a>#}
+{#        <a class='sidebar-links' href="{% url 'transactions' %}">Transactions</a>#}
+{#        <a class='sidebar-links' href="{% url 'reports' %}">Reports</a>#}
+      </nav>
+    </header>
+    <div class="content-container">
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Update Revolving Debt{% endblock %}
+{% block content %}
+  <h2>Update Revolving Debt</h2>
+  <form method="post">{%  csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

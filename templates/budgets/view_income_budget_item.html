@@ -1,0 +1,17 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | View Income Budget Item{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+{% block content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+  <h2>View Income Budget Item</h2>
+  <h3>{{ income_budget_item.name }}</h3>
+  <h4>Transactions</h4>
+  {% for item in income_budget_item.income_transactions.all %}
+    <p>{{ item.name }} - ${{ item.amount }}</p>
+  {% endfor %}
+
+{% endblock %}
