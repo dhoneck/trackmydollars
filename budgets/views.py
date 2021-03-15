@@ -2,13 +2,18 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
-
+from django.db.models import Sum
 from django.contrib import messages
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from decimal import *
 from .models import *
 from functools import partial
+
+# TODO: Integrate user accounts
+# TODO: Add an add, update, and delete option on the income and expense budget item pages
+# TODO: Add a "Back to Budget" button on each of the budget pages
+# TODO: Add a transaction page
 
 # General Views
 def index(request):
@@ -191,6 +196,9 @@ def get_last_12_months_data(year, month, obj, obj_bal):
 
 # Asset Views
 def assets_debts(request):
+    # TODO: Calculate padding for net worth figures
+    # TODO: Fix number alignment
+    # TODO: Fix months to be abbreviated - e.g. March should be mar instead of March
     assets = Asset.objects.order_by('name')
     installment_debts = InstallmentDebt.objects.order_by('name')
     revolving_debts = RevolvingDebt.objects.order_by('name')
@@ -418,6 +426,112 @@ class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
     success_message = 'Debt balance successfully updated!'
 
 
+# New Classes as of 3-14-21
+class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
+    model = IncomeBudgetItem
+    fields = '__all__'
+    template_name = 'budgets/update_income_budget_item.html'
+    success_url = '../../'
+    pk_url_kwarg = 'ibiid'
+    success_message = 'Income budget item successfully updated!'
+
+
+class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
+    model = IncomeBudgetItem
+    template_name = 'budgets/delete_income_budget_item.html'
+    success_url = '../../'
+    pk_url_kwarg = 'ibiid'
+    success_message = 'Income budget item successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteIncomeBudgetItem, self).delete(request, *args, **kwargs)
+
+
+class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
+    model = IncomeTransaction
+    fields = '__all__'
+    template_name = 'budgets/update_income_transaction.html'
+    success_url = '../../view'
+    pk_url_kwarg = 'itid'
+    success_message = 'Income transaction successfully updated!'
+
+
+class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
+    model = IncomeTransaction
+    template_name = 'budgets/delete_income_transaction.html'
+    success_url = '../../view'
+    pk_url_kwarg = 'itid'
+    success_message = 'Income transaction successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteIncomeTransaction, self).delete(request, *args, **kwargs)
+
+
+class UpdateExpenseCategory(SuccessMessageMixin, UpdateView):
+    model = IncomeTransaction
+    fields = '__all__'
+    template_name = 'budgets/update_expense_category.html'
+    success_url = '../../'
+    pk_url_kwarg = 'ecid'
+    success_message = 'Expense category successfully updated!'
+
+
+class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
+    model = ExpenseCategory
+    template_name = 'budgets/delete_expense_category.html'
+    success_url = '../../'
+    pk_url_kwarg = 'ecid'
+    success_message = 'Expense category successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteExpenseCategory, self).delete(request, *args, **kwargs)
+
+
+class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
+    model = ExpenseBudgetItem
+    fields = '__all__'
+    template_name = 'budgets/update_expense_budget_item.html'
+    success_url = '../../../../'
+    pk_url_kwarg = 'ebiid'
+    success_message = 'Expense budget item successfully updated!'
+
+
+class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
+    model = ExpenseBudgetItem
+    template_name = 'budgets/delete_expense_budget_item.html'
+    success_url = '../../../../'
+    pk_url_kwarg = 'ebiid'
+    success_message = 'Expense budget item successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteExpenseBudgetItem, self).delete(request, *args, **kwargs)
+
+
+class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
+    model = ExpenseTransaction
+    fields = '__all__'
+    template_name = 'budgets/update_expense_transaction.html'
+    success_url = '../../view'
+    pk_url_kwarg = 'etid'
+    success_message = 'Expense transaction item successfully updated!'
+
+
+class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
+    model = ExpenseTransaction
+    template_name = 'budgets/delete_expense_transaction.html'
+    success_url = '../../view'
+    pk_url_kwarg = 'etid'
+    success_message = 'Expense transaction item successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteExpenseTransaction, self).delete(request, *args, **kwargs)
+
+
 class DeleteRevolvingDebtBalance(SuccessMessageMixin, DeleteView):
     model = RevolvingDebtBalance
     template_name = 'budgets/delete_revolving_debt_balance.html'
@@ -458,7 +572,6 @@ def budget(request):
     return HttpResponseRedirect(f'{current_month}/{current_year}')
 
 
-# TODO: Add budget switching functionality
 class AddBudget(SuccessMessageMixin, CreateView):
     model = BudgetPeriod
     fields = '__all__'
@@ -488,6 +601,7 @@ class AddBudget(SuccessMessageMixin, CreateView):
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
+    # TODO: Get the received field to work - total the actual income and savings
     try:
         datetime_object = datetime.strptime(month, '%B')
         month_by_num = datetime_object.month
@@ -495,32 +609,53 @@ def specific_budget(request, month, year):
 
         total_planned_income = Decimal(0.00)
         total_planned_expenses = Decimal(0.00)
-
-        # Sum the planned income
+        total_actual_income = Decimal(0.00)
+        total_actual_expenses = Decimal(0.00)
+        total_old_debt = Decimal(0.00)
+        total_new_debt = Decimal(0.00)
+        total_paid_debt = Decimal(0.00)
+        total_remaining_new_debt = Decimal(0.00)
+        total_remaining_old_debt = Decimal(0.00)
+        total_remaining_debt = Decimal(0.00)
+        print('Printing income budget items')
         for item in bp.income_budget_items.all():
+            # print(item)
+            # print(item.income_transactions.all())
             total_planned_income += item.planned_amount
+            # Total income transactions
+            for t in item.income_transactions.all():
+                total_actual_income += t.amount
+
 
         # Sum the planned expenses
+        old_debt_paid = Decimal(0.00)
         expense_categories = bp.expense_categories.all()
         for category in expense_categories:
             for expense_budget_item in category.expense_budget_items.all():
+                if expense_budget_item.credit_debt == True:
+                    total_old_debt += expense_budget_item.planned_amount
                 total_planned_expenses += expense_budget_item.planned_amount
+                for t in expense_budget_item.expense_transactions.all():
 
-        # TODO: Sum received income and expense amounts
-        # TODO: Add links to each items
+                    total_actual_expenses += t.amount
+                    if t.credit_purchase:
+                        total_new_debt += t.amount
+                    if t.credit_payoff:
+                        old_debt_paid += t.amount
+                        total_paid_debt += t.amount
+        total_remaining_old_debt = total_old_debt - old_debt_paid
+        total_remaining_new_debt = total_new_debt  # TODO: Fix new debt payoff
 
     except BudgetPeriod.DoesNotExist:
         print('Does not exist, dummy')
         return HttpResponseRedirect('add-budget/')
-        # return render(request,
-        #               'budgets/add_budget.html',
-        #               {
-        #                   'month': month.capitalize(),
-        #                   'year': year, }
-        #               )
     except:
         print('Second except clause')
         return HttpResponseNotFound("Page not found!")
+
+    left_to_plan = total_planned_income - total_planned_expenses
+    left_to_spend = total_actual_income - total_actual_expenses
+    total_remaining_debt = total_old_debt + total_new_debt - total_paid_debt
 
     return render(request,
                   'budgets/budget.html',
@@ -531,7 +666,17 @@ def specific_budget(request, month, year):
                    'expense_categories': bp.expense_categories.all(),
                    'total_planned_income': total_planned_income,
                    'total_planned_expenses': total_planned_expenses,
-                   'bp_id': bp.id,
+                   'total_actual_income': total_actual_income,
+                   'total_actual_expenses': total_actual_expenses,
+                   'total_old_debt': total_old_debt,
+                   'total_new_debt': total_new_debt,
+                   'total_paid_debt': total_paid_debt,
+                   'total_remaining_new_debt': total_remaining_new_debt,
+                   'total_remaining_old_debt': total_remaining_old_debt,
+                   'total_remaining_debt': total_remaining_debt,
+                   'left_to_plan': left_to_plan,
+                   'left_to_spend': left_to_spend,
+                   'bp_id': bp.id
                   }
                   )
 
@@ -552,13 +697,21 @@ def change_budget(request, month, year):
     return HttpResponseRedirect(f'../../{adjusted_month}/{adjusted_year}')
 
 
-def view_income_budget_item(request, month, year, id):
+def view_income_budget_item(request, month, year, ibiid):
     context = {}
     try:
-        context['income_budget_item'] = IncomeBudgetItem.objects.get(id=id)
+        context['income_budget_item'] = IncomeBudgetItem.objects.get(id=ibiid)
     except IncomeBudgetItem.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'budgets/view_income_budget_item.html', context)
+
+def view_expense_budget_item(request, month, year, ecid, ebiid):
+    context = {}
+    try:
+        context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=ebiid)
+    except ExpenseBudgetItem.DoesNotExist:
+        return HttpResponseNotFound("Page not found!")
+    return render(request, 'budgets/view_expense_budget_item.html', context)
 
 
 class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
@@ -584,17 +737,33 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
 
 
 class AddIncomeTransaction(SuccessMessageMixin, CreateView):
+    print('AddingIncomeTransaction')
     model = IncomeTransaction
     fields = '__all__'
     template_name = 'budgets/add_income_transaction.html'
-    success_url = './'
     success_message = 'Income transaction successfully added!'
 
+    def get_success_url(self):
+        if 'back_to_item_view' in self.request.POST:
+            return './view'
+        else:
+            return '../../'
+
     def get_initial(self):
-        # TODO: Make sure foreign key 'Budget Item' only shows that months items
-        return {'debt': self.request.get_full_path().split('/')[-3],
+        return {'budget_item': self.request.get_full_path().split('/')[-2],
                 'date': datetime.today(),
                 }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.META.get('HTTP_REFERER').split('/')[-1] == 'view':
+            context['destination'] = 'back_to_item_view'
+        else:
+            context['destination'] = 'back_to_budget_view'
+        return context
+
+
+
 
 class AddExpenseCategory(SuccessMessageMixin, CreateView):
     model = ExpenseCategory
@@ -620,6 +789,49 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
         return {'budget_period': bpid,}
 
 
+# TODO: Look this over, success url may need to be modified
+class AddExpenseTransaction(SuccessMessageMixin, CreateView):
+    model = ExpenseTransaction
+    fields = '__all__'
+    template_name = 'budgets/add_expense_transaction.html'
+    success_url = '../../../../'
+    success_message = 'Expense transaction successfully added!'
+
+    def get_initial(self):
+        # TODO: Make sure foreign key 'Budget Item' only shows that months items
+        return {'expense_budget_item': self.request.get_full_path().split('/')[-2],
+                'date': datetime.today(),
+                }
+
+    def get_success_url(self):
+        if 'back_to_item_view' in self.request.POST:
+            return './view'
+        else:
+            return '../../../../'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.META.get('HTTP_REFERER').split('/')[-1] == 'view':
+            context['destination'] = 'back_to_item_view'
+        else:
+            context['destination'] = 'back_to_budget_view'
+        return context
+
+
+
+class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
+    # TODO: Only show expense categories in that budget period
+    model = ExpenseBudgetItem
+    fields = '__all__'
+    template_name = 'budgets/add_expense_budget_item.html'
+    success_url = '../../'
+    success_message = 'Expense budget item successfully added!'
+
+    def get_initial(self):
+        ecid = self.request.get_full_path().split('/')[-2]
+        return {'expense_category': ecid,
+                }
+
 class DeleteBudget(SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
     template_name = 'budgets/delete_budget.html'
@@ -630,6 +842,25 @@ class DeleteBudget(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteBudget, self).delete(request, *args, **kwargs)
+
+def view_transactions(request, month, year):
+    print('Viewing transactions')
+    datetime_object = datetime.strptime(month, '%B')
+    month_by_num = datetime_object.month
+    bp = BudgetPeriod.objects.get(month=month_by_num, year=year)
+
+    print(bp)
+    context = {}
+    try:
+        context['income_budget_items'] = IncomeBudgetItem.objects.filter(budget_period=bp.id)
+        context['expense_categories'] = ExpenseCategory.objects.filter(budget_period=bp.id)
+    except IncomeBudgetItem.DoesNotExist or ExpenseCategory.DoesNotExist:
+        return HttpResponseNotFound("Page not found!")
+    context['month'] = month.capitalize()
+    context['year'] = year
+
+    return render(request, 'budgets/view_transactions.html', context)
+
 
 # # Schedule Views
 # def schedule(request):

@@ -1,7 +1,4 @@
 from django.db import models
-
-# import copy
-# import calendar
 from datetime import datetime
 
 INCOME_OR_EXPENSE = (
@@ -159,8 +156,6 @@ class BudgetPeriod(models.Model):
     )
     month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
-    starting_revolving = models.DecimalField(max_digits=9, decimal_places=2, default=0, null=True)
-    starting_checking = models.DecimalField(max_digits=9, decimal_places=2, default=0, null=True)
 
     class Meta:
         unique_together = ('month', 'year',)
@@ -176,7 +171,7 @@ class IncomeBudgetItem(models.Model):
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
 
     def __str__(self):
-        return self.name
+        return self.name + ' - ' + str(self.budget_period)
 
     class Meta:
         ordering = ('-planned_amount', 'name',)
@@ -224,12 +219,12 @@ class ExpenseCategory(models.Model):
 
 class ExpenseBudgetItem(models.Model):
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
-    # need_want_savings_debt = models.CharField(max_length=25, choices=NEED_WANT_SAVINGS_DEBT)
+    credit_debt = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name + ' for $' + str(self.planned_amount)
+        return self.name + ' for $' + str(self.planned_amount) + ' : ' + str(self.expense_category)
 
     def __float__(self):
         if self.amount is None:
@@ -246,4 +241,8 @@ class ExpenseTransaction(models.Model):
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     credit_purchase = models.BooleanField(default=False)
+    credit_payoff = models.BooleanField(default=False)
     date = models.DateField()
+
+    def __str__(self):
+        return f'{self.date} - {self.name}'

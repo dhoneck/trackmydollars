@@ -81,22 +81,22 @@ pre {
   font-size: 16px;
 }
 
-.budget-container {
-  background-color: #527EA5;
-  /*color: darkgray;*/
-  opacity: 0.6;
-  margin: 20px -5px 0 -5px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 2px solid dimgray;
-  box-shadow: 2px 2px 2px #888888;
-}
+/*.budget-container {*/
+/*  background-color: #527EA5;*/
+/*  !*color: darkgray;*!*/
+/*  opacity: 0.6;*/
+/*  margin: 20px -5px 0 -5px;*/
+/*  padding: 10px;*/
+/*  border-radius: 10px;*/
+/*  border: 2px solid dimgray;*/
+/*  box-shadow: 2px 2px 2px #888888;*/
+/*}*/
 
 
 
-.button-container {
-  margin: 10px 0;
-}
+/*.button-container {*/
+/*  margin: 10px 0;*/
+/*}*/
 
 th {
   text-align: left;
@@ -122,9 +122,9 @@ button:hover {
   opacity: 0.8;
 }
 
-.budget-container td {
-    width: 100px;
-}
+/*.budget-container td {*/
+/*    width: 100px;*/
+/*}*/
 
 #net-worth-container {
   display: inline-block;
@@ -153,6 +153,25 @@ button:hover {
 .action-imgs {
   width: 20px;
   height: 20px;
+}
+
+#budget-container {
+  display: inline-block;
+  width: 100%;
+}
+
+.budget-overview-container {
+  display: inline-block;
+  background-color: lightgray;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#budget-credit-container {
+  display: inline-block;
+  background-color: lightgray;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 /*******************************

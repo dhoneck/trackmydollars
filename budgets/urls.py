@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
 from budgets.views import *
+
 urlpatterns = [
     path('', views.index, name='index'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    # Asset & Debt URLs
     path('assets-debts/', views.assets_debts, name='assets_debts'),
     path('assets-debts/add-asset', AddAsset.as_view(), name='add-asset'),
     path('assets-debts/add-installment-debt', AddInstallmentDebt.as_view(), name='add-installment-debt'),
@@ -26,26 +28,31 @@ urlpatterns = [
     path('assets-debts/revolving-debts/<int:id>/add-balance/', AddRevolvingDebtBalance.as_view()),
     path('assets-debts/revolving-debts/<int:id>/update-balance/<int:bid>', UpdateRevolvingDebtBalance.as_view()),
     path('assets-debts/revolving-debts/<int:id>/delete-balance/<int:bid>', DeleteRevolvingDebtBalance.as_view()),
+    # General Budget URLs
     path('budget/', views.budget, name='budget'),
-    path('budget/<month>/<int:year>/add-budget/', AddBudget.as_view()),
     path('budget/<month>/<int:year>/', views.specific_budget),
-    path('budget/<month>/<int:year>/add-income-budget-item', AddIncomeBudgetItem.as_view(), name='add-income-budget-item'),
-    path('budget/<month>/<int:year>/add-income-transaction', AddIncomeTransaction.as_view()),
-    # path('budget/<month>/<int:year>/add-income-transaction', AddIncomeTransaction.as_view()),
-    path('budget/<month>/<int:year>/add-expense-category', AddExpenseCategory.as_view()),
-    path('budget/<month>/<int:year>/income-budget-item/<int:id>/view', views.view_income_budget_item),
+    path('budget/<month>/<int:year>/add-budget/', AddBudget.as_view()),
+    path('budget/<month>/<int:year>/delete-budget/<int:id>', DeleteBudget.as_view()),
     path('budget/<month>/<int:year>/next', views.change_budget),
     path('budget/<month>/<int:year>/previous', views.change_budget),
-    path('budget/<month>/<int:year>/delete-budget/<int:id>', DeleteBudget.as_view()),
-
-
-    # path('budget/<month>/<int:year>/add-budget', views.specific_budget),
-    # path('budget/<month>/<int:year>/add-income', AddIncome.as_view(), name='add-income'),
-    # path('schedule/', views.schedule, name='schedule'),
-    # path('schedule/<month>/<int:year>', views.specific_schedule),
-    # path('schedule/add-item/', views.schedule_add_item, name='schedule_add_item'),
-    # path('schedule/edit-item/<int:id>/', views.schedule_edit_item, name='schedule_edit_item'),
-    # path('reports/', views.reports, name='reports'),
-    # path('transactions/', views.transactions, name='transactions'),
+    path('budget/<month>/<int:year>/transactions', views.view_transactions),
+    # Budget Income URLS
+    path('budget/<month>/<int:year>/add-income-budget-item', AddIncomeBudgetItem.as_view()),
+    path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/update', UpdateIncomeBudgetItem.as_view()),
+    path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/delete', DeleteIncomeBudgetItem.as_view()),
+    path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/view', views.view_income_budget_item),
+    path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/add-income-transaction', AddIncomeTransaction.as_view()),
+    path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/income-transaction/<int:itid>/update', UpdateIncomeTransaction.as_view()),
+    path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/income-transaction/<int:itid>/delete', DeleteIncomeTransaction.as_view()),
+    # Budget Expense URLs
+    path('budget/<month>/<int:year>/add-expense-category', AddExpenseCategory.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/update', UpdateExpenseCategory.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/delete', DeleteExpenseCategory.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/add-expense-budget-item', AddExpenseBudgetItem.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:ebiid>/update', UpdateExpenseBudgetItem.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:ebiid>/delete', DeleteExpenseBudgetItem.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:ebiid>/view', views.view_expense_budget_item),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/add-expense-transaction', AddExpenseTransaction.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/expense-transaction/<int:etid>/update', UpdateExpenseTransaction.as_view()),
+    path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/expense-transaction/<int:etid>/delete', DeleteExpenseTransaction.as_view()),
 ]
-

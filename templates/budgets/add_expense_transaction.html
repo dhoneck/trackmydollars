@@ -1,10 +1,9 @@
 {% extends 'budgets/base.html' %}
-{% block title %}DollarTracker | Add Income Transaction{% endblock %}
+{% block title %}DollarTracker | Add Expense Transaction{% endblock %}
 {% block content %}
-  <h2>Add Income Transaction</h2>
+  <h2>Add Expense Transaction</h2>
   <form method="post">{%  csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save" name="{{ destination }}">
   </form>
-{#  {{ test }}#}
 {% endblock %}

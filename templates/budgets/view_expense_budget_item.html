@@ -1,6 +1,6 @@
 {% extends 'budgets/base.html' %}
 {% load static %}
-{% block title %}DollarTracker | View Income Budget Item{% endblock %}
+{% block title %}DollarTracker | View Expense Budget Item{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
 {% block content %}
   <script>
@@ -8,11 +8,11 @@
           $(".success").fadeOut(10000);
       });
   </script>
-  <h2>View Income Budget Item</h2>
+  <h2>View Expense Budget Item</h2>
   <div class="button-container">
-    <button onclick="window.location.href = '../../';">Back to Budget</button>
+    <button onclick="window.location.href = '../../../../';">Back to Budget</button>
   </div>
-  <h3>{{ income_budget_item.name }}</h3>
+  <h3>{{ expense_budget_item.name }}</h3>
   {% if messages %}
     {% for message in messages %}
       <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
@@ -20,8 +20,9 @@
   {% endif %}
   <h4>Transactions</h4>
   <div class="button-container">
-    <button onclick="window.location.href = 'add-income-transaction';">Add Income Transaction</button>
+    <button onclick="window.location.href = 'add-expense-transaction';">Add Expense Transaction</button>
   </div>
+
   <table class="budget-table">
     <thead>
     <tr>
@@ -32,18 +33,22 @@
     </tr>
     </thead>
     <tbody>
-    {% for item in income_budget_item.income_transactions.all %}
+    {% for item in expense_budget_item.expense_transactions.all %}
       <tr>
         <td>{{ item.name }}</td>
         <td>{{ item.amount }}</td>
         <td>{{ item.date }}</td>
         <td>
-          <a href="income-transaction/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
-          <a href="income-transaction/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          <a href="expense-transaction/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+          <a href="expense-transaction/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
         </td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
+
+{#  {% for item in expense_budget_item.expense_transactions.all %}#}
+{#    <p>{{ item.name }} - ${{ item.amount }}</p>#}
+{#  {% endfor %}#}
 
 {% endblock %}

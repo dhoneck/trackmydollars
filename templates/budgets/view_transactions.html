@@ -1,0 +1,26 @@
+{% extends 'budgets/base.html' %}
+{% load static %}
+{% block title %}DollarTracker | View Transactions{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+{% block content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+  <h2>View Transactions</h2>
+  <br>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+  {% for x in income_budget_items %}
+  <p>{{ x }}</p>
+  {% endfor %}
+  {% for y in expense_categories %}
+    <p>{{ y }}</p>
+  {% endfor %}
+
+{% endblock %}
