@@ -1,0 +1,244 @@
+{% extends 'budgets/base.html' %}
+{% load static %}
+{% block title %}DollarTracker | Schedule{% endblock %}
+{% block content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+  <h2>Money Schedule</h2>
+  <div class="button-container">
+    <button onclick="window.location.href = 'add-schedule-item';">Add Schedule Item</button>
+  </div>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+  {% if monthly %}
+    <br>
+    <h3>Monthly</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Frequency</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      {% for item in monthly %}
+      <tr>
+        <td><a href="">{{ item.name }}</a></td>
+        <td><a href="">{{ item.amount }}</a></td>
+        <td><a href="">{{ item.first_due_date }}</a></td>
+        <td><a href="">{{ item.frequency }}</a></td>
+        <td>
+          <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+          <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if one_time %}
+    <br>
+    <h3>One Time</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Frequency</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in one_time %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date }}</a></td>
+          <td><a href="">{{ item.frequency }}</a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if weekly %}
+    <br>
+    <h3>Weekly</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Frequency</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in weekly %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date }}</a></td>
+          <td><a href="">{{ item.frequency }}</a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if every_two_weeks %}
+    <br>
+    <h3>Every Two Weeks</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Frequency</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in every_two_weeks %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date }}</a></td>
+          <td><a href="">{{ item.frequency }}</a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if every_two_months %}
+    <br>
+  <h3>Every Two Months</h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Amount</th>
+      <th>Date</th>
+      <th>Frequency</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    {% for item in every_two_months %}
+      <tr>
+        <td><a href="">{{ item.name }}</a></td>
+        <td><a href="">{{ item.amount }}</a></td>
+        <td><a href="">{{ item.first_due_date }}</a></td>
+        <td><a href="">{{ item.frequency }}</a></td>
+        <td>
+          <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+          <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  {% if quarterly %}
+    <br>
+    <h3>Quarterly</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Frequency</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in quarterly %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date }}</a></td>
+          <td><a href="">{{ item.frequency }}</a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if every_six_months %}
+    <br>
+    <h3>Every Six Months</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Frequency</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in every_six_months %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date }}</a></td>
+          <td><a href="">{{ item.frequency }}</a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if yearly %}
+    <br>
+    <h3>Yearly</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Frequency</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in yearly %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date }}</a></td>
+          <td><a href="">{{ item.frequency }}</a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+{% endblock %}

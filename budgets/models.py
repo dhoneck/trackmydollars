@@ -246,3 +246,13 @@ class ExpenseTransaction(models.Model):
 
     def __str__(self):
         return f'{self.date} - {self.name}'
+
+
+class ScheduleItem(models.Model):
+    name = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    first_due_date = models.DateField()
+    frequency = models.CharField(max_length=50, choices=FREQUENCY)
+
+    def __str__(self):
+        return f'{self.name} - {self.amount} - {self.first_due_date} - {self.frequency}'

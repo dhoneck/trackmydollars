@@ -55,4 +55,9 @@ urlpatterns = [
     path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/add-expense-transaction', AddExpenseTransaction.as_view()),
     path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/expense-transaction/<int:etid>/update', UpdateExpenseTransaction.as_view()),
     path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/expense-transaction/<int:etid>/delete', DeleteExpenseTransaction.as_view()),
+    # Money Schedule
+    path('schedule/', views.view_schedule, name='schedule'),
+    path('schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-schedule-item'),
+    path('schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
+    path('schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
 ]

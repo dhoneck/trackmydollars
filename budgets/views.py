@@ -862,53 +862,66 @@ def view_transactions(request, month, year):
     return render(request, 'budgets/view_transactions.html', context)
 
 
-# # Schedule Views
-# def schedule(request):
-#     # Get current month and year to pass onto another view as a default
-#     current_month = datetime.now().strftime('%B').lower()
-#     current_year = datetime.now().year
-#     return HttpResponseRedirect(f'{current_month}/{current_year}')
-#
-#
-# def specific_schedule(request, month, year):
-#     # Check to make sure the month URL parameter is valid
-#     month = month.lower()
-#     if month != 'january' and month != 'february' and month != 'march' and month != 'april' and month != 'may' and \
-#             month != 'june' and month != 'july' and month != 'august' and month != 'september' and month != 'october' and \
-#             month != 'november' and month != 'december':
-#         return HttpResponseNotFound('Page not found')
-#     # TODO: add code to check for month abbreviations or month number (e.g. jan, feb, mar, 1, 2, 3, etc)
-#
-#     budget_items = BudgetItem.objects.order_by('date')
-#     abbr_month = month[0:3].capitalize()
-#     print(abbr_month)
-#     abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
-#     cm = abbr_to_num[abbr_month]
-#     print(cm)
-#     budget_items = BudgetItem.objects.filter(date__month=cm).order_by('date')
-#     return render(request, 'budgets/specific_schedule.html', {'budget_items': budget_items,
-#                                                               'month': month.capitalize(),
-#                                                               'year': year
-#                                                                 })
-#
-#
-# def schedule_add_item(request):
-#     if request.method == 'POST':
-#         form = BudgetItemForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.add_message(request, messages.INFO, 'Item was created successfully.')
-#             return HttpResponseRedirect('../')
-#     else:
-#         form = BudgetItemForm()
-#     return render(request, 'budgets/schedule_add_item.html', {'form': form})
-#
-#
-# def schedule_edit_item(request, id):
-#     return render(request, 'budgets/schedule_edit_item.html', {'id': id})
-#
+# Schedule Views
+def view_schedule(request):
+    context = {}
+
+    context['one_time'] = schedule_items = ScheduleItem.objects.filter(frequency='One time only').order_by('first_due_date')
+    context['weekly'] = schedule_items = ScheduleItem.objects.filter(frequency='Weekly').order_by('first_due_date')
+    context['every_two_weeks'] = schedule_items = ScheduleItem.objects.filter(frequency='Every two weeks').order_by('first_due_date')
+    context['monthly'] = schedule_items = ScheduleItem.objects.filter(frequency='Monthly').order_by('first_due_date')
+    context['every_two_months'] = schedule_items = ScheduleItem.objects.filter(frequency='Every two months').order_by('first_due_date')
+    context['quarterly'] = schedule_items = ScheduleItem.objects.filter(frequency='Quarterly').order_by('first_due_date')
+    context['every_six_months'] = schedule_items = ScheduleItem.objects.filter(frequency='Every six months').order_by('first_due_date')
+    context['yearly'] = schedule_items = ScheduleItem.objects.filter(frequency='Yearly').order_by('first_due_date')
+
+    yearly_amount = Decimal(0.00)
+
+    print('weekly total:', (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52)
+    print('every two weeks total:', (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26)
+    print('monthly total:', (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12)
+    print('every two months total:', (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6)
+    print('quarterly total:', (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4)
+    print('every six months total:', (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2)
+    print('one time total:', (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1)
+    print('yearly total:', (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1)
+
+    return render(request, 'schedule/view_schedule.html', context)
+
+
+class AddScheduleItem(SuccessMessageMixin, CreateView):
+    model = ScheduleItem
+    fields = '__all__'
+    template_name = 'schedule/add_schedule_item.html'
+    success_url = '/schedule/'
+    success_message = 'Schedule item successfully added!'
+
+
+class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
+    model = ScheduleItem
+    fields = '__all__'
+    template_name = 'schedule/update_schedule_item.html'
+    success_url = '/schedule/'
+    pk_url_kwarg = 'siid'
+    success_message = 'Schedule item successfully updated!'
+
+
+class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
+    model = ScheduleItem
+    template_name = 'schedule/delete_schedule_item.html'
+    success_url = '/schedule/'
+    pk_url_kwarg = 'siid'
+    success_message = 'Schedule item successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteScheduleItem, self).delete(request, *args, **kwargs)
+
+
+# # Transactions Views
 # def transactions(request):
 #     return render(request, 'budgets/transactions.html')
-# Report Views
+#
+# # Report Views
 # def reports(request):
 #     return render(request, 'budgets/reports.html')

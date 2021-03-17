@@ -1,0 +1,10 @@
+{% extends 'budgets/base.html' %}
+{% block title %}DollarTracker | Update Schedule Item{% endblock %}
+{% block content %}
+  <h2>Update Schedule Item</h2>
+  <form method="post">
+    {%  csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update Item">
+  </form>
+{% endblock %}
