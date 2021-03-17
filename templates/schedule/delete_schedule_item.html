@@ -3,7 +3,7 @@
 {% block content %}
   <h2>Delete Schedule Item</h2>
   <form method="post">{%  csrf_token %}
-    <p>Are you sure you want to delete the {{ object.date }} entry for ${{ object }} for "{{ object.debt }}"</p>
+    <p>Are you sure you want to delete "{{ object }}" and all of its related data?</p>
     <input type="submit" value="Delete Item">
   </form>
 {% endblock %}
