@@ -51,6 +51,7 @@
           <th>Income for {{ month }}</th>
           <th>Planned</th>
           <th>Received</th>
+          <th>Total Transactions</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -59,7 +60,8 @@
         <tr>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.name }}</a></td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.planned_amount }}</a></td>
-          <td><a href="income-budget-item/{{ x.id }}/view">n/a</a></td>
+          <td><a href="income-budget-item/{{ x.id }}/view">{{ x.total_received }}</a></td>
+          <td><a href="income-budget-item/{{ x.id }}/view">{{ x.total_transactions }}</a></td>
           <td>
             <a href="income-budget-item/{{ x.id }}/add-income-transaction"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
             <a href="income-budget-item/{{ x.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>

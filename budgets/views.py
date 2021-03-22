@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Sum
+from django.db.models import Sum, Count, F
 from django.contrib import messages
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
@@ -618,7 +618,16 @@ def specific_budget(request, month, year):
         total_remaining_old_debt = Decimal(0.00)
         total_remaining_debt = Decimal(0.00)
         print('Printing income budget items')
-        for item in bp.income_budget_items.all():
+
+        income_budget_items = bp.income_budget_items.annotate(total_received=(Sum('income_transactions__amount') or 0), total_transactions=Count('income_transactions'))
+
+        ec = bp.expense_categories.all(),
+        print(ec)
+        # print("income_budget_items:", ibi)
+        # for i in ibi:
+        #     print(i.total_transactions, '-', i.total_transaction_amount)
+        # income_budget_items = bp.income_budget_items.all()
+        for item in income_budget_items:
             # print(item)
             # print(item.income_transactions.all())
             total_planned_income += item.planned_amount
@@ -662,7 +671,7 @@ def specific_budget(request, month, year):
                   {
                    'month': month.capitalize(),
                    'year': year,
-                   'income_budget_items': bp.income_budget_items.all(),
+                   'income_budget_items': income_budget_items,
                    'expense_categories': bp.expense_categories.all(),
                    'total_planned_income': total_planned_income,
                    'total_planned_expenses': total_planned_expenses,
