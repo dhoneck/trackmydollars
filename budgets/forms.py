@@ -1,14 +1,6 @@
-from django.forms import ModelForm
-# from .models import BudgetItem, AccountItem
-#
-#
-# class BudgetItemForm(ModelForm):
-#     class Meta:
-#         model = BudgetItem
-#         fields = '__all__'
-#
-#
-# class AccountItemForm(ModelForm):
-#     class Meta:
-#         model = AccountItem
-#         fields = '__all__'
+from django.contrib.auth.forms import UserCreationForm
+
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        fields = UserCreationForm.Meta.fields + ("email",)

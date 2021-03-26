@@ -8,6 +8,7 @@ html {
 body {
   background-color: #F1F0F4;
   font-family: Roboto, sans-serif;
+  margin: 0;
 }
 
 a {
@@ -41,10 +42,35 @@ Header, Logo, Nav
   font-size: 1em;
   margin: 0;
 }
+
+.topnav {
+  background-color: #527EA5;;
+  display: inline-block;
+  width: 100%;
+  padding: 10px;
+}
+
+.topnav #logo {
+  display: block;
+  margin: 10px 16px 20px 16px;
+}
+
+.topnav a {
+  padding: 7px 16px 7px 16px;
+  background-color: lightcoral;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0px 2px 2px #888888;
+}
+
+/*.topnav a:first-of-type{*/
+/*  margin-left: 10px;*/
+/*}*/
+
 .sidenav {
   height: 100%;
   /*min-height: 400px;*/
-  width: 180px;
+  width: 190px;
   position: fixed;
   z-index: 1;
   top: 0;
@@ -64,12 +90,17 @@ Header, Logo, Nav
   box-shadow: 0px 2px 2px #888888;
 }
 
-.sidenav a:hover {
+.sidenav a:hover, .topnav a:hover {
   opacity: 0.8;
 }
 
 .content-container {
   margin: 30px 22px 0 200px; /* Same as the width of the sidenav */
+}
+
+.modified-content-container {
+  /*margin: 30px 22px 0 200px; !* Same as the width of the sidenav *!*/
+  margin: 26px 26px
 }
 
 /*******************************
@@ -173,6 +204,15 @@ button:hover {
   padding: 10px;
   border-radius: 10px;
 }
+
+label, input {
+   display: block;
+ }
+
+span.helptext {
+  display: none;
+}
+
 
 /*******************************
 Notifications

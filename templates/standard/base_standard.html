@@ -1,0 +1,29 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    {% block script %}{% endblock %}
+  </head>
+  <body>
+    <header>
+      <nav class="topnav">
+        <div id="logo">
+            <h1>TrackMyDollars</h1>
+            <h2>Budget and Finance Tracker</h2>
+        </div>
+        <a class='sidebar-links' href="{% url 'index' %}">Home</a>
+        <a class='sidebar-links' href="{% url 'about' %}">About</a>
+        <a class='sidebar-links' href="{% url 'contact' %}">Contact</a>
+{#        <a class='sidebar-links' href="{% url 'schedule' %}"></a>#}
+      </nav>
+    </header>
+    <div class="modified-content-container">
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

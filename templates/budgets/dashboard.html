@@ -3,6 +3,7 @@
 
 {% block content %}
   <h2>Dashboard</h2>
+  <p>Hello, {{ user.username|default:'Guest'|title }}!</p>
   <h3>Net Worth</h3>
   <table>
     <tr>

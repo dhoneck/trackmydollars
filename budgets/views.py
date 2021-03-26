@@ -9,6 +9,10 @@ from dateutil.relativedelta import relativedelta
 from decimal import *
 from .models import *
 from functools import partial
+from django.contrib.auth import login
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from budgets.forms import CustomUserCreationForm
 
 # TODO: Integrate user accounts
 # TODO: Add an add, update, and delete option on the income and expense budget item pages
@@ -18,8 +22,26 @@ from functools import partial
 # General Views
 def index(request):
     """ Redirects index view to dashboard """
-    return HttpResponseRedirect('dashboard/')
+    return render(request, 'standard/index.html',)
 
+def about(request):
+    return render(request, 'standard/about.html',)
+
+def contact(request):
+        return render(request, 'standard/contact.html',)
+
+def register(request):
+    if request.method == "GET":
+        return render(
+            request, "registration/register.html",
+            {"form": CustomUserCreationForm}
+        )
+    elif request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect(reverse("dashboard"))
 
 def dashboard(request):
     """ Shows an overview of the user's account """
