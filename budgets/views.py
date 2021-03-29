@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count
 from django.contrib import messages
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
@@ -13,24 +13,36 @@ from django.contrib.auth import login
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from budgets.forms import CustomUserCreationForm
+from django.contrib.auth.decorators import login_required
 
 # TODO: Integrate user accounts
 # TODO: Add an add, update, and delete option on the income and expense budget item pages
 # TODO: Add a "Back to Budget" button on each of the budget pages
 # TODO: Add a transaction page
 
+
 # General Views
 def index(request):
     """ Redirects index view to dashboard """
-    return render(request, 'standard/index.html',)
+    if request.user.is_authenticated:
+        return render(request, 'budgets/dashboard.html')
+    else:
+        return render(request, 'standard/index.html',)
+
 
 def about(request):
+    """ An about page describing the service """
     return render(request, 'standard/about.html',)
 
-def contact(request):
-        return render(request, 'standard/contact.html',)
 
+def contact(request):
+    """ A contact page for customer support or other feedback """
+    return render(request, 'standard/contact.html',)
+
+
+# Registration Views
 def register(request):
+    """ User registration page """
     if request.method == "GET":
         return render(
             request, "registration/register.html",
@@ -43,60 +55,63 @@ def register(request):
             login(request, user)
             return redirect(reverse("dashboard"))
 
+
+# User Based Views
+@login_required(login_url='../accounts/login/')
 def dashboard(request):
     """ Shows an overview of the user's account """
     # Sum Assets
-    asset_total = 0
-    for a in Asset.objects.all():
+    asset_total = Decimal(0.00)
+    for a in Asset.objects.filter(user=request.user.id):
         if a.balances.first() is not None:
-            asset_total += float(a.balances.first())
+            print(a.balances.first().balance)
+            asset_total += a.balances.first().balance
 
-    # Sum Debt
-    debt_total = 0
-    for d in InstallmentDebt.objects.all():
+    # Sum Debts
+    debt_total = Decimal(0.00)
+    for d in InstallmentDebt.objects.filter(user=request.user.id):
         if d.balances.first() is not None:
-            debt_total += float(d.balances.first())
+            debt_total += d.balances.first().balance
 
-    for d in RevolvingDebt.objects.all():
+    for d in RevolvingDebt.objects.filter(user=request.user.id):
         if d.balances.first() is not None:
-            debt_total += float(d.balances.first())
+            debt_total += d.balances.first().balance
 
     # Calculate Net Worth
     net_worth_total = asset_total - debt_total
 
     # Get a list of abbreviated month names and a list of tuples containing year and month as strings ex: ('2020', '3')
     month_labels, year_month_labels = get_last_12_months_labels()
-    print("Month Labels:", month_labels)
-    print("Year Month Labels:", year_month_labels)
+    # print('MONTH LABELS:', month_labels)
+    # print('YEAR MONTH LABELS:', year_month_labels)
 
     # Convert year_month_labels into years and months list
     years = [year[0] for year in year_month_labels]
     months = [year[1] for year in year_month_labels]
+    # print('YEARS:', years)
+    # print('MONTHS:', months)
 
     # Get a list of balances for assets, revolving debts, and installment debts for the last 12 months
-    asset_partial = partial(get_last_12_months_data, obj=Asset, obj_bal=AssetBalance)
+    asset_partial = partial(get_last_12_months_data, obj=Asset, obj_bal=AssetBalance, user=request.user.id)
     asset_data = list(map(asset_partial, years, months))
-    rev_debts_partial = partial(get_last_12_months_data, obj=RevolvingDebt, obj_bal=RevolvingDebtBalance)
+    rev_debts_partial = partial(get_last_12_months_data, obj=RevolvingDebt, obj_bal=RevolvingDebtBalance, user=request.user.id)
     rev_debts_data = list(map(rev_debts_partial, years, months))
-    inst_debts_partial = partial(get_last_12_months_data, obj=InstallmentDebt, obj_bal=InstallmentDebtBalance)
+    inst_debts_partial = partial(get_last_12_months_data, obj=InstallmentDebt, obj_bal=InstallmentDebtBalance, user=request.user.id)
     inst_debts_data = list(map(inst_debts_partial, years, months))
-
-    print(asset_data)
-    print(rev_debts_data)
-    print(inst_debts_data)
 
     debt_data = list(map(add_lists, rev_debts_data, inst_debts_data))
     net_worth_data = list(map(subtract_lists, asset_data, debt_data))
     debt_data_negative = [-d for d in debt_data]
 
+    formatted_totals = format_numbers(asset_total=asset_total,
+                                      debt_total=debt_total,
+                                      net_worth_total=net_worth_total)
 
-    # TODO: Change the format spacing dynamically
-    # TODO: Send the last 12 months of Net Worth Stats
     return render(request,
                   'budgets/dashboard.html',
-                  {'asset_total': str("${: 14,.2f}".format(asset_total)),
-                   'debt_total': str("${: 14,.2f}".format(debt_total)),
-                   'net_worth_total': str("${: 14,.2f}".format(net_worth_total)),
+                  {'asset_total': formatted_totals['asset_total'],
+                   'debt_total': formatted_totals['debt_total'],
+                   'net_worth_total': formatted_totals['net_worth_total'],
                    'labels': month_labels,
                    'asset_data': asset_data,
                    'debt_data': debt_data_negative,
@@ -105,11 +120,41 @@ def dashboard(request):
                   )
 
 
+def format_numbers(**kwargs):
+    """Formats strings to the correct amount of spaces based on longest number"""
+    # Get the length of the longest integral number
+    max_integral_length = 0
+    for value in kwargs.values():
+        len_of_value = len(str(value).split('.')[0])
+        if len_of_value > max_integral_length:
+            max_integral_length = len_of_value
+
+    # Calculate number of commas
+    commas = 0
+    if max_integral_length > 3:
+        commas = max_integral_length//3
+
+    # Add total length of formatted number
+    full_length = max_integral_length + commas + 3
+
+    # Format numbers based on longest length
+    formatted_numbers = {}
+    format_string = "$ {:" + str(full_length) + ",.2f}"
+    print('Format String', format_string)
+    print('Format String', type(format_string))
+    for key, value in kwargs.items():
+        formatted_numbers[key] = format_string.format(value)
+        # formatted_numbers[key] = "${: 14,.2f}".format(value)
+    return formatted_numbers
+
+
 def add_lists(x, y):
     return x + y
 
+
 def subtract_lists(x, y):
     return x - y
+
 
 def get_last_12_months_labels():
     """Get a list of abbreviated month names and a list of tuples containing year and month as strings"""
@@ -137,20 +182,17 @@ def get_last_12_months_labels():
     return month_labels, year_month_labels
 
 
-def get_last_12_months_data(year, month, obj, obj_bal):
+def get_last_12_months_data(year, month, obj, obj_bal, user):
     """Add up the balances for an object based on year and month"""
     total_for_month = Decimal(0.00)
 
     # Loop through all of the objects
-    for a in obj.objects.all():
-        print(f"Printing object {a}")
+    for a in obj.objects.filter(user=user):
 
         filter_args = {}
         if issubclass(obj, Asset):
-            # print('Asset Class!')
             filter_args['asset__id'] = a.id
         elif issubclass(obj, RevolvingDebt) or issubclass(obj, InstallmentDebt):
-            # print('Revolving Debt Class!')
             filter_args['debt__id'] = a.id
         else:
             print('No class found!')
@@ -158,112 +200,87 @@ def get_last_12_months_data(year, month, obj, obj_bal):
         filter_args['date__year'] = year
         filter_args['date__month'] = month
 
-        print(filter_args)
         bal = obj_bal.objects.filter(**filter_args).first()
-        print(obj_bal)
-        print()
-        print(f"{obj.__name__}, {obj_bal.__name__} ({year}, {month}) - {a.name} - {bal}")
-        print(f"{a.name} Balance for {month}, {year} is {bal}")
-        if bal != None:
-            print(f"Adding {a.name} to the balance")
+
+        if bal is not None:
             total_for_month += bal.balance
 
-        elif bal == None:  # Check for last balance entry
-            # print('Printing ID', a.id)
-
+        elif bal is None:  # Check for last balance entry
             # kwargs
             kwargs = {"date__lt": date(int(year), int(month), 1)}
             if issubclass(obj, Asset):
-                # print('Asset Class!')
                 kwargs['asset_id'] = a.id
             elif issubclass(obj, RevolvingDebt):
-                # print('Revolving Debt Class!')
                 kwargs['debt_id'] = a.id
             elif issubclass(obj, InstallmentDebt):
-                # print('Installment Debt Class!')
                 kwargs['debt_id'] = a.id
             else:
                 print('No class found!')
 
-
             remaining_balance = obj_bal.objects.filter(**kwargs).first()
-            # print("Next Most Recent Balance:")
-            # print(remaining_balance)
-            if remaining_balance != None:
+            if remaining_balance is not None:
                 total_for_month += remaining_balance.balance
 
     return float(total_for_month)
 
-# def get_last_12_months_data(year, month):
-#     asset_total_for_month = Decimal(0.00)
-#     for a in Asset.objects.all():
-#         print(f"\nCurrent asset: {a.name}")
-#         asset_bal = AssetBalance.objects.filter(asset_id=a.id, date__year=year, date__month=month).first()
-#         print(f"Asset Balance for {month}, {year} is {asset_bal}")
-#         if asset_bal != None:
-#             asset_total_for_month += asset_bal.balance
-#
-#         elif asset_bal == None:  # Check for last balance entry
-#             remaining_balance = AssetBalance.objects.filter(
-#                 asset_id=a.id,
-#                 date__lt=date(int(year), int(month), 1)
-#             ).first()
-#             print("Next Most Recent Balance:")
-#             print(remaining_balance)
-#             if remaining_balance != None:
-#                 asset_total_for_month += remaining_balance.balance
-#
-#     return float(asset_total_for_month)
-
 
 # Asset Views
+@login_required(login_url='../accounts/login/')
 def assets_debts(request):
-    # TODO: Calculate padding for net worth figures
     # TODO: Fix number alignment
     # TODO: Fix months to be abbreviated - e.g. March should be mar instead of March
-    assets = Asset.objects.order_by('name')
-    installment_debts = InstallmentDebt.objects.order_by('name')
-    revolving_debts = RevolvingDebt.objects.order_by('name')
+    assets = Asset.objects.filter(user=request.user.id).order_by('name')
+    installment_debts = InstallmentDebt.objects.filter(user=request.user.id).order_by('name')
+    revolving_debts = RevolvingDebt.objects.filter(user=request.user.id).order_by('name')
 
     # Net Worth Stats
     asset_total = 0
-    for a in Asset.objects.all():
+    for a in assets:
         if a.balances.first() is not None:
             asset_total += float(a.balances.first())
     #
     debt_total = 0
-    for d in InstallmentDebt.objects.all():
+    for d in installment_debts:
         if d.balances.first() is not None:
             debt_total += float(d.balances.first())
 
-    for d in RevolvingDebt.objects.all():
+    for d in revolving_debts:
         if d.balances.first() is not None:
             debt_total += float(d.balances.first())
 
     net_worth_total = asset_total - debt_total
 
+    formatted_totals = format_numbers(asset_total=asset_total,
+                                      debt_total=debt_total,
+                                      net_worth_total=net_worth_total)
     return render(request,
                   'budgets/assets_debts.html',
                   {'assets': assets,
                    'installment_debts': installment_debts,
                    'revolving_debts': revolving_debts,
-                   'asset_total': str("${: 12,.2f}".format(asset_total)),
-                   'debt_total': str("${: 12,.2f}".format(debt_total)),
-                   'net_worth_total': str("${: 12,.2f}".format(net_worth_total))}
+                   'asset_total': formatted_totals['asset_total'],
+                   'debt_total': formatted_totals['debt_total'],
+                   'net_worth_total': formatted_totals['net_worth_total']}
                   )
 
 
 class AddAsset(SuccessMessageMixin, CreateView):
+    # https://stackoverflow.com/questions/21652073/django-how-to-set-a-hidden-field-on-a-generic-create-view
     model = Asset
-    fields = '__all__'
+    fields = ['name', 'asset_type']
     template_name = 'budgets/add_asset.html'
     success_url = '../assets-debts'
     success_message = 'Asset successfully added!'
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddAsset, self).form_valid(form)
+
 
 class UpdateAsset(SuccessMessageMixin, UpdateView):
     model = Asset
-    fields = '__all__'
+    fields = ['name', 'asset_type']
     template_name = 'budgets/update_asset.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -293,7 +310,7 @@ class DeleteAsset(SuccessMessageMixin, DeleteView):
 
 class AddAssetBalance(SuccessMessageMixin, CreateView):
     model = AssetBalance
-    fields = '__all__'
+    fields = ['asset', 'balance', 'date']
     template_name = 'budgets/add_asset_balance.html'
     success_url = '../view'
     success_message = 'Asset balance successfully added!'
@@ -303,6 +320,10 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
                 'date': datetime.today().strftime("%Y-%m-%d"),
                 }
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddAssetBalance, self).form_valid(form)
 
 class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
     model = AssetBalance
@@ -328,31 +349,33 @@ class DeleteAssetBalance(SuccessMessageMixin, DeleteView):
 # Debt Views
 class AddInstallmentDebt(SuccessMessageMixin, CreateView):
     model = InstallmentDebt
-    fields = '__all__'
+    fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date', 'date_opened']
     template_name = 'budgets/add_installment_debt.html'
     success_url = '../assets-debts'
     success_message = 'Installment debt successfully added!'
 
-
-class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
-    model = InstallmentDebtBalance
-    fields = '__all__'
-    template_name = 'budgets/add_installment_debt_balance.html'
-    success_url = '../assets-debts'
-    success_message = 'Installment debt successfully added!'
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddInstallmentDebt, self).form_valid(form)
 
 
 class AddRevolvingDebt(SuccessMessageMixin, CreateView):
     model = RevolvingDebt
-    fields = '__all__'
-    template_name = 'budgets/add_revolving_debt_balance.html'
+    fields = ['name', 'type', 'interest_rate', 'credit_limit', 'date_opened']
+    template_name = 'budgets/add_revolving_debt.html'
     success_url = '../assets-debts'
     success_message = 'Revolving debt successfully added!'
+
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddRevolvingDebt, self).form_valid(form)
 
 
 class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
     model = RevolvingDebtBalance
-    fields = '__all__'
+    fields = ['debt', 'balance', 'date',]
     template_name = 'budgets/add_revolving_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
@@ -362,6 +385,10 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
                 'date': datetime.today().strftime("%Y-%m-%d"),
                 }
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddRevolvingDebtBalance, self).form_valid(form)
 
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
@@ -407,7 +434,7 @@ class DeleteRevolvingDebt(SuccessMessageMixin, DeleteView):
 
 class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
     model = InstallmentDebtBalance
-    fields = '__all__'
+    fields = ['debt', 'balance', 'date']
     template_name = 'budgets/add_installment_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
@@ -417,6 +444,10 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
                 'date': datetime.today().strftime("%Y-%m-%d"),
                 }
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddInstallmentDebtBalance, self).form_valid(form)
 
 class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
     model = InstallmentDebtBalance
@@ -448,7 +479,6 @@ class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
     success_message = 'Debt balance successfully updated!'
 
 
-# New Classes as of 3-14-21
 class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
     model = IncomeBudgetItem
     fields = '__all__'
@@ -564,8 +594,8 @@ class DeleteRevolvingDebtBalance(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteRevolvingDebtBalance, self).delete(request, *args, **kwargs)
-#
-#
+
+
 def view_installment_debt_details(request, id):
     context = {}
     try:
@@ -621,6 +651,7 @@ class AddBudget(SuccessMessageMixin, CreateView):
         context['year'] = year
         return context
 
+
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
     # TODO: Get the received field to work - total the actual income and savings
@@ -656,7 +687,6 @@ def specific_budget(request, month, year):
             # Total income transactions
             for t in item.income_transactions.all():
                 total_actual_income += t.amount
-
 
         # Sum the planned expenses
         old_debt_paid = Decimal(0.00)
@@ -711,6 +741,7 @@ def specific_budget(request, month, year):
                   }
                   )
 
+
 def change_budget(request, month, year):
     month = datetime.strptime(month, '%B').month
     current_budget = datetime(day=1, month=month, year=year)
@@ -735,6 +766,7 @@ def view_income_budget_item(request, month, year, ibiid):
     except IncomeBudgetItem.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'budgets/view_income_budget_item.html', context)
+
 
 def view_expense_budget_item(request, month, year, ecid, ebiid):
     context = {}
@@ -794,8 +826,6 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
         return context
 
 
-
-
 class AddExpenseCategory(SuccessMessageMixin, CreateView):
     model = ExpenseCategory
     fields = '__all__'
@@ -849,7 +879,6 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         return context
 
 
-
 class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
@@ -863,6 +892,7 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
         return {'expense_category': ecid,
                 }
 
+
 class DeleteBudget(SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
     template_name = 'budgets/delete_budget.html'
@@ -873,6 +903,7 @@ class DeleteBudget(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteBudget, self).delete(request, *args, **kwargs)
+
 
 def view_transactions(request, month, year):
     print('Viewing transactions')

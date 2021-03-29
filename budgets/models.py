@@ -41,7 +41,8 @@ NEED_WANT_SAVINGS_DEBT = (
 
 # Asset and Debt Models
 class Asset(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    name = models.CharField(max_length=50)
     asset_type = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
@@ -52,12 +53,13 @@ class Asset(models.Model):
 
     class Meta:
         ordering = ('name',)
+        unique_together = ('user', 'name',)
 
 
 class Debt(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True, default='')
-    initial_balance = models.DecimalField(max_digits=11, decimal_places=2, blank=True, default=0.00)
     interest_rate = models.DecimalField(max_digits=9, decimal_places=4, blank=True, null=True)
     date_opened = models.DateField(blank=True, null=True)
 
@@ -69,10 +71,12 @@ class Debt(models.Model):
 
     class Meta:
         ordering = ('name',)
+        unique_together = ('user', 'name',)
         abstract = True
 
 
 class InstallmentDebt(Debt):
+    initial_amount = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     minimum_payment = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     payoff_date = models.DateField(blank=True, null=True)
 
@@ -82,6 +86,7 @@ class RevolvingDebt(Debt):
 
 
 class Balance(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     balance = models.DecimalField(max_digits=9, decimal_places=2)
     date = models.DateField(blank=True, null=True)
 
@@ -154,6 +159,7 @@ class BudgetPeriod(models.Model):
         (11, 'Nov'),
         (12, 'Dec'),
     )
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
 
@@ -166,6 +172,7 @@ class BudgetPeriod(models.Model):
 
 
 class IncomeBudgetItem(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -182,6 +189,7 @@ class IncomeTransaction(models.Model):
     # TODO: Add limited_choices_to in budget_item to prevent seeing other months items
     # https://stackoverflow.com/questions/31578559/django-foreignkey-limit-choices-to-a-different-foreignkey-id
     # https://stackoverflow.com/questions/7133455/django-limit-choices-to-doesnt-work-on-manytomanyfield
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     budget_item = models.ForeignKey('IncomeBudgetItem',
                                     on_delete=models.CASCADE,
                                     related_name='income_transactions',
@@ -206,6 +214,7 @@ class IncomeTransaction(models.Model):
 
 
 class ExpenseCategory(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='expense_categories')
     name = models.CharField(max_length=50)
 
@@ -218,6 +227,7 @@ class ExpenseCategory(models.Model):
 
 
 class ExpenseBudgetItem(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -237,6 +247,7 @@ class ExpenseBudgetItem(models.Model):
 
 
 class ExpenseTransaction(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     expense_budget_item = models.ForeignKey('ExpenseBudgetItem', on_delete=models.CASCADE, related_name='expense_transactions')
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -249,6 +260,7 @@ class ExpenseTransaction(models.Model):
 
 
 class ScheduleItem(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     first_due_date = models.DateField()

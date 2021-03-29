@@ -11,7 +11,7 @@ class AssetBalanceAdmin(admin.ModelAdmin):
 
 
 class InstallmentDebtAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'initial_balance', 'interest_rate', 'date_opened')
+    list_display = ('name', 'type', 'interest_rate', 'date_opened')
 
 
 class InstallmentDebtBalanceAdmin(admin.ModelAdmin):

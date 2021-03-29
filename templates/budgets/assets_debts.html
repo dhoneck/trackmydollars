@@ -37,11 +37,12 @@
       <div class="button-container">
         <button onclick="window.location.href = '{% url 'add-asset' %}';">Add Asset</button>
       </div>
+      {% if assets  %}
       <table class="asset-debt-table">
         <tr>
           <th>Asset Name</th>
           <th>Asset Type</th>
-          <th>Asset Amount</th>
+          <th>Current Value</th>
           <th>Last Updated</th>
         {% for item in assets %}
           <tr>
@@ -58,36 +59,53 @@
       </table>
       <br>
       <br>
+      {% endif %}
+      <br>
+      <br>
 
       <h3>Installment Debts</h3>
       <div class="button-container">
         <button onclick="window.location.href = '{% url 'add-installment-debt' %}';">Add Installment Debt</button>
       </div>
+      {% if installment_debts  %}
       <table class="asset-debt-table">
         <tr>
           <th>Debt Name</th>
           <th>Debt Type</th>
-          <th>Debt Amount</th>
-          <th>Initial Amount</th>
-          <th>Minimum Payment</th>
-          <th>Payoff Date</th>
+          <th>Initial Balance</th>
+          <th>Current Balance</th>
           <th>Last Updated</th>
           {% for item in installment_debts %}
             <tr>
               <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
-              <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% if item.type %}
+                <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% else %}
+                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+
+              {% if item.initial_amount %}
+                <td><a href="installment-debts/{{ item.id }}/view">${{ item.initial_amount }}</a></td>
+              {% else %}
+                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
               {% if item.balances.first %}
                 <td><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
               {% else %}
-                <td></td>
+                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
-              <td><a href="installment-debts/{{ item.id }}/view">${{ item.initial_balance }}</a></td>
-              <td><a href="installment-debts/{{ item.id }}/view">${{ item.minimum_payment }}</a></td>
-              <td><a href="installment-debts/{{ item.id }}/view">{{ item.payoff_date }}</a></td>
-              <td><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+
+              {% if item.balances.first.date %}
+                <td><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+              {% elif item.date_opened %}
+                <td><a href="installment-debts/{{ item.id }}/view">{{ item.date_opened }}</a></td>
+              {% else %}
+                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
             </tr>
           {% endfor %}
       </table>
+      {% endif %}
       <br>
       <br>
 
@@ -95,27 +113,44 @@
       <div class="button-container">
         <button onclick="window.location.href = '{% url 'add-revolving-debt' %}';">Add Revolving Debt</button>
       </div>
+      {% if revolving_debts  %}
       <table class="asset-debt-table">
         <tr>
           <th>Debt Name</th>
           <th>Debt Type</th>
-          <th>Debt Amount</th>
           <th>Credit Limit</th>
+          <th>Current Balance</th>
           <th>Last Updated</th>
           {% for item in revolving_debts %}
             <tr>
               <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
-              <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% if item.type %}
+                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% else %}
+                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+              {% if item.credit_limit %}
+                <td><a href="revolving-debts/{{ item.id }}/view">${{ item.credit_limit }}</a></td>
+              {% else %}
+                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
               {% if item.balances.first %}
                 <td><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
               {% else %}
-                <td></td>
+                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
-              <td><a href="revolving-debts/{{ item.id }}/view">{{ item.credit_limit }}</a></td>
-              <td><a href="revolvingdebts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+
+              {% if item.balances.first.date %}
+                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+              {% elif item.date_opened %}
+                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.date_opened }}</a></td>
+              {% else %}
+                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
             </tr>
           {% endfor %}
       </table>
+      {% endif %}
       <br>
       <br>
 {% endblock %}
