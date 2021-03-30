@@ -327,7 +327,7 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
 
 class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
     model = AssetBalance
-    fields = '__all__'
+    fields = ['asset', 'balance', 'date']
     template_name = 'budgets/update_asset_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
@@ -392,7 +392,7 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
 
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
-    fields = '__all__'
+    fields = ['name', 'type', 'interest_rate', 'date_opened', 'initial_amount', 'minimum_payment', 'payoff_date']
     template_name = 'budgets/update_installment_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -413,7 +413,7 @@ class DeleteInstallmentDebt(SuccessMessageMixin, DeleteView):
 
 class UpdateRevolvingDebt(SuccessMessageMixin, UpdateView):
     model = RevolvingDebt
-    fields = '__all__'
+    fields = ['name', 'type', 'interest_rate', 'date_opened', 'credit_limit']
     template_name = 'budgets/update_revolving_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -451,7 +451,7 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
 
 class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
     model = InstallmentDebtBalance
-    fields = '__all__'
+    fields = ['debt', 'balance', 'date']
     template_name = 'budgets/update_installment_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
@@ -472,7 +472,7 @@ class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
 
 class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
     model = RevolvingDebtBalance
-    fields = '__all__'
+    fields = ['debt', 'balance', 'date']
     template_name = 'budgets/update_revolving_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'

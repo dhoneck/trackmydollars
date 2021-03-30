@@ -47,13 +47,24 @@
         {% for item in assets %}
           <tr>
             <td><a href="assets/{{ item.id }}/view">{{ item.name }}</a></td>
-            <td><a href="assets/{{ item.id }}/view">{{ item.asset_type }}</a></td>
+
+            {% if item.type %}
+              <td><a href="assets/{{ item.id }}/view">{{ item.type }}</a></td>
+            {% else %}
+              <td><a href="assets/{{ item.id }}/view">n/a</a></td>
+            {% endif %}
+
             {% if item.balances.first %}
               <td><a href="assets/{{ item.id }}/view">${{ item.balances.first }}</a></td>
             {% else %}
-              <td></td>
+              <td><a href="assets/{{ item.id }}/view">n/a</a></td>
             {% endif %}
-            <td><a href="assets/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+
+            {% if item.balances.first.date %}
+              <td><a href="assets/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+            {% else %}
+              <td><a href="assets/{{ item.id }}/view">n/a</a></td>
+            {% endif %}
           </tr>
         {% endfor %}
       </table>
@@ -78,6 +89,7 @@
           {% for item in installment_debts %}
             <tr>
               <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+
               {% if item.type %}
                 <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
               {% else %}
@@ -89,6 +101,7 @@
               {% else %}
                 <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
+
               {% if item.balances.first %}
                 <td><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
               {% else %}
@@ -124,16 +137,19 @@
           {% for item in revolving_debts %}
             <tr>
               <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+
               {% if item.type %}
                 <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
               {% else %}
                 <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
+
               {% if item.credit_limit %}
                 <td><a href="revolving-debts/{{ item.id }}/view">${{ item.credit_limit }}</a></td>
               {% else %}
                 <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
+
               {% if item.balances.first %}
                 <td><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
               {% else %}

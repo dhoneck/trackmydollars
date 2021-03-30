@@ -3,7 +3,7 @@ from .models import *
 
 
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'asset_type')
+    list_display = ('name', 'type')
 
 
 class AssetBalanceAdmin(admin.ModelAdmin):

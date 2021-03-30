@@ -43,13 +43,13 @@ NEED_WANT_SAVINGS_DEBT = (
 class Asset(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
-    asset_type = models.CharField(max_length=50, blank=True)
+    type = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
-        if self.asset_type == '':
+        if self.type == '':
             return self.name
         else:
-            return self.name + ' - ' + self.asset_type
+            return self.name + ' - ' + self.type
 
     class Meta:
         ordering = ('name',)
@@ -108,7 +108,7 @@ class AssetBalance(Balance):
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE, related_name='balances')
 
     class Meta:
-        unique_together = ('asset', 'date',)
+        unique_together = ('user', 'asset', 'date',)
         ordering = ('-date', 'asset')
 
 
@@ -116,7 +116,7 @@ class InstallmentDebtBalance(Balance):
     debt = models.ForeignKey('InstallmentDebt', on_delete=models.CASCADE, related_name='balances')
 
     class Meta:
-        unique_together = ('debt', 'date',)
+        unique_together = ('user', 'debt', 'date',)
         ordering = ('-date', 'debt')
 
 
@@ -124,7 +124,7 @@ class RevolvingDebtBalance(Balance):
     debt = models.ForeignKey('RevolvingDebt', on_delete=models.CASCADE, related_name='balances')
 
     class Meta:
-        unique_together = ('debt', 'date',)
+        unique_together = ('user', 'debt', 'date',)
         ordering = ('-date', 'debt')
 
 
