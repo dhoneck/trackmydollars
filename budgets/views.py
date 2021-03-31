@@ -15,10 +15,13 @@ from django.urls import reverse
 from budgets.forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 
-# TODO: Integrate user accounts
-# TODO: Add an add, update, and delete option on the income and expense budget item pages
-# TODO: Add a "Back to Budget" button on each of the budget pages
+# TODO: Get users to sign in by email
+# TODO: Prevent users from being able to access each other's data
 # TODO: Add a transaction page
+# TODO: Add a template budget page and functionality
+# TODO: Allow users to delete expense categories
+# TODO: Implement money schedule imports into budget
+# TODO: Figure out old and new debt in budget
 
 
 # General Views
@@ -264,10 +267,11 @@ def assets_debts(request):
                   )
 
 
+# @login_required(login_url='../accounts/login/')
 class AddAsset(SuccessMessageMixin, CreateView):
     # https://stackoverflow.com/questions/21652073/django-how-to-set-a-hidden-field-on-a-generic-create-view
     model = Asset
-    fields = ['name', 'asset_type']
+    fields = ['name', 'type']
     template_name = 'budgets/add_asset.html'
     success_url = '../assets-debts'
     success_message = 'Asset successfully added!'
@@ -280,7 +284,7 @@ class AddAsset(SuccessMessageMixin, CreateView):
 
 class UpdateAsset(SuccessMessageMixin, UpdateView):
     model = Asset
-    fields = ['name', 'asset_type']
+    fields = ['name', 'type']
     template_name = 'budgets/update_asset.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -626,7 +630,7 @@ def budget(request):
 
 class AddBudget(SuccessMessageMixin, CreateView):
     model = BudgetPeriod
-    fields = '__all__'
+    fields = ['month', 'year']
     template_name = 'budgets/add_budget.html'
     success_url = '../'
     success_message = 'Budget successfully added!'
@@ -651,6 +655,11 @@ class AddBudget(SuccessMessageMixin, CreateView):
         context['year'] = year
         return context
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddBudget, self).form_valid(form)
+
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
@@ -658,7 +667,7 @@ def specific_budget(request, month, year):
     try:
         datetime_object = datetime.strptime(month, '%B')
         month_by_num = datetime_object.month
-        bp = BudgetPeriod.objects.get(month=month_by_num, year=year)
+        bp = BudgetPeriod.objects.get(user=request.user.id, month=month_by_num, year=year)
 
         total_planned_income = Decimal(0.00)
         total_planned_expenses = Decimal(0.00)
@@ -674,7 +683,7 @@ def specific_budget(request, month, year):
 
         income_budget_items = bp.income_budget_items.annotate(total_received=(Sum('income_transactions__amount') or 0), total_transactions=Count('income_transactions'))
 
-        ec = bp.expense_categories.all(),
+        ec = bp.expense_categories.filter(user=request.user.id),
         print(ec)
         # print("income_budget_items:", ibi)
         # for i in ibi:
@@ -779,7 +788,7 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
 
 class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
     model = IncomeBudgetItem
-    fields = '__all__'
+    fields = ['budget_period', 'name', 'planned_amount']
     template_name = 'budgets/add_income_budget_item.html'
     success_url = './'
     success_message = 'Income budget item successfully added!'
@@ -788,9 +797,9 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
         bpid = None
         try:
             m = datetime.strptime(self.request.get_full_path().split('/')[-3], '%B').month
-            bpid = BudgetPeriod.objects.get(month=m, year=int(self.request.get_full_path().split('/')[-2]))
+            bpid = BudgetPeriod.objects.get(user=self.request.user, month=m, year=int(self.request.get_full_path().split('/')[-2]))
             print(bpid)
-            # print(m)
+            print(m)
         except:
             print('In except clause')
         print(self.request.get_full_path().split('/')[-2])
@@ -798,11 +807,16 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
         return {'budget_period': bpid,
                 }
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddIncomeBudgetItem, self).form_valid(form)
+
 
 class AddIncomeTransaction(SuccessMessageMixin, CreateView):
     print('AddingIncomeTransaction')
     model = IncomeTransaction
-    fields = '__all__'
+    fields = ['budget_item', 'name', 'amount', 'date']
     template_name = 'budgets/add_income_transaction.html'
     success_message = 'Income transaction successfully added!'
 
@@ -825,10 +839,14 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
             context['destination'] = 'back_to_budget_view'
         return context
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddIncomeTransaction, self).form_valid(form)
 
 class AddExpenseCategory(SuccessMessageMixin, CreateView):
     model = ExpenseCategory
-    fields = '__all__'
+    fields = ['budget_period', 'name']
     template_name = 'budgets/add_expense_category.html'
     success_url = './'
     success_message = 'Expense category successfully added!'
@@ -842,18 +860,22 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
             print(month)
             year = split_url[-2]
             print(month, year)
-            bpid = BudgetPeriod.objects.get(month=month, year=year)
+            bpid = BudgetPeriod.objects.get(user=self.request.user, month=month, year=year)
             print(bpid)
             # print(m)
         except:
             print('In except clause')
         return {'budget_period': bpid,}
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddExpenseCategory, self).form_valid(form)
 
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(SuccessMessageMixin, CreateView):
     model = ExpenseTransaction
-    fields = '__all__'
+    fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'credit_payoff', 'date']
     template_name = 'budgets/add_expense_transaction.html'
     success_url = '../../../../'
     success_message = 'Expense transaction successfully added!'
@@ -878,11 +900,15 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
             context['destination'] = 'back_to_budget_view'
         return context
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddExpenseTransaction, self).form_valid(form)
 
 class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
-    fields = '__all__'
+    fields = ['expense_category', 'name', 'planned_amount', 'credit_debt']
     template_name = 'budgets/add_expense_budget_item.html'
     success_url = '../../'
     success_message = 'Expense budget item successfully added!'
@@ -892,6 +918,10 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
         return {'expense_category': ecid,
                 }
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddExpenseBudgetItem, self).form_valid(form)
 
 class DeleteBudget(SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
@@ -928,14 +958,14 @@ def view_transactions(request, month, year):
 def view_schedule(request):
     context = {}
 
-    context['one_time'] = schedule_items = ScheduleItem.objects.filter(frequency='One time only').order_by('first_due_date')
-    context['weekly'] = schedule_items = ScheduleItem.objects.filter(frequency='Weekly').order_by('first_due_date')
-    context['every_two_weeks'] = schedule_items = ScheduleItem.objects.filter(frequency='Every two weeks').order_by('first_due_date')
-    context['monthly'] = schedule_items = ScheduleItem.objects.filter(frequency='Monthly').order_by('first_due_date')
-    context['every_two_months'] = schedule_items = ScheduleItem.objects.filter(frequency='Every two months').order_by('first_due_date')
-    context['quarterly'] = schedule_items = ScheduleItem.objects.filter(frequency='Quarterly').order_by('first_due_date')
-    context['every_six_months'] = schedule_items = ScheduleItem.objects.filter(frequency='Every six months').order_by('first_due_date')
-    context['yearly'] = schedule_items = ScheduleItem.objects.filter(frequency='Yearly').order_by('first_due_date')
+    context['one_time'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date')
+    context['weekly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date')
+    context['every_two_weeks'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date')
+    context['monthly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date')
+    context['every_two_months'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date')
+    context['quarterly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date')
+    context['every_six_months'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date')
+    context['yearly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date')
 
     yearly_amount = Decimal(0.00)
 
@@ -953,15 +983,19 @@ def view_schedule(request):
 
 class AddScheduleItem(SuccessMessageMixin, CreateView):
     model = ScheduleItem
-    fields = '__all__'
+    fields = ['name', 'amount', 'first_due_date', 'frequency']
     template_name = 'schedule/add_schedule_item.html'
     success_url = '/schedule/'
     success_message = 'Schedule item successfully added!'
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(AddScheduleItem, self).form_valid(form)
 
 class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
     model = ScheduleItem
-    fields = '__all__'
+    fields = ['name', 'amount', 'first_due_date', 'frequency']
     template_name = 'schedule/update_schedule_item.html'
     success_url = '/schedule/'
     pk_url_kwarg = 'siid'

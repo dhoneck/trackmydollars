@@ -164,7 +164,7 @@ class BudgetPeriod(models.Model):
     year = models.PositiveIntegerField(default=datetime.today().year)
 
     class Meta:
-        unique_together = ('month', 'year',)
+        unique_together = ('user', 'month', 'year',)
         verbose_name_plural = 'Monthly budget info'
 
     def __str__(self):
@@ -182,7 +182,7 @@ class IncomeBudgetItem(models.Model):
 
     class Meta:
         ordering = ('-planned_amount', 'name',)
-        unique_together = ('budget_period', 'name',)
+        unique_together = ('user', 'budget_period', 'name',)
 
 
 class IncomeTransaction(models.Model):
@@ -210,7 +210,7 @@ class IncomeTransaction(models.Model):
 
     class Meta:
         ordering = ('-amount', 'name',)
-        unique_together = ('budget_item', 'name',)
+        unique_together = ('user', 'budget_item', 'name',)
 
 
 class ExpenseCategory(models.Model):
@@ -223,7 +223,7 @@ class ExpenseCategory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Expense categories'
-        unique_together = ('name', 'budget_period')
+        unique_together = ('user', 'name', 'budget_period')
 
 
 class ExpenseBudgetItem(models.Model):
@@ -243,7 +243,7 @@ class ExpenseBudgetItem(models.Model):
             return float(self.amount)
 
     class Meta:
-        unique_together = ('name', 'expense_category')
+        unique_together = ('user', 'name', 'expense_category')
 
 
 class ExpenseTransaction(models.Model):
