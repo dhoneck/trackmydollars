@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath track-my-dollars track-my-dollars.wsgi --log-file -
+web: gunicorn --pythonpath DollarTracker DollarTracker.wsgi --log-file -
