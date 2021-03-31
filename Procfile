@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath DollarTracker DollarTracker.wsgi --log-file -
+web: gunicorn --pythonpath DollarTracker DollarTracker.deploy --log-file -
