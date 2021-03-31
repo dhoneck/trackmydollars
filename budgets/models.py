@@ -7,7 +7,6 @@ INCOME_OR_EXPENSE = (
 )
 
 FREQUENCY = (
-    ('One time only', 'One time only'),
     ('Weekly', 'Weekly'),
     ('Every two weeks', 'Every two weeks'),
     ('Monthly', 'Monthly'),
@@ -15,6 +14,7 @@ FREQUENCY = (
     ('Quarterly', 'Quarterly'),
     ('Every six months', 'Every six months'),
     ('Yearly', 'Yearly'),
+    ('One time only', 'One time only'),
 )
 
 MONTHS = (
@@ -264,6 +264,7 @@ class ScheduleItem(models.Model):
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     first_due_date = models.DateField()
+    # end_date = models.DateField()
     frequency = models.CharField(max_length=50, choices=FREQUENCY)
 
     def __str__(self):

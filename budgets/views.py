@@ -958,7 +958,6 @@ def view_transactions(request, month, year):
 def view_schedule(request):
     context = {}
 
-    context['one_time'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date')
     context['weekly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date')
     context['every_two_weeks'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date')
     context['monthly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date')
@@ -966,17 +965,35 @@ def view_schedule(request):
     context['quarterly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date')
     context['every_six_months'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date')
     context['yearly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date')
+    context['one_time'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date')
 
     yearly_amount = Decimal(0.00)
 
-    print('weekly total:', (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52)
-    print('every two weeks total:', (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26)
-    print('monthly total:', (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12)
-    print('every two months total:', (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6)
-    print('quarterly total:', (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4)
-    print('every six months total:', (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2)
-    print('one time total:', (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1)
-    print('yearly total:', (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1)
+    totals = {}
+    totals['weekly_total'] = (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52
+    totals['every_two_weeks_total'] = (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26
+    totals['monthly_total'] = (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12
+    totals['every_two_months_total'] = (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6
+    totals['quarterly_total'] = (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4
+    totals['every_six_months_total'] = (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2
+    totals['yearly_total'] = (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1
+    totals['one_time_total'] = (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1
+
+    entire_total = Decimal(0.00)
+    non_monthly_total = Decimal(0.00)
+
+    for key, value in totals.items():
+        if key != 'monthly_total':
+            non_monthly_total += value
+        entire_total += value
+    print(entire_total)
+    print(non_monthly_total)
+    totals['entire_total'] = entire_total
+    totals['non_monthly_total'] = non_monthly_total
+
+    totals['monthly_non_monthly_total'] = Decimal("{:.2f}".format(non_monthly_total / 12))
+
+    context['totals'] = totals
 
     return render(request, 'schedule/view_schedule.html', context)
 
