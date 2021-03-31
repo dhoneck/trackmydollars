@@ -2,7 +2,7 @@ import dj_database_url
 
 from DollarTracker.settings import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = [
