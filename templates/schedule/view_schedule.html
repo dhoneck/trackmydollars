@@ -42,8 +42,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -52,7 +52,7 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -71,8 +71,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -81,7 +81,8 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -100,8 +101,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -110,7 +111,7 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -129,8 +130,8 @@
     <tr>
       <th>Name</th>
       <th>Amount</th>
-      <th>Date</th>
-      <th>Frequency</th>
+      <th>Start Date</th>
+      <th>Next Due Date</th>
       <th>Actions</th>
     </tr>
     </thead>
@@ -139,7 +140,7 @@
         <td><a href="">{{ item.name }}</a></td>
         <td><a href="">{{ item.amount }}</a></td>
         <td><a href="">{{ item.first_due_date }}</a></td>
-        <td><a href="">{{ item.frequency }}</a></td>
+        <td><a href="">{{ item.get_next_payment }}</a></td>
         <td>
           <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
           <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -158,8 +159,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -168,7 +169,7 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -187,8 +188,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -197,7 +198,7 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -216,8 +217,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -226,7 +227,7 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
@@ -245,8 +246,8 @@
       <tr>
         <th>Name</th>
         <th>Amount</th>
-        <th>Date</th>
-        <th>Frequency</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -255,7 +256,7 @@
           <td><a href="">{{ item.name }}</a></td>
           <td><a href="">{{ item.amount }}</a></td>
           <td><a href="">{{ item.first_due_date }}</a></td>
-          <td><a href="">{{ item.frequency }}</a></td>
+          <td><a href="">{{ item.get_next_payment }}</a></td>
           <td>
             <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>

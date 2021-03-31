@@ -60,8 +60,8 @@
         <tr>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.name }}</a></td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.planned_amount }}</a></td>
-          <td><a href="income-budget-item/{{ x.id }}/view">{{ x.total_received }}</a></td>
-          <td><a href="income-budget-item/{{ x.id }}/view">{{ x.total_transactions }}</a></td>
+          <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_received }}</a></td>
+          <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_transactions }}</a></td>
           <td>
             <a href="income-budget-item/{{ x.id }}/add-income-transaction"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
             <a href="income-budget-item/{{ x.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
@@ -85,6 +85,7 @@
         <th>{{ x.name }}</th>
         <th>Planned</th>
         <th>Spent</th>
+        <th>Transactions</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -94,7 +95,8 @@
 
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.name }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.planned_amount }}</a></td>
-          <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">n/a</a></td>
+          <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_spent }}</a></td>
+          <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_transactions }}</a></td>
           <td>
             <a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/add-expense-transaction"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
             <a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>

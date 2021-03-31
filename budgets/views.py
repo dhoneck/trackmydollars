@@ -67,7 +67,6 @@ def dashboard(request):
     asset_total = Decimal(0.00)
     for a in Asset.objects.filter(user=request.user.id):
         if a.balances.first() is not None:
-            print(a.balances.first().balance)
             asset_total += a.balances.first().balance
 
     # Sum Debts
@@ -143,11 +142,8 @@ def format_numbers(**kwargs):
     # Format numbers based on longest length
     formatted_numbers = {}
     format_string = "$ {:" + str(full_length) + ",.2f}"
-    print('Format String', format_string)
-    print('Format String', type(format_string))
     for key, value in kwargs.items():
         formatted_numbers[key] = format_string.format(value)
-        # formatted_numbers[key] = "${: 14,.2f}".format(value)
     return formatted_numbers
 
 
@@ -679,19 +675,12 @@ def specific_budget(request, month, year):
         total_remaining_new_debt = Decimal(0.00)
         total_remaining_old_debt = Decimal(0.00)
         total_remaining_debt = Decimal(0.00)
-        print('Printing income budget items')
 
-        income_budget_items = bp.income_budget_items.annotate(total_received=(Sum('income_transactions__amount') or 0), total_transactions=Count('income_transactions'))
+        income_budget_items = bp.income_budget_items.all()
 
         ec = bp.expense_categories.filter(user=request.user.id),
-        print(ec)
-        # print("income_budget_items:", ibi)
-        # for i in ibi:
-        #     print(i.total_transactions, '-', i.total_transaction_amount)
-        # income_budget_items = bp.income_budget_items.all()
+
         for item in income_budget_items:
-            # print(item)
-            # print(item.income_transactions.all())
             total_planned_income += item.planned_amount
             # Total income transactions
             for t in item.income_transactions.all():
@@ -958,14 +947,14 @@ def view_transactions(request, month, year):
 def view_schedule(request):
     context = {}
 
-    context['weekly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date')
-    context['every_two_weeks'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date')
-    context['monthly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date')
-    context['every_two_months'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date')
-    context['quarterly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date')
-    context['every_six_months'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date')
-    context['yearly'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date')
-    context['one_time'] = schedule_items = ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date')
+    context['weekly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date')
+    context['every_two_weeks'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date')
+    context['monthly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date')
+    context['every_two_months'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date')
+    context['quarterly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date')
+    context['every_six_months'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date')
+    context['yearly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date')
+    context['one_time'] = ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date')
 
     yearly_amount = Decimal(0.00)
 
@@ -986,8 +975,7 @@ def view_schedule(request):
         if key != 'monthly_total':
             non_monthly_total += value
         entire_total += value
-    print(entire_total)
-    print(non_monthly_total)
+
     totals['entire_total'] = entire_total
     totals['non_monthly_total'] = non_monthly_total
 
@@ -1000,7 +988,7 @@ def view_schedule(request):
 
 class AddScheduleItem(SuccessMessageMixin, CreateView):
     model = ScheduleItem
-    fields = ['name', 'amount', 'first_due_date', 'frequency']
+    fields = ['name', 'amount', 'category', 'first_due_date', 'frequency']
     template_name = 'schedule/add_schedule_item.html'
     success_url = '/schedule/'
     success_message = 'Schedule item successfully added!'
@@ -1012,7 +1000,7 @@ class AddScheduleItem(SuccessMessageMixin, CreateView):
 
 class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
     model = ScheduleItem
-    fields = ['name', 'amount', 'first_due_date', 'frequency']
+    fields = ['name', 'amount', 'category', 'first_due_date', 'frequency']
     template_name = 'schedule/update_schedule_item.html'
     success_url = '/schedule/'
     pk_url_kwarg = 'siid'

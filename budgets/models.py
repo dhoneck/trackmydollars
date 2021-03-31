@@ -1,5 +1,8 @@
 from django.db import models
+from django.db.models import Sum, Count
 from datetime import datetime
+from datetime import timedelta, date
+from dateutil.relativedelta import relativedelta
 
 INCOME_OR_EXPENSE = (
     ('Income', 'Income'),
@@ -180,6 +183,12 @@ class IncomeBudgetItem(models.Model):
     def __str__(self):
         return self.name + ' - ' + str(self.budget_period)
 
+    def get_total_transactions(self):
+        return self.income_transactions.count()
+
+    def get_total_received(self):
+        return self.income_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
+
     class Meta:
         ordering = ('-planned_amount', 'name',)
         unique_together = ('user', 'budget_period', 'name',)
@@ -242,6 +251,12 @@ class ExpenseBudgetItem(models.Model):
         else:
             return float(self.amount)
 
+    def get_total_transactions(self):
+        return self.expense_transactions.count()
+
+    def get_total_spent(self):
+        return self.expense_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
+
     class Meta:
         unique_together = ('user', 'name', 'expense_category')
 
@@ -262,6 +277,7 @@ class ExpenseTransaction(models.Model):
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
+    category = models.CharField(max_length=50, default="", blank=True)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     first_due_date = models.DateField()
     # end_date = models.DateField()
@@ -269,3 +285,33 @@ class ScheduleItem(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.amount} - {self.first_due_date} - {self.frequency}'
+
+    def get_next_payment(self):
+        """Calculates the next payment date"""
+        current_date = date.today()
+        if self.first_due_date >= current_date:
+            return self.first_due_date
+
+        # Assign Time Delta Based On Frequency
+        if self.frequency == 'Weekly':
+            td = timedelta(weeks=1)
+        elif self.frequency == 'Every two weeks':
+            td = timedelta(weeks=2)
+        elif self.frequency == 'Monthly':
+            td = relativedelta(months=+1)
+        elif self.frequency == 'Every two months':
+            td = relativedelta(months=+2)
+        elif self.frequency == 'Quarterly':
+            td = relativedelta(months=+4)
+        elif self.frequency == 'Every six months':
+            td = relativedelta(months=+6)
+        elif self.frequency == 'Yearly':
+            td = relativedelta(years=+1)
+        elif self.frequency == 'One time only':
+            return self.first_due_date
+
+        date_to_check = self.first_due_date
+
+        while current_date > date_to_check:
+            date_to_check += td
+        return date_to_check
