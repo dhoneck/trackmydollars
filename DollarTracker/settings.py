@@ -25,7 +25,7 @@ SECRET_KEY = 'ivyzq^ki*d1717(*086ll287xb=#f_ys6ear&v7ozy&18bj7c8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['track-my-dollars.herokuapp.com']
 
 
 # Application definition
