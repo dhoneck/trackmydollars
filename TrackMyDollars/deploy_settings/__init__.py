@@ -1,6 +1,6 @@
 import dj_database_url
 
-from DollarTracker.settings import *
+from TrackMyDollars.settings import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

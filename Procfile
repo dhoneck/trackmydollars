@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath DollarTracker DollarTracker.deploy --log-file -
+web: gunicorn --pythonpath TrackMyDollars TrackMyDollars.deploy --log-file -
