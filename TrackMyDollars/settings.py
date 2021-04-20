@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'TrackMyDollars.urls'
@@ -92,7 +93,7 @@ WSGI_APPLICATION = 'TrackMyDollars.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dollartracker',
+        'NAME': 'trackmydollars',
         'USER': 'postgres',
         'PASSWORD': '123456',
         'HOST': 'localhost',
