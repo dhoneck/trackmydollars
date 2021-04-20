@@ -30,7 +30,7 @@ def index(request):
     if request.user.is_authenticated:
         return render(request, 'budgets/dashboard.html')
     else:
-        return render(request, 'standard/index.html',)
+        return redirect('accounts/login/')
 
 
 def about(request):

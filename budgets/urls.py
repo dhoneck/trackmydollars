@@ -6,8 +6,8 @@ from budgets.views import *
 urlpatterns = [
     path('', views.index, name='index'),
     url(r"^accounts/", include("django.contrib.auth.urls")),
-    path('about/', views.about, name='about'),
-    path('contact/', views.contact, name='contact'),
+    # path('about/', views.about, name='about'),
+    # path('contact/', views.contact, name='contact'),
     url(r"^register/", views.register, name="register"),
     path('dashboard/', views.dashboard, name='dashboard'),
     # Asset & Debt URLs
