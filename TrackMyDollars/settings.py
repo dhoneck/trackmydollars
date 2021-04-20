@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import warnings
-import django_heroku
+# import django_heroku
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -168,4 +168,4 @@ EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
 
 # Activate Django-Heroku.
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
