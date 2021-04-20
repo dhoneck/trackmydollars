@@ -27,6 +27,17 @@ a:hover {
 /*******************************
 Header, Logo, Nav
 *******************************/
+#logo-dark {
+  /*margin-top: 20px;*/
+  background-color: #527EA5;
+  padding: 20px;
+}
+#logo-dark h1, #logo-dark h2 {
+  color: #F1F0F4;
+  margin: 0;
+  text-align: center;
+}
+
 #logo {
   display: inline-block;
   margin: 28px 16px 10px 16px;
@@ -106,6 +117,45 @@ Header, Logo, Nav
 /*******************************
 Body
 *******************************/
+#login-form-container {
+  background-color: lightgray;
+  width: 400px;
+  /*height: 300px;*/
+  border-radius: 5px;
+  padding: 10px;
+  margin: 40px auto;
+  /*text-align: center;*/
+}
+
+#login-form-container h2 {
+  text-align: center;
+}
+#login-form-container input, #login-form-container input[type=submit] {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  width: 100%;
+  height: 25px;
+  border-radius: 2px;
+}
+
+#login-form-container input[type=submit] {
+  background-color: #527EA5;
+  color: #F1F0F4;
+  height: 35px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#login-form-container input:focus {
+  outline-color: #527EA5;
+}
+
+
+#login-form-container input[type=submit]:hover {
+  opacity: .8;
+}
+
 pre {
   margin: 0;
   padding: 0;

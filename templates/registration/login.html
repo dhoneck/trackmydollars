@@ -1,14 +1,19 @@
-{% extends 'standard/base_standard.html' %}
+{% extends 'standard/base_bare.html' %}
 {% block title %}DollarTracker | Login{% endblock %}
 {% block content %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Login">
-  </form>
-  <br>
-  <a href="{% url 'register' %}">Register</a>
-  <br>
-  <a href="{% url 'password_reset' %}">Reset password</a>
+  <div id="login-form-container">
+    <h2>Login</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Login">
+    </form>
+    <br>
+    <div style="text-align:center;">
+      <a href="{% url 'password_reset' %}">Forgot your password?</a>
+      <br>
+      <hr>
+      New to TrackMyDollars? <a href="{% url 'register' %}">Create an account now.</a>
+    </div>
+  </div>
 {% endblock %}
