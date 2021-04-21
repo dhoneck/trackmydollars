@@ -1,5 +1,2 @@
 .idea
 __pycache__
-venv
-django_venv
-budgets/migrations/
