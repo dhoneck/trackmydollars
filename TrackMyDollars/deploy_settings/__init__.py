@@ -2,7 +2,7 @@ import dj_database_url
 
 from TrackMyDollars.settings import *
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = [
