@@ -133,7 +133,7 @@ class RevolvingDebtBalance(Balance):
 
 # Budget Models
 class BudgetPeriod(models.Model):
-    CHOICES = [(i, i) for i in range(1, 13)]
+    # CHOICES = [(i, i) for i in range(1, 13)]
     # CHOICES = (
     #     (1, '01 - Jan'),
     #     (2, '02 - Feb'),
@@ -165,6 +165,9 @@ class BudgetPeriod(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
+    add_money_schedule_items = models.BooleanField(default=False)
+    use_last_budget = models.BooleanField(default=False)
+    # TODO: add from template option
 
     class Meta:
         unique_together = ('user', 'month', 'year',)
@@ -315,3 +318,8 @@ class ScheduleItem(models.Model):
         while current_date > date_to_check:
             date_to_check += td
         return date_to_check
+
+    def get_budget_period_occurrences(self, month, year):
+        """Will check the schedule item to see if it exists that month"""
+        # TODO: add functionality to this method
+        pass

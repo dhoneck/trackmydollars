@@ -9,7 +9,6 @@
     <button onclick="window.location.href = '../next';">></button>
   </div>
   <p>You do not have a budget for {{ month }}, {{ year }}. Create one below.</p>
-  {{ test }}
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">

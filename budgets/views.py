@@ -626,7 +626,7 @@ def budget(request):
 
 class AddBudget(SuccessMessageMixin, CreateView):
     model = BudgetPeriod
-    fields = ['month', 'year']
+    fields = ['month', 'year', 'add_money_schedule_items', 'use_last_budget']
     template_name = 'budgets/add_budget.html'
     success_url = '../'
     success_message = 'Budget successfully added!'
@@ -635,8 +635,6 @@ class AddBudget(SuccessMessageMixin, CreateView):
         split_url = self.request.get_full_path().split('/')
         month = datetime.strptime(split_url[-4], '%B').month
         year = split_url[-3]
-        print(month)
-        print(year)
         return {'month': month, 'year': year}
 
     def get_context_data(self, **kwargs):
@@ -645,8 +643,6 @@ class AddBudget(SuccessMessageMixin, CreateView):
         split_url = self.request.get_full_path().split('/')
         month = split_url[-4]
         year = split_url[-3]
-        print(month)
-        print(type(month))
         context['month'] = month.capitalize()
         context['year'] = year
         return context
@@ -976,8 +972,8 @@ def view_schedule(request):
             non_monthly_total += value
         entire_total += value
 
-    totals['entire_total'] = entire_total
-    totals['non_monthly_total'] = non_monthly_total
+    totals['entire_total'] = "{:.2f}".format(entire_total)
+    totals['non_monthly_total'] = "{:.2f}".format(non_monthly_total)
 
     totals['monthly_non_monthly_total'] = Decimal("{:.2f}".format(non_monthly_total / 12))
 
@@ -1022,7 +1018,7 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
 # # Transactions Views
 # def transactions(request):
 #     return render(request, 'budgets/transactions.html')
-#
+
 # # Report Views
 # def reports(request):
 #     return render(request, 'budgets/reports.html')
