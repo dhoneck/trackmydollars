@@ -668,9 +668,6 @@ def specific_budget(request, month, year):
         total_old_debt = Decimal(0.00)
         total_new_debt = Decimal(0.00)
         total_paid_debt = Decimal(0.00)
-        total_remaining_new_debt = Decimal(0.00)
-        total_remaining_old_debt = Decimal(0.00)
-        total_remaining_debt = Decimal(0.00)
 
         income_budget_items = bp.income_budget_items.all()
 
@@ -698,8 +695,7 @@ def specific_budget(request, month, year):
                     if t.credit_payoff:
                         old_debt_paid += t.amount
                         total_paid_debt += t.amount
-        total_remaining_old_debt = total_old_debt - old_debt_paid
-        total_remaining_new_debt = total_new_debt  # TODO: Fix new debt payoff
+
 
     except BudgetPeriod.DoesNotExist:
         print('Does not exist, dummy')
@@ -710,7 +706,7 @@ def specific_budget(request, month, year):
 
     left_to_plan = total_planned_income - total_planned_expenses
     left_to_spend = total_actual_income - total_actual_expenses
-    total_remaining_debt = total_old_debt + total_new_debt - total_paid_debt
+    total_remaining_debt = total_new_debt - total_paid_debt
 
     return render(request,
                   'budgets/budget.html',
@@ -723,11 +719,8 @@ def specific_budget(request, month, year):
                    'total_planned_expenses': total_planned_expenses,
                    'total_actual_income': total_actual_income,
                    'total_actual_expenses': total_actual_expenses,
-                   'total_old_debt': total_old_debt,
                    'total_new_debt': total_new_debt,
                    'total_paid_debt': total_paid_debt,
-                   'total_remaining_new_debt': total_remaining_new_debt,
-                   'total_remaining_old_debt': total_remaining_old_debt,
                    'total_remaining_debt': total_remaining_debt,
                    'left_to_plan': left_to_plan,
                    'left_to_spend': left_to_spend,

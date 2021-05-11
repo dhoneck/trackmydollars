@@ -30,15 +30,15 @@
     </div>
     <div class="budget-overview-container">
       <p><strong>Actual Budget</strong></p>
-      <p><pre>Actual Income     ${{ total_actual_income }}</pre></p>
-      <p><pre>Actual Expenses   ${{ total_actual_expenses }}</pre></p>
-      <p><pre>Left to Spend     ${{ left_to_spend }}</pre></p>
+      <p><pre>Actual Income    ${{ total_actual_income }}</pre></p>
+      <p><pre>Actual Expenses  ${{ total_actual_expenses }}</pre></p>
+      <p><pre>Difference       ${{ left_to_spend }}</pre></p>
     </div>
     <div id="budget-credit-container">
       <p><strong>Revolving Debt</strong></p>
-      <p><pre>Old Debt   ${{ total_old_debt }} (${{ total_remaining_old_debt }} to pay)</pre></p>
-      <p><pre>New Debt   ${{ total_new_debt }} (${{ total_remaining_new_debt }} to pay)</pre></p>
-      <p><pre>Paid Debt  ${{ total_paid_debt }} (${{ total_remaining_debt }} to pay)</pre></p>
+      <p><pre>New Debt     ${{ total_new_debt }}</pre></p>
+      <p><pre>Paid Debt    ${{ total_paid_debt }}</pre></p>
+      <p><pre>Amount Left  ${{ total_remaining_debt }}</pre></p>
     </div>
     <h3>Income</h3>
     <div class="button-container">
@@ -51,7 +51,7 @@
           <th>Income for {{ month }}</th>
           <th>Planned</th>
           <th>Received</th>
-          <th>Total Transactions</th>
+          <th>Transactions</th>
           <th>Actions</th>
         </tr>
       </thead>
