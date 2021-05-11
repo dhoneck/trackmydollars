@@ -626,7 +626,7 @@ def budget(request):
 
 class AddBudget(SuccessMessageMixin, CreateView):
     model = BudgetPeriod
-    fields = ['month', 'year', 'add_money_schedule_items', 'use_last_budget']
+    fields = ['month', 'year', 'starting_bank_balance', 'add_money_schedule_items', 'use_last_budget']
     template_name = 'budgets/add_budget.html'
     success_url = '../'
     success_message = 'Budget successfully added!'
@@ -766,7 +766,7 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
 
 class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
     model = IncomeBudgetItem
-    fields = ['budget_period', 'name', 'planned_amount']
+    fields = ['budget_period', 'name', 'planned_amount', 'transfer']
     template_name = 'budgets/add_income_budget_item.html'
     success_url = './'
     success_message = 'Income budget item successfully added!'
@@ -886,7 +886,7 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
 class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
-    fields = ['expense_category', 'name', 'planned_amount', 'credit_debt']
+    fields = ['expense_category', 'name', 'planned_amount', 'transfer']
     template_name = 'budgets/add_expense_budget_item.html'
     success_url = '../../'
     success_message = 'Expense budget item successfully added!'

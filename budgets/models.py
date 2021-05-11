@@ -133,21 +133,6 @@ class RevolvingDebtBalance(Balance):
 
 # Budget Models
 class BudgetPeriod(models.Model):
-    # CHOICES = [(i, i) for i in range(1, 13)]
-    # CHOICES = (
-    #     (1, '01 - Jan'),
-    #     (2, '02 - Feb'),
-    #     (3, '03 - Mar'),
-    #     (4, '04 - Apr'),
-    #     (5, '05 - May'),
-    #     (6, '06 - Jun'),
-    #     (7, '07 - Jul'),
-    #     (8, '08 - Aug'),
-    #     (9, '09 - Sep'),
-    #     (10, '10 - Oct'),
-    #     (11, '11 - Nov'),
-    #     (12, '12 - Dec'),
-    # )
     CHOICES = (
         (1, 'Jan'),
         (2, 'Feb'),
@@ -165,6 +150,7 @@ class BudgetPeriod(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
+    starting_bank_balance = models.DecimalField(max_digits=9, decimal_places=2, null=True)
     add_money_schedule_items = models.BooleanField(default=False)
     use_last_budget = models.BooleanField(default=False)
     # TODO: add from template option
