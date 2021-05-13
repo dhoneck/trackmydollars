@@ -700,9 +700,9 @@ def specific_budget(request, month, year):
     except BudgetPeriod.DoesNotExist:
         print('Does not exist, dummy')
         return HttpResponseRedirect('add-budget/')
-    except:
+    except Exception as err:
         print('Second except clause')
-        return HttpResponseNotFound("Page not found!")
+        return HttpResponseNotFound(f"Page not found! Here is the error: {err}")
 
     left_to_plan = total_planned_income - total_planned_expenses
     left_to_spend = total_actual_income - total_actual_expenses
