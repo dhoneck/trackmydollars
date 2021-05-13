@@ -684,8 +684,6 @@ def specific_budget(request, month, year):
         expense_categories = bp.expense_categories.all()
         for category in expense_categories:
             for expense_budget_item in category.expense_budget_items.all():
-                if expense_budget_item.credit_debt == True:
-                    total_old_debt += expense_budget_item.planned_amount
                 total_planned_expenses += expense_budget_item.planned_amount
                 for t in expense_budget_item.expense_transactions.all():
 
