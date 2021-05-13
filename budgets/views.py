@@ -702,7 +702,7 @@ def specific_budget(request, month, year):
         return HttpResponseRedirect('add-budget/')
     except Exception as err:
         print('Second except clause')
-        return HttpResponseNotFound(f"Page not found! Here is the error: {err}")
+        return HttpResponseNotFound(f"Page not found! Here is the error: {err.message} {type(err)}")
 
     left_to_plan = total_planned_income - total_planned_expenses
     left_to_spend = total_actual_income - total_actual_expenses
