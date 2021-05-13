@@ -1,31 +1,33 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% endblock %}</title>
-{#    <link rel="stylesheet" href="{% static 'css/reset.css' %}">#}
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
     {% block script %}{% endblock %}
   </head>
   <body>
     <header>
-      <nav class="sidenav">
+      <div class="sidenav">
         <div id="logo">
-            <h1>TrackMyDollars</h1>
-            <h2>Budgeting Software</h2>
+          <h1>TrackMyDollars</h1>
+          <h2>Budgeting Software</h2>
         </div>
-        <a class='sidebar-links' href="{% url 'dashboard' %}">Dashboard</a>
-        <a class='sidebar-links' href="{% url 'assets_debts' %}">Assets & Debts</a>
-        <a class='sidebar-links' href="{% url 'schedule' %}">Money Schedule</a>
-        <a class='sidebar-links' href="{% url 'budget' %}">Budget</a>
-        <a class='sidebar-links' href="{% url 'logout' %}">Log Out</a>
+        <nav>
+          <a class='sidebar-links' href="{% url 'dashboard' %}">Dashboard</a>
+          <a class='sidebar-links' href="{% url 'assets_debts' %}">Assets & Debts</a>
+          <a class='sidebar-links' href="{% url 'schedule' %}">Money Schedule</a>
+          <a class='sidebar-links' href="{% url 'budget' %}">Budget</a>
+        </nav>
+        <div id="user-section">
+          <a href="" class="">{{ user.email }}</a>
+          <a href="{% url 'logout' %}">Log Out</a>
+        </div>
 
-{#        <a class='sidebar-links' href="{% url 'transactions' %}">Transactions</a>#}
-{#        <a class='sidebar-links' href="{% url 'reports' %}">Reports</a>#}
-      </nav>
+      </div>
+
     </header>
     <div class="content-container">
       {% block content %}{% endblock %}
