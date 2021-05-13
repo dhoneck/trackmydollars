@@ -34,6 +34,26 @@
       </tr>
     </table>
   </div>
+
+  <br>
+  <br>
+
+  <table>
+    <tr>
+      <th>Month</th>
+      <th>Amount</th>
+    </tr>
+    {% for month, amount in month_data %}
+    <tr>
+      <td>{{ month }}</td>
+      <td>${{ amount }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+
+
+
   {% if weekly %}
     <br>
     <h3>Weekly</h3>

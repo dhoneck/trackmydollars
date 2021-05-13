@@ -1,7 +1,8 @@
+from decimal import Decimal
+
 from django.db import models
 from django.db.models import Sum, Count
-from datetime import datetime
-from datetime import timedelta, date
+from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
 INCOME_OR_EXPENSE = (
@@ -276,13 +277,7 @@ class ScheduleItem(models.Model):
     def __str__(self):
         return f'{self.name} - {self.amount} - {self.first_due_date} - {self.frequency}'
 
-    def get_next_payment(self):
-        """Calculates the next payment date"""
-        current_date = date.today()
-        if self.first_due_date >= current_date:
-            return self.first_due_date
-
-        # Assign Time Delta Based On Frequency
+    def get_time_delta(self):
         if self.frequency == 'Weekly':
             td = timedelta(weeks=1)
         elif self.frequency == 'Every two weeks':
@@ -298,10 +293,23 @@ class ScheduleItem(models.Model):
         elif self.frequency == 'Yearly':
             td = relativedelta(years=+1)
         elif self.frequency == 'One time only':
+            pass # TODO: Do I need to implement something here? I could run into issues in the future
+        return td
+
+    def get_next_payment(self):
+        """Calculates the next payment date"""
+        current_date = date.today()
+
+        # If the first due date hasn't happened yet, that will be the next payment
+        if self.first_due_date >= current_date:
             return self.first_due_date
+
+        # Assign Time Delta Based On Frequency
+        td = self.get_time_delta()
 
         date_to_check = self.first_due_date
 
+        # Increment the date until it is past the current date and then return that date
         while current_date > date_to_check:
             date_to_check += td
         return date_to_check
@@ -310,3 +318,24 @@ class ScheduleItem(models.Model):
         """Will check the schedule item to see if it exists that month"""
         # TODO: add functionality to this method
         pass
+
+    def get_monthly_total(self, year, month):
+        """Returns the total amount due for a money schedule item in a particular year/month pair"""
+
+        # Get the time delta to find due dates
+        time_delta = self.get_time_delta()
+
+        # Set the date cutoff - 1st day of the following month
+        date_cutoff = date(year, month, 1) + relativedelta(months=+1)
+
+        total_amount = Decimal(0.0)
+        date_to_check = self.first_due_date
+
+        # Check for recurring due dates
+        while date_cutoff > date_to_check:
+            if date_to_check.month == month and date_to_check.year == year:
+                total_amount += self.amount
+            date_to_check += time_delta
+
+        # print(f'The total for {self.name} for the date ({year}, {month}) is ${total_amount}')
+        return total_amount

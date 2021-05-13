@@ -155,12 +155,17 @@ def subtract_lists(x, y):
     return x - y
 
 
-def get_last_12_months_labels():
+def get_last_12_months_labels(get_next_12=False):
     """Get a list of abbreviated month names and a list of tuples containing year and month as strings"""
     month_labels = []
     year_month_labels = []
 
     current_date = datetime.today()
+
+    # If get_next_12 is set to True it will set the current_date value 11 months ahead
+    if get_next_12 == True:
+        current_date = current_date + relativedelta(months=11)
+
 
     month = (current_date.strftime('%b %Y'))
     month_labels.append(month)
@@ -686,7 +691,6 @@ def specific_budget(request, month, year):
             for expense_budget_item in category.expense_budget_items.all():
                 total_planned_expenses += expense_budget_item.planned_amount
                 for t in expense_budget_item.expense_transactions.all():
-
                     total_actual_expenses += t.amount
                     if t.credit_purchase:
                         total_new_debt += t.amount
@@ -970,6 +974,26 @@ def view_schedule(request):
 
     context['totals'] = totals
 
+    month_labels, year_month_tuple = get_last_12_months_labels(get_next_12=True)
+    print(month_labels)
+    print(year_month_tuple)
+
+    item_data = []
+
+    # Loop through a year of year/month pairs
+    idx = 0
+    for year, month in year_month_tuple:
+        # Loop through all schedule items
+        month_total = Decimal(0.0)
+        for item in ScheduleItem.objects.exclude(frequency="Monthly"):
+            month_total += item.get_monthly_total(int(year), int(month))
+        item_data.append((month_labels[idx], month_total))
+        idx += 1
+
+    context['month_data'] = item_data
+
+    # TODO: Fix month column to show the new year next to January
+    # TODO: Fix alignment and formatting
     return render(request, 'schedule/view_schedule.html', context)
 
 
