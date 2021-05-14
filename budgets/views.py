@@ -985,7 +985,8 @@ def view_schedule(request):
     for year, month in year_month_tuple:
         # Loop through all schedule items
         month_total = Decimal(0.0)
-        for item in ScheduleItem.objects.exclude(frequency="Monthly"):
+        # for item in ScheduleItem.objects.exclude(frequency="Monthly"):
+        for item in ScheduleItem.objects.filter(user=request.user.id).exclude(frequency="Monthly"):
             month_total += item.get_monthly_total(int(year), int(month))
         item_data.append((month_labels[idx], month_total))
         idx += 1

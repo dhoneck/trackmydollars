@@ -60,7 +60,7 @@
             {% endif %}
 
             {% if item.balances.first.date %}
-              <td><a href="assets/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+              <td><a href="assets/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
             {% else %}
               <td><a href="assets/{{ item.id }}/view">n/a</a></td>
             {% endif %}
@@ -108,7 +108,7 @@
               {% endif %}
 
               {% if item.balances.first.date %}
-                <td><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+                <td><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
               {% elif item.date_opened %}
                 <td><a href="installment-debts/{{ item.id }}/view">{{ item.date_opened }}</a></td>
               {% else %}
@@ -156,7 +156,7 @@
               {% endif %}
 
               {% if item.balances.first.date %}
-                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date }}</a></td>
+                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
               {% elif item.date_opened %}
                 <td><a href="revolving-debts/{{ item.id }}/view">{{ item.date_opened }}</a></td>
               {% else %}
