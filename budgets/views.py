@@ -704,6 +704,8 @@ def specific_budget(request, month, year):
                         old_debt_paid += t.amount
                         total_paid_debt += t.amount
 
+        print('Old list:', all_transactions)
+        sorted_transactions = sorted(all_transactions, key=lambda x: x.date, reverse=True)
 
     except BudgetPeriod.DoesNotExist:
         print('Does not exist, dummy')
@@ -733,7 +735,7 @@ def specific_budget(request, month, year):
                    'left_to_plan': left_to_plan,
                    'left_to_spend': left_to_spend,
                    'bp_id': bp.id,
-                  'all_transactions': all_transactions,
+                   'all_transactions': sorted_transactions,
                   }
                   )
 
