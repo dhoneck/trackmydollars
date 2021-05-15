@@ -17,43 +17,43 @@
       <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
     {% endfor %}
   {% endif %}
-  <br>
-  <div id="net-worth-container">
-    <table class="asset-debt-table">
-      <tr>
-        <td>Yearly Total</td>
-        <td>${{ totals.entire_total }}</td>
-      </tr>
-      <tr>
-        <td>Non Monthly Total</td>
-        <td>${{ totals.non_monthly_total }}</td>
-      </tr>
-      <tr>
-        <td>Monthly Expenses</td>
-        <td>${{ totals.monthly_non_monthly_total }}</td>
-      </tr>
-    </table>
+
+  <div class="right-side-container">
+    <aside>
+      <table>
+        <tr>
+          <th>Totals</th>
+          <th>Amount</th>
+        </tr>
+        <tr>
+          <td><pre>Non Monthly</pre></td>
+          <td><pre>${{ totals.non_monthly_total }}</pre></td>
+        </tr>
+        <tr>
+          <td><pre>Per Month</pre></td>
+          <td><pre>${{ totals.non_monthly_per_month_total }}</pre></td>
+        </tr>
+      </table>
+    </aside>
+
+    <aside>
+      <table>
+        <tr>
+          <th>Month</th>
+          <th>Amount</th>
+        </tr>
+        {% for month, amount in month_data %}
+        <tr>
+          <td><pre>{{ month }}</pre></td>
+          <td><pre>${{ amount }}</pre></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </aside>
   </div>
 
-  <br>
-  <br>
-
-  <table>
-    <tr>
-      <th>Month</th>
-      <th>Amount</th>
-    </tr>
-    {% for month, amount in month_data %}
-    <tr>
-      <td><pre>{{ month }}</pre></td>
-      <td><pre>${{ amount }}</pre></td>
-    </tr>
-    {% endfor %}
-  </table>
-
   {% if weekly %}
-    <br>
-    <h3>Weekly</h3>
+    <h3 class="frequency-header">Weekly</h3>
     <table>
       <thead>
       <tr>
@@ -81,8 +81,7 @@
   {% endif %}
 
   {% if every_two_weeks %}
-    <br>
-    <h3>Every Two Weeks</h3>
+    <h3 class="frequency-header">Every Two Weeks</h3>
     <table>
       <thead>
       <tr>
@@ -111,8 +110,7 @@
   {% endif %}
 
   {% if monthly %}
-    <br>
-    <h3>Monthly</h3>
+    <h3 class="frequency-header">Monthly</h3>
     <table>
       <thead>
       <tr>
@@ -140,8 +138,7 @@
   {% endif %}
 
   {% if every_two_months %}
-    <br>
-  <h3>Every Two Months</h3>
+  <h3 class="frequency-header">Every Two Months</h3>
   <table>
     <thead>
     <tr>
@@ -169,8 +166,7 @@
   {% endif %}
 
   {% if quarterly %}
-    <br>
-    <h3>Quarterly</h3>
+    <h3 class="frequency-header">Quarterly</h3>
     <table>
       <thead>
       <tr>
@@ -198,8 +194,7 @@
   {% endif %}
 
   {% if every_six_months %}
-    <br>
-    <h3>Every Six Months</h3>
+    <h3 class="frequency-header">Every Six Months</h3>
     <table>
       <thead>
       <tr>
@@ -227,8 +222,7 @@
   {% endif %}
 
   {% if yearly %}
-    <br>
-    <h3>Yearly</h3>
+    <h3 class="frequency-header">Yearly</h3>
     <table>
       <thead>
       <tr>
@@ -256,8 +250,7 @@
   {% endif %}
 
   {% if one_time %}
-    <br>
-    <h3>One Time</h3>
+    <h3 class="frequency-header">One Time</h3>
     <table>
       <thead>
       <tr>

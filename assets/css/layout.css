@@ -28,7 +28,6 @@ a:hover {
 Header, Logo, Nav
 *******************************/
 #logo-dark {
-  /*margin-top: 20px;*/
   background-color: #527EA5;
   padding: 20px;
 }
@@ -168,7 +167,6 @@ Body
   outline-color: #527EA5;
 }
 
-
 #login-form-container input[type=submit]:hover {
   opacity: .8;
 }
@@ -179,23 +177,6 @@ pre {
   font-size: 16px;
 }
 
-/*.budget-container {*/
-/*  background-color: #527EA5;*/
-/*  !*color: darkgray;*!*/
-/*  opacity: 0.6;*/
-/*  margin: 20px -5px 0 -5px;*/
-/*  padding: 10px;*/
-/*  border-radius: 10px;*/
-/*  border: 2px solid dimgray;*/
-/*  box-shadow: 2px 2px 2px #888888;*/
-/*}*/
-
-
-
-/*.button-container {*/
-/*  margin: 10px 0;*/
-/*}*/
-
 th {
   text-align: left;
 }
@@ -203,8 +184,6 @@ th {
 .asset-debt-table th, .asset-debt-table td {
   padding: 5px 5px 5px 0;
   white-space: nowrap;
-  /*text-align: left;*/
-  /*padding: 10px;*/
 }
 
 button {
@@ -220,16 +199,33 @@ button:hover {
   opacity: 0.8;
 }
 
-/*.budget-container td {*/
-/*    width: 100px;*/
-/*}*/
-
 #net-worth-container {
   display: inline-block;
   margin-left: -10px;
   padding: 0 10px 5px 10px;
   background-color: lightgray;
   border-radius: 5px;
+}
+
+aside {
+  background: lightgray;
+  display: inline-block;
+  float: right;
+  clear: both;
+  width: 320px;
+  padding: 5px;
+  border-radius: 5px;
+  margin-right: 250px;
+  margin-bottom: 10px;
+}
+
+
+aside:first-child {
+  margin-top: 50px;
+}
+
+.frequency-header {
+  margin-top: 50px;
 }
 
 .budget-table {

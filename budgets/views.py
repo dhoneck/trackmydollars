@@ -970,13 +970,21 @@ def view_schedule(request):
     totals['entire_total'] = "{:.2f}".format(entire_total)
     totals['non_monthly_total'] = "{:.2f}".format(non_monthly_total)
 
-    totals['monthly_non_monthly_total'] = Decimal("{:.2f}".format(non_monthly_total / 12))
+    totals['non_monthly_per_month_total'] = Decimal("{:.2f}".format(non_monthly_total / 12))
 
     context['totals'] = totals
 
     month_labels, year_month_tuple = get_last_12_months_labels(get_next_12=True)
+
+    # Separate the month from the year on the last element in the list and add them to separate variables
+    month_labels[11], year = month_labels[11].split(' ')
+
+    # Loop through months and add the year next to Jan
+    for idx, month in enumerate(month_labels):
+        if month == 'Jan':
+            month_labels[idx] = 'Jan ' + year
+
     print(month_labels)
-    print(year_month_tuple)
 
     item_data = []
 
@@ -985,10 +993,9 @@ def view_schedule(request):
     for year, month in year_month_tuple:
         # Loop through all schedule items
         month_total = Decimal(0.0)
-        # for item in ScheduleItem.objects.exclude(frequency="Monthly"):
         for item in ScheduleItem.objects.filter(user=request.user.id).exclude(frequency="Monthly"):
             month_total += item.get_monthly_total(int(year), int(month))
-        item_data.append((month_labels[idx], month_total))
+        item_data.append((month_labels[idx], "{:0.2f}".format(month_total)))
         idx += 1
 
     context['month_data'] = item_data
