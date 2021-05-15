@@ -199,6 +199,9 @@ class IncomeTransaction(models.Model):
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     date = models.DateField()
 
+    def get_signed_value(self):
+        return f'+{self.amount}'
+
     def __float__(self):
         if self.amount is None:
             return 0.00
@@ -211,6 +214,7 @@ class IncomeTransaction(models.Model):
     class Meta:
         ordering = ('-amount', 'name',)
         unique_together = ('user', 'budget_item', 'name',)
+
 
 
 class ExpenseCategory(models.Model):
@@ -264,6 +268,8 @@ class ExpenseTransaction(models.Model):
     def __str__(self):
         return f'{self.date} - {self.name}'
 
+    def get_signed_value(self):
+        return f'-{self.amount}'
 
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)

@@ -678,11 +678,16 @@ def specific_budget(request, month, year):
 
         ec = bp.expense_categories.filter(user=request.user.id),
 
+        all_transactions = []
+
         for item in income_budget_items:
             total_planned_income += item.planned_amount
             # Total income transactions
             for t in item.income_transactions.all():
                 total_actual_income += t.amount
+                all_transactions.append(t)
+
+
 
         # Sum the planned expenses
         old_debt_paid = Decimal(0.00)
@@ -692,6 +697,7 @@ def specific_budget(request, month, year):
                 total_planned_expenses += expense_budget_item.planned_amount
                 for t in expense_budget_item.expense_transactions.all():
                     total_actual_expenses += t.amount
+                    all_transactions.append(t)
                     if t.credit_purchase:
                         total_new_debt += t.amount
                     if t.credit_payoff:
@@ -726,7 +732,8 @@ def specific_budget(request, month, year):
                    'total_remaining_debt': total_remaining_debt,
                    'left_to_plan': left_to_plan,
                    'left_to_spend': left_to_spend,
-                   'bp_id': bp.id
+                   'bp_id': bp.id,
+                  'all_transactions': all_transactions,
                   }
                   )
 

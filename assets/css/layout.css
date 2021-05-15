@@ -207,21 +207,39 @@ button:hover {
   border-radius: 5px;
 }
 
+.right-side-container {
+  margin-top: 50px;
+  float: right;
+}
+
+#transaction-table {
+  display: block;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+#transaction-table td {
+  padding: 8px;
+}
+
 aside {
   background: lightgray;
   display: inline-block;
   float: right;
   clear: both;
-  width: 320px;
   padding: 5px;
   border-radius: 5px;
-  margin-right: 250px;
   margin-bottom: 10px;
 }
 
+#money-schedule-sidebar {
+  width: 320px;
+  margin-right: 200px;
+}
 
-aside:first-child {
-  margin-top: 50px;
+#budget-sidebar {
+  width: 380px;
+  margin-right: 100px;
 }
 
 .frequency-header {

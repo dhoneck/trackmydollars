@@ -40,6 +40,27 @@
       <p><pre>Paid Debt    ${{ total_paid_debt }}</pre></p>
       <p><pre>Amount Left  ${{ total_remaining_debt }}</pre></p>
     </div>
+
+    <div class="right-side-container" id="budget-sidebar" style="margin-top: 0px;">
+      <aside id="transaction-sidebar">
+        <h3>Transactions</h3>
+        <table id="transaction-table">
+          <tr>
+            <th>Date</th>
+            <th>Transaction</th>
+            <th>Amount</th>
+          </tr>
+          {% for transaction in all_transactions %}
+          <tr>
+            <td>{{ transaction.date | date:"M j"}}</td>
+            <td>{{ transaction.name }}</td>
+            <td>{{ transaction.get_signed_value }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </aside>
+    </div>
+
     <h3>Income</h3>
     <div class="button-container">
       <button onclick="window.location.href = 'add-income-budget-item';">Add Income Budget Item</button>
