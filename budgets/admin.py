@@ -11,7 +11,7 @@ class AssetBalanceAdmin(admin.ModelAdmin):
 
 
 class InstallmentDebtAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'interest_rate', 'date_opened')
+    list_display = ('name', 'type', 'interest_rate',)
 
 
 class InstallmentDebtBalanceAdmin(admin.ModelAdmin):
@@ -19,14 +19,11 @@ class InstallmentDebtBalanceAdmin(admin.ModelAdmin):
 
 
 class RevolvingDebtAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'interest_rate', 'credit_limit', 'date_opened')
+    list_display = ('name', 'type', 'interest_rate', 'credit_limit',)
 
 
 class RevolvingDebtBalanceAdmin(admin.ModelAdmin):
     list_display = ('debt', 'balance', 'date')
-
-# class MonthlyBudgetInfo(admin.ModelAdmin):
-#     list_display = ('debt', 'balance', 'date')
 
 
 admin.site.register(Asset, AssetAdmin)
@@ -35,6 +32,7 @@ admin.site.register(InstallmentDebt, InstallmentDebtAdmin)
 admin.site.register(InstallmentDebtBalance, InstallmentDebtBalanceAdmin)
 admin.site.register(RevolvingDebt, RevolvingDebtAdmin)
 admin.site.register(RevolvingDebtBalance, RevolvingDebtBalanceAdmin)
+admin.site.register(ScheduleItem)
 admin.site.register(BudgetPeriod)
 admin.site.register(IncomeBudgetItem)
 admin.site.register(IncomeTransaction)

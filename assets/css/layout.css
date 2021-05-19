@@ -182,7 +182,7 @@ th {
 }
 
 .asset-debt-table th, .asset-debt-table td {
-  padding: 5px 5px 5px 0;
+  padding: 5px 5px 5px 5px;
   white-space: nowrap;
 }
 
@@ -294,6 +294,26 @@ span.helptext {
   display: none;
 }
 
+/*******************************
+Tables
+*******************************/
+.right-align {
+  text-align: right;
+  padding-right: 10px;
+  margin-right: 10px;
+}
+
+td {
+  /*display: block;*/
+  unicode-bidi: embed;
+  font-family: monospace;
+  /*white-space: pre;*/
+  font-size: 14px;
+}
+
+pre {
+  font-size: 14px;
+}
 
 /*******************************
 Notifications

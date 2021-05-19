@@ -354,7 +354,7 @@ class DeleteAssetBalance(SuccessMessageMixin, DeleteView):
 # Debt Views
 class AddInstallmentDebt(SuccessMessageMixin, CreateView):
     model = InstallmentDebt
-    fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date', 'date_opened']
+    fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
     template_name = 'budgets/add_installment_debt.html'
     success_url = '../assets-debts'
     success_message = 'Installment debt successfully added!'
@@ -367,7 +367,7 @@ class AddInstallmentDebt(SuccessMessageMixin, CreateView):
 
 class AddRevolvingDebt(SuccessMessageMixin, CreateView):
     model = RevolvingDebt
-    fields = ['name', 'type', 'interest_rate', 'credit_limit', 'date_opened']
+    fields = ['name', 'type', 'interest_rate', 'credit_limit']
     template_name = 'budgets/add_revolving_debt.html'
     success_url = '../assets-debts'
     success_message = 'Revolving debt successfully added!'
@@ -397,7 +397,7 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
 
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
-    fields = ['name', 'type', 'interest_rate', 'date_opened', 'initial_amount', 'minimum_payment', 'payoff_date']
+    fields = ['name', 'type', 'interest_rate', 'initial_amount', 'minimum_payment', 'payoff_date']
     template_name = 'budgets/update_installment_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -418,7 +418,7 @@ class DeleteInstallmentDebt(SuccessMessageMixin, DeleteView):
 
 class UpdateRevolvingDebt(SuccessMessageMixin, UpdateView):
     model = RevolvingDebt
-    fields = ['name', 'type', 'interest_rate', 'date_opened', 'credit_limit']
+    fields = ['name', 'type', 'interest_rate', 'credit_limit']
     template_name = 'budgets/update_revolving_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -631,7 +631,7 @@ def budget(request):
 
 class AddBudget(SuccessMessageMixin, CreateView):
     model = BudgetPeriod
-    fields = ['month', 'year', 'starting_bank_balance', 'add_money_schedule_items', 'use_last_budget']
+    fields = ['month', 'year', 'starting_bank_balance', 'template_budget', 'add_money_schedule_items']
     template_name = 'budgets/add_budget.html'
     success_url = '../'
     success_message = 'Budget successfully added!'
@@ -897,7 +897,7 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
 class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
-    fields = ['expense_category', 'name', 'planned_amount', 'transfer']
+    fields = ['expense_category', 'name', 'planned_amount', 'type']
     template_name = 'budgets/add_expense_budget_item.html'
     success_url = '../../'
     success_message = 'Expense budget item successfully added!'

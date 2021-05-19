@@ -41,8 +41,8 @@
         <tr>
           <th>Asset Name</th>
           <th>Asset Type</th>
-          <th>Current Value</th>
-          <th>Last Updated</th>
+          <th class="right-align">Current Value</th>
+          <th class="right-align">Last Updated</th>
         {% for item in assets %}
           <tr>
             <td><a href="assets/{{ item.id }}/view">{{ item.name }}</a></td>
@@ -54,15 +54,15 @@
             {% endif %}
 
             {% if item.balances.first %}
-              <td><a href="assets/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+              <td class="right-align"><a href="assets/{{ item.id }}/view"><pre>${{ item.balances.first }}</pre></a></td>
             {% else %}
-              <td><a href="assets/{{ item.id }}/view">n/a</a></td>
+              <td class="right-align"><a href="assets/{{ item.id }}/view"><pre>n/a</pre></a></td>
             {% endif %}
 
             {% if item.balances.first.date %}
-              <td><a href="assets/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
+              <td class="right-align"><a href="assets/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
             {% else %}
-              <td><a href="assets/{{ item.id }}/view">n/a</a></td>
+              <td class="right-align"><a href="assets/{{ item.id }}/view">n/a</a></td>
             {% endif %}
           </tr>
         {% endfor %}
@@ -82,9 +82,9 @@
         <tr>
           <th>Debt Name</th>
           <th>Debt Type</th>
-          <th>Initial Balance</th>
-          <th>Current Balance</th>
-          <th>Last Updated</th>
+          <th class="right-align">Initial Balance</th>
+          <th class="right-align">Current Balance</th>
+          <th class="right-align">Last Updated</th>
           {% for item in installment_debts %}
             <tr>
               <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
@@ -96,23 +96,21 @@
               {% endif %}
 
               {% if item.initial_amount %}
-                <td><a href="installment-debts/{{ item.id }}/view">${{ item.initial_amount }}</a></td>
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">${{ item.initial_amount }}</a></td>
               {% else %}
-                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
 
               {% if item.balances.first %}
-                <td><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
               {% else %}
-                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
 
               {% if item.balances.first.date %}
-                <td><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
-              {% elif item.date_opened %}
-                <td><a href="installment-debts/{{ item.id }}/view">{{ item.date_opened }}</a></td>
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
               {% else %}
-                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
             </tr>
           {% endfor %}
@@ -130,9 +128,9 @@
         <tr>
           <th>Debt Name</th>
           <th>Debt Type</th>
-          <th>Credit Limit</th>
-          <th>Current Balance</th>
-          <th>Last Updated</th>
+          <th class="right-align">Credit Limit</th>
+          <th class="right-align">Current Balance</th>
+          <th class="right-align">Last Updated</th>
           {% for item in revolving_debts %}
             <tr>
               <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
@@ -144,23 +142,21 @@
               {% endif %}
 
               {% if item.credit_limit %}
-                <td><a href="revolving-debts/{{ item.id }}/view">${{ item.credit_limit }}</a></td>
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">${{ item.credit_limit }}</a></td>
               {% else %}
-                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
 
               {% if item.balances.first %}
-                <td><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
               {% else %}
-                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
 
               {% if item.balances.first.date %}
-                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
-              {% elif item.date_opened %}
-                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.date_opened }}</a></td>
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
               {% else %}
-                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
               {% endif %}
             </tr>
           {% endfor %}

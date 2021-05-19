@@ -65,7 +65,6 @@ class Debt(models.Model):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True, default='')
     interest_rate = models.DecimalField(max_digits=9, decimal_places=4, blank=True, null=True)
-    date_opened = models.DateField(blank=True, null=True)
 
     def __str__(self):
         if self.type == '':
@@ -153,7 +152,9 @@ class BudgetPeriod(models.Model):
     year = models.PositiveIntegerField(default=datetime.today().year)
     starting_bank_balance = models.DecimalField(max_digits=9, decimal_places=2, null=True)
     add_money_schedule_items = models.BooleanField(default=False)
-    use_last_budget = models.BooleanField(default=False)
+    template_budget = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    # use_last_budget = models.BooleanField(default=False)
+    print('IN BUDGET PERIOD MODEL')
     # TODO: add from template option
 
     class Meta:
@@ -229,13 +230,17 @@ class ExpenseCategory(models.Model):
         verbose_name_plural = 'Expense categories'
         unique_together = ('user', 'name', 'budget_period')
 
-
 class ExpenseBudgetItem(models.Model):
+    EXPENSE_CHOICES = (
+        ('Expense', 'Expense'),
+        ('Transfer Funds', 'Transfer Funds'),
+        ('Reserve Funds', 'Reserve Funds'),
+    )
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
-    transfer = models.BooleanField(default=False)
+    type = models.CharField(max_length=50, choices=EXPENSE_CHOICES, default='Expense')
 
     def __str__(self):
         return self.name + ' for $' + str(self.planned_amount) + ' : ' + str(self.expense_category)
