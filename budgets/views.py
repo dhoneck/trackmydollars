@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Sum, Count
 from django.contrib import messages
@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from decimal import *
 from .models import *
+from budgets.forms import BudgetPeriodForm
 from functools import partial
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
@@ -629,34 +630,119 @@ def budget(request):
     return HttpResponseRedirect(f'{current_month}/{current_year}')
 
 
-class AddBudget(SuccessMessageMixin, CreateView):
-    model = BudgetPeriod
-    fields = ['month', 'year', 'starting_bank_balance', 'template_budget', 'add_money_schedule_items']
+# class AddBudgetPeriod(SuccessMessageMixin, CreateView):
+#     model = BudgetPeriod
+#     form_class = BudgetPeriodForm
+#     # fields = ['month', 'year', 'starting_bank_balance']
+#     template_name = 'budgets/add_budget.html'
+#     success_url = '../'
+#     success_message = 'Budget successfully added!'
+#
+#     def get_initial(self):
+#         split_url = self.request.get_full_path().split('/')
+#         month = datetime.strptime(split_url[-4], '%B').month
+#         year = split_url[-3]
+#         return {'month': month, 'year': year}
+#
+#     def get_context_data(self, **kwargs):
+#         # Call the base implementation first to get a context
+#         context = super().get_context_data(**kwargs)
+#         split_url = self.request.get_full_path().split('/')
+#         month = split_url[-4]
+#         year = split_url[-3]
+#         context['month'] = month.capitalize()
+#         context['year'] = year
+#         return context
+#
+#     def get_form_kwargs(self):
+#         kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
+#         kwargs.update({'user': self.request.user.id})
+#         return kwargs
+#
+#     def form_valid(self, form):
+#         user = self.request.user
+#         form.instance.user = user
+#         return super(AddBudgetPeriod, self).form_valid(form)
+
+
+class AddBudgetPeriod(FormView, SuccessMessageMixin):
     template_name = 'budgets/add_budget.html'
+    form_class = BudgetPeriodForm
     success_url = '../'
     success_message = 'Budget successfully added!'
 
+    def get_form_kwargs(self):
+        kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user.id})
+        return kwargs
+
     def get_initial(self):
-        split_url = self.request.get_full_path().split('/')
-        month = datetime.strptime(split_url[-4], '%B').month
-        year = split_url[-3]
-        return {'month': month, 'year': year}
+            split_url = self.request.get_full_path().split('/')
+            month = datetime.strptime(split_url[-4], '%B').month
+            year = split_url[-3]
+            print('MONTH', month, '-', 'YEAR', year)
+            return {'month': month, 'year': year}
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-        split_url = self.request.get_full_path().split('/')
-        month = split_url[-4]
-        year = split_url[-3]
-        context['month'] = month.capitalize()
-        context['year'] = year
-        return context
+            # Call the base implementation first to get a context
+            context = super().get_context_data(**kwargs)
+            split_url = self.request.get_full_path().split('/')
+            month = split_url[-4]
+            year = split_url[-3]
+            context['month'] = month.capitalize()
+            context['year'] = year
+            return context
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
-        return super(AddBudget, self).form_valid(form)
+        current_user = self.request.user.id
+        form_year = form.cleaned_data['year']
+        form_month = form.cleaned_data['month']
+        form_sbb = form.cleaned_data['starting_bank_balance']
 
+        try:
+            # Create a new budget period
+            BudgetPeriod(year=form_year, month=form_month, starting_bank_balance=form_sbb, user_id=current_user).save()
+
+            # Retrieve the new budget period
+            new_bp = BudgetPeriod.objects.get(year=form_year, month=form_month, user_id=current_user)
+
+            # Check to see if there is a template budget period - if there is add those items to current budget
+            template_bp = form.cleaned_data['template']
+            if template_bp:
+                # Add income budget items to the new budget period
+                ibi = IncomeBudgetItem.objects.filter(budget_period_id=template_bp)
+                print('ibi:', ibi)
+                for item in ibi:
+                    item.pk = None
+                    item.budget_period_id = new_bp.id
+                    item.save()
+                # Add expense categories and expense budget items to the new budget period
+                ec = ExpenseCategory.objects.filter(budget_period_id=template_bp)
+                for category in ec:
+                    original_id = category.id
+                    budget_items = category.expense_budget_items.all()
+                    category.id = None
+                    category.budget_period_id = new_bp.id
+                    category.save()
+                    new_id = category.id
+                    for i in budget_items:
+                        i.id = None
+                        i.expense_category_id = new_id
+                        i.save()
+
+        except Exception as err:
+            print('Error:', err)
+        return super(AddBudgetPeriod, self).form_valid(form)
+
+
+# def create_budget(request, month, year):
+#     if request.method == 'POST':
+#         form = BudgetForm(request.POST)
+#         if form.is_valid():
+#             return HttpResponseRedirect('../')
+#     else:
+#         form = BudgetForm(user=request.user.id)
+#     return render(request, 'budgets/add_budget.html', {'form': form})
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """

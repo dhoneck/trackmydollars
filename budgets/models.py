@@ -151,11 +151,6 @@ class BudgetPeriod(models.Model):
     month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
     starting_bank_balance = models.DecimalField(max_digits=9, decimal_places=2, null=True)
-    add_money_schedule_items = models.BooleanField(default=False)
-    template_budget = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
-    # use_last_budget = models.BooleanField(default=False)
-    print('IN BUDGET PERIOD MODEL')
-    # TODO: add from template option
 
     class Meta:
         unique_together = ('user', 'month', 'year',)

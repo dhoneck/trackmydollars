@@ -36,7 +36,9 @@ urlpatterns = [
     # General Budget URLs
     path('budget/', views.budget, name='budget'),
     path('budget/<month>/<int:year>/', views.specific_budget),
-    path('budget/<month>/<int:year>/add-budget/', AddBudget.as_view()),
+    # path('budget/<month>/<int:year>/add-budget/', AddBudget.as_view()),
+    path('budget/<month>/<int:year>/add-budget/', AddBudgetPeriod.as_view()),
+    # path('budget/<month>/<int:year>/add-budget/', views.create_budget),
     path('budget/<month>/<int:year>/delete-budget/<int:id>', DeleteBudget.as_view()),
     path('budget/<month>/<int:year>/next', views.change_budget),
     path('budget/<month>/<int:year>/previous', views.change_budget),

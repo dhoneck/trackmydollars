@@ -11,6 +11,7 @@
   <p>You do not have a budget for {{ month }}, {{ year }}. Create one below.</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
+{#    {{ form }}#}
     <input type="submit" value="Save">
   </form>
 {% endblock %}
