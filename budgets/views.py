@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -85,14 +84,10 @@ def dashboard(request):
 
     # Get a list of abbreviated month names and a list of tuples containing year and month as strings ex: ('2020', '3')
     month_labels, year_month_labels = get_last_12_months_labels()
-    # print('MONTH LABELS:', month_labels)
-    # print('YEAR MONTH LABELS:', year_month_labels)
 
     # Convert year_month_labels into years and months list
     years = [year[0] for year in year_month_labels]
     months = [year[1] for year in year_month_labels]
-    # print('YEARS:', years)
-    # print('MONTHS:', months)
 
     # Get a list of balances for assets, revolving debts, and installment debts for the last 12 months
     asset_partial = partial(get_last_12_months_data, obj=Asset, obj_bal=AssetBalance, user=request.user.id)
@@ -625,44 +620,7 @@ def budget(request):
     # Get current month and year to pass onto another view as a default
     current_month = datetime.today().strftime('%B').lower()
     current_year = datetime.today().year
-    print(current_month)
-    print(current_year)
     return HttpResponseRedirect(f'{current_month}/{current_year}')
-
-
-# class AddBudgetPeriod(SuccessMessageMixin, CreateView):
-#     model = BudgetPeriod
-#     form_class = BudgetPeriodForm
-#     # fields = ['month', 'year', 'starting_bank_balance']
-#     template_name = 'budgets/add_budget.html'
-#     success_url = '../'
-#     success_message = 'Budget successfully added!'
-#
-#     def get_initial(self):
-#         split_url = self.request.get_full_path().split('/')
-#         month = datetime.strptime(split_url[-4], '%B').month
-#         year = split_url[-3]
-#         return {'month': month, 'year': year}
-#
-#     def get_context_data(self, **kwargs):
-#         # Call the base implementation first to get a context
-#         context = super().get_context_data(**kwargs)
-#         split_url = self.request.get_full_path().split('/')
-#         month = split_url[-4]
-#         year = split_url[-3]
-#         context['month'] = month.capitalize()
-#         context['year'] = year
-#         return context
-#
-#     def get_form_kwargs(self):
-#         kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
-#         kwargs.update({'user': self.request.user.id})
-#         return kwargs
-#
-#     def form_valid(self, form):
-#         user = self.request.user
-#         form.instance.user = user
-#         return super(AddBudgetPeriod, self).form_valid(form)
 
 
 class AddBudgetPeriod(FormView, SuccessMessageMixin):
@@ -677,21 +635,21 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         return kwargs
 
     def get_initial(self):
-            split_url = self.request.get_full_path().split('/')
-            month = datetime.strptime(split_url[-4], '%B').month
-            year = split_url[-3]
-            print('MONTH', month, '-', 'YEAR', year)
-            return {'month': month, 'year': year}
+        split_url = self.request.get_full_path().split('/')
+        month = datetime.strptime(split_url[-4], '%B').month
+        year = split_url[-3]
+        print('MONTH', month, '-', 'YEAR', year)
+        return {'month': month, 'year': year}
 
     def get_context_data(self, **kwargs):
-            # Call the base implementation first to get a context
-            context = super().get_context_data(**kwargs)
-            split_url = self.request.get_full_path().split('/')
-            month = split_url[-4]
-            year = split_url[-3]
-            context['month'] = month.capitalize()
-            context['year'] = year
-            return context
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        split_url = self.request.get_full_path().split('/')
+        month = split_url[-4]
+        year = split_url[-3]
+        context['month'] = month.capitalize()
+        context['year'] = year
+        return context
 
     def form_valid(self, form):
         current_user = self.request.user.id
@@ -734,16 +692,6 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
             print('Error:', err)
         return super(AddBudgetPeriod, self).form_valid(form)
 
-
-# def create_budget(request, month, year):
-#     if request.method == 'POST':
-#         form = BudgetForm(request.POST)
-#         if form.is_valid():
-#             return HttpResponseRedirect('../')
-#     else:
-#         form = BudgetForm(user=request.user.id)
-#     return render(request, 'budgets/add_budget.html', {'form': form})
-
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
     # TODO: Get the received field to work - total the actual income and savings
@@ -772,8 +720,6 @@ def specific_budget(request, month, year):
             for t in item.income_transactions.all():
                 total_actual_income += t.amount
                 all_transactions.append(t)
-
-
 
         # Sum the planned expenses
         old_debt_paid = Decimal(0.00)
