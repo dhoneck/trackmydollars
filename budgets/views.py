@@ -768,6 +768,7 @@ def specific_budget(request, month, year):
                    'left_to_spend': left_to_spend,
                    'bp_id': bp.id,
                    'all_transactions': sorted_transactions,
+                   'starting_balance': bp.starting_bank_balance,
                   }
                   )
 

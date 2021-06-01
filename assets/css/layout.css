@@ -174,15 +174,21 @@ Body
 pre {
   margin: 0;
   padding: 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 th {
   text-align: left;
 }
 
+.asset-debt-table, .money-schedule-table {
+  width: 60%;
+  margin-top: 10px;
+  margin-bottom: 40px;
+}
 .asset-debt-table th, .asset-debt-table td {
-  padding: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 0;
+  /*padding: 5px 5px 5px 5px;*/
   white-space: nowrap;
 }
 
@@ -213,13 +219,19 @@ button:hover {
 }
 
 #transaction-table {
+  width: 300px;
   display: block;
   overflow-y: auto;
   max-height: 600px;
 }
 
+#transaction-table tbody {
+  display: table;
+  width: 100%;
+}
+
 #transaction-table td {
-  padding: 8px;
+  padding: 5px 10px;
 }
 
 aside {
@@ -238,8 +250,8 @@ aside {
 }
 
 #budget-sidebar {
-  width: 380px;
-  margin-right: 100px;
+  /*width: 380px;*/
+  margin-right: 20px;
 }
 
 .frequency-header {
@@ -257,7 +269,7 @@ aside {
   /*margin: 10px;*/
 }
 
-.budget-table th, td {
+.budget-table th, .budget-table td {
   width: 150px;
   /*margin-bottom: 25px;*/
 }
@@ -308,10 +320,6 @@ td {
   unicode-bidi: embed;
   font-family: monospace;
   /*white-space: pre;*/
-  font-size: 14px;
-}
-
-pre {
   font-size: 14px;
 }
 
