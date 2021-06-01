@@ -728,13 +728,17 @@ def specific_budget(request, month, year):
             for expense_budget_item in category.expense_budget_items.all():
                 total_planned_expenses += expense_budget_item.planned_amount
                 for t in expense_budget_item.expense_transactions.all():
-                    total_actual_expenses += t.amount
+                    # total_actual_expenses += t.amount
                     all_transactions.append(t)
                     if t.credit_purchase:
                         total_new_debt += t.amount
+                    else:
+                        total_actual_expenses += t.amount
                     if t.credit_payoff:
                         old_debt_paid += t.amount
                         total_paid_debt += t.amount
+
+
 
         print('Old list:', all_transactions)
         sorted_transactions = sorted(all_transactions, key=lambda x: x.date, reverse=True)
@@ -750,6 +754,8 @@ def specific_budget(request, month, year):
     left_to_spend = total_actual_income - total_actual_expenses
     total_remaining_debt = total_new_debt - total_paid_debt
 
+    debits_credits = total_actual_income - total_actual_expenses
+    current_balance = bp.starting_bank_balance + debits_credits
     return render(request,
                   'budgets/budget.html',
                   {
@@ -769,6 +775,8 @@ def specific_budget(request, month, year):
                    'bp_id': bp.id,
                    'all_transactions': sorted_transactions,
                    'starting_balance': bp.starting_bank_balance,
+                   'debits_credits': debits_credits,
+                   'current_balance': current_balance,
                   }
                   )
 

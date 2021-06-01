@@ -31,6 +31,7 @@ Header, Logo, Nav
   background-color: #527EA5;
   padding: 20px;
 }
+
 #logo-dark h1, #logo-dark h2 {
   color: #F1F0F4;
   margin: 0;
@@ -305,6 +306,11 @@ label, input {
 span.helptext {
   display: none;
 }
+
+/*******************************
+Forms
+*******************************/
+
 
 /*******************************
 Tables
