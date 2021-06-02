@@ -215,7 +215,7 @@ class IncomeTransaction(models.Model):
 
     class Meta:
         ordering = ('-amount', 'name',)
-        unique_together = ('user', 'budget_item', 'name',)
+        # unique_together = ('user', 'budget_item', 'name',)
 
 
 
