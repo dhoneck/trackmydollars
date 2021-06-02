@@ -134,7 +134,10 @@
         </tr>
         {% endfor %}
         <tr>
-          <td><a href="expense-category/{{ x.id }}/add-expense-budget-item"><img src="{% static 'images/add-icon-2.png' %}" class="action-imgs"></a></td>
+          <td>
+            <a href="expense-category/{{ x.id }}/add-expense-budget-item"><img src="{% static 'images/plus.png' %}" class="action-imgs"></a>
+            <a href="expense-category/{{ x.id }}/delete"><img src="{% static 'images/minus.png' %}" class="action-imgs"></a>
+          </td>
         </tr>
       </tbody>
     </table>

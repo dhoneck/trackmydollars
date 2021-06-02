@@ -161,11 +161,17 @@ class BudgetPeriod(models.Model):
 
 
 class IncomeBudgetItem(models.Model):
+    INCOME_CHOICES = (
+        ('Income', 'Income'),
+        ('Transfer', 'Transfer'),
+        ('Reserve', 'Reserve'),
+    )
+
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
-    transfer = models.BooleanField(default=False)
+    type = models.CharField(max_length=50, choices=INCOME_CHOICES, default='Income')
 
     def __str__(self):
         return self.name + ' - ' + str(self.budget_period)
@@ -228,8 +234,8 @@ class ExpenseCategory(models.Model):
 class ExpenseBudgetItem(models.Model):
     EXPENSE_CHOICES = (
         ('Expense', 'Expense'),
-        ('Transfer Funds', 'Transfer Funds'),
-        ('Reserve Funds', 'Reserve Funds'),
+        ('Transfer', 'Transfer'),
+        ('Reserve', 'Reserve'),
     )
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')

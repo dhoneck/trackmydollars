@@ -724,9 +724,17 @@ def specific_budget(request, month, year):
         # Sum the planned expenses
         old_debt_paid = Decimal(0.00)
         expense_categories = bp.expense_categories.all()
+
+        reserved_funds = Decimal(0.00)
         for category in expense_categories:
             for expense_budget_item in category.expense_budget_items.all():
                 total_planned_expenses += expense_budget_item.planned_amount
+
+                # Check if reserved funds
+                if expense_budget_item.type == 'Reserve':
+                    total_actual_expenses += expense_budget_item.planned_amount
+                    reserved_funds += expense_budget_item.planned_amount
+
                 for t in expense_budget_item.expense_transactions.all():
                     # total_actual_expenses += t.amount
                     all_transactions.append(t)
@@ -754,7 +762,7 @@ def specific_budget(request, month, year):
     left_to_spend = total_actual_income - total_actual_expenses
     total_remaining_debt = total_new_debt - total_paid_debt
 
-    debits_credits = total_actual_income - total_actual_expenses
+    debits_credits = total_actual_income - total_actual_expenses + abs(reserved_funds)
     current_balance = bp.starting_bank_balance + debits_credits
     return render(request,
                   'budgets/budget.html',
@@ -818,7 +826,7 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
 
 class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
     model = IncomeBudgetItem
-    fields = ['budget_period', 'name', 'planned_amount', 'transfer']
+    fields = ['budget_period', 'name', 'planned_amount', 'type']
     template_name = 'budgets/add_income_budget_item.html'
     success_url = './'
     success_message = 'Income budget item successfully added!'
