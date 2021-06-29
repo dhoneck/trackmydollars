@@ -688,6 +688,13 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                         i.expense_category_id = new_id
                         i.save()
 
+            usable_balance = form.cleaned_data['usable_balance']
+            if usable_balance > 0:
+                reserve_bi = IncomeBudgetItem(name='Reserve Funds', planned_amount=usable_balance, budget_period_id=new_bp.id, user_id=current_user, type='Reserve')
+                reserve_bi.save()
+            # elif usable_balance < 0:
+
+
         except Exception as err:
             print('Error:', err)
         return super(AddBudgetPeriod, self).form_valid(form)
@@ -707,6 +714,7 @@ def specific_budget(request, month, year):
         total_old_debt = Decimal(0.00)
         total_new_debt = Decimal(0.00)
         total_paid_debt = Decimal(0.00)
+        reserved_funds = Decimal(0.00)
 
         income_budget_items = bp.income_budget_items.all()
 
@@ -716,7 +724,14 @@ def specific_budget(request, month, year):
 
         for item in income_budget_items:
             total_planned_income += item.planned_amount
-            # Total income transactions
+
+            # Check if reserved funds
+            if item.type == 'Reserve':
+                total_actual_income += item.planned_amount
+                reserved_funds += item.planned_amount
+
+
+        # Total income transactions
             for t in item.income_transactions.all():
                 total_actual_income += t.amount
                 all_transactions.append(t)
@@ -725,15 +740,15 @@ def specific_budget(request, month, year):
         old_debt_paid = Decimal(0.00)
         expense_categories = bp.expense_categories.all()
 
-        reserved_funds = Decimal(0.00)
         for category in expense_categories:
             for expense_budget_item in category.expense_budget_items.all():
                 total_planned_expenses += expense_budget_item.planned_amount
 
                 # Check if reserved funds
                 if expense_budget_item.type == 'Reserve':
+                    print('In reserve conditional for:', expense_budget_item)
                     total_actual_expenses += expense_budget_item.planned_amount
-                    reserved_funds += expense_budget_item.planned_amount
+                    reserved_funds -= expense_budget_item.planned_amount
 
                 for t in expense_budget_item.expense_transactions.all():
                     # total_actual_expenses += t.amount
@@ -762,7 +777,8 @@ def specific_budget(request, month, year):
     left_to_spend = total_actual_income - total_actual_expenses
     total_remaining_debt = total_new_debt - total_paid_debt
 
-    debits_credits = total_actual_income - total_actual_expenses + abs(reserved_funds)
+    print('Reserved Funds:', reserved_funds)
+    debits_credits = total_actual_income - total_actual_expenses - reserved_funds
     current_balance = bp.starting_bank_balance + debits_credits
     return render(request,
                   'budgets/budget.html',

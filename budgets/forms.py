@@ -64,7 +64,9 @@ CHOICES = (
 class BudgetPeriodForm(forms.Form):
     month = forms.ChoiceField(choices=CHOICES)
     year = forms.IntegerField()
-    starting_bank_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=False)
+    starting_bank_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
+    usable_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
+
 
     def __init__(self, *args, **kwargs):
         print('KWARGS:', kwargs)
