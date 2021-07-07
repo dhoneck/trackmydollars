@@ -1,8 +1,10 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Revolving Debt Balance{% endblock %}
+{% block script %}{% include 'widgets/datepicker.html' %}{% endblock %}
+
 {% block content %}
   <h2>Update Revolving Debt Balance</h2>
-  <form method="post">{%  csrf_token %}
+  <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">
   </form>

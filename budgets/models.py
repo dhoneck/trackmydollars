@@ -92,6 +92,7 @@ class Balance(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     balance = models.DecimalField(max_digits=9, decimal_places=2)
     date = models.DateField(blank=True, null=True)
+    # date = models.DateField(input_formats=['%d/%m/%Y %H:%M'], blank=True, null=True)
 
     def __str__(self):
         return str(self.balance)
@@ -105,7 +106,8 @@ class Balance(models.Model):
     class Meta:
         get_latest_by = 'date'
         abstract = True
-
+        # widgets = {
+        #     'YourDateTimeField': DateWidget(attrs = {'id':'id_dateTimeField'}, bootstrap_version=3, usel10n=True)
 
 class AssetBalance(Balance):
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE, related_name='balances')

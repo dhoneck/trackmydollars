@@ -326,6 +326,8 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
         form.instance.user = user
         return super(AddAssetBalance, self).form_valid(form)
 
+
+
 class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
     model = AssetBalance
     fields = ['asset', 'balance', 'date']
