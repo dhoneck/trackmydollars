@@ -1,8 +1,9 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Income Transaction{% endblock %}
+{% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
 {% block content %}
   <h2>Update Income Transaction</h2>
-  <form method="post">{%  csrf_token %}
+  <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">
   </form>

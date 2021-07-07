@@ -1,6 +1,6 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Add Asset Balance{% endblock %}
-{% block script %}{% include 'widgets/datepicker.html' %}{% endblock %}
+{% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
 {% block content %}
   <h2>Add Asset Balance</h2>
   <form method="post">{% csrf_token %}

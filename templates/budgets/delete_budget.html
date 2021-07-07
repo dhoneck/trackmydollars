@@ -2,7 +2,7 @@
 {% block title %}TrackMyDollars | Delete Budget{% endblock %}
 {% block content %}
   <h2>Delete Budget</h2>
-  <form method="post">{%  csrf_token %}
+  <form method="post">{% csrf_token %}
     <p>Are you sure you want to delete "{{ object }}" and all of its related data?</p>
     <input type="submit" value="Confirm">
   </form>
