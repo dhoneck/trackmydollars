@@ -327,7 +327,6 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
         return super(AddAssetBalance, self).form_valid(form)
 
 
-
 class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
     model = AssetBalance
     fields = ['asset', 'balance', 'date']
@@ -393,6 +392,7 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
         form.instance.user = user
         return super(AddRevolvingDebtBalance, self).form_valid(form)
 
+
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
     fields = ['name', 'type', 'interest_rate', 'initial_amount', 'minimum_payment', 'payoff_date']
@@ -451,6 +451,7 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
         user = self.request.user
         form.instance.user = user
         return super(AddInstallmentDebtBalance, self).form_valid(form)
+
 
 class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
     model = InstallmentDebtBalance
@@ -658,6 +659,8 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         form_year = form.cleaned_data['year']
         form_month = form.cleaned_data['month']
         form_sbb = form.cleaned_data['starting_bank_balance']
+        print('Form year:', form_year)
+        print('Form month:', form_month)
 
         try:
             # Create a new budget period
@@ -694,12 +697,43 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
             if usable_balance > 0:
                 reserve_bi = IncomeBudgetItem(name='Reserve Funds', planned_amount=usable_balance, budget_period_id=new_bp.id, user_id=current_user, type='Reserve')
                 reserve_bi.save()
-            # elif usable_balance < 0:
 
+            add_money_schedule_items = form.cleaned_data['add_money_schedule_items']
+
+            # Check for current month's budget items
+            items_for_month = []
+            if add_money_schedule_items:
+                print('Adding money schedule items')
+                print('Here are all schedule items:')
+                print(ScheduleItem.objects.filter(user=self.request.user.id))
+                # for item in ScheduleItem.objects.filter(user=self.request.user.id).exclude(frequency="Monthly"):
+                for item in ScheduleItem.objects.filter(user=self.request.user.id):
+                    match = item.monthly_occurrences(int(form_year), int(form_month))
+                    if match:
+                        items_for_month.append(item.monthly_occurrences(int(form_year), int(form_month)))
+                print('Schedule Items for this month')
+                print(items_for_month)
+
+                # Add money schedule items to budget
+                for item in items_for_month:
+                    print('Adding to budget:', item)
+
+                    # Check if expense category already exists
+                    expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=current_user, budget_period=new_bp, name=item[0].category)
+                    print('New category:', expense_cat, 'Created:', cat_created)
+
+                    expense_item, item_created = ExpenseBudgetItem.objects.get_or_create(
+                        expense_category=expense_cat,
+                        name=item[0].name,
+                        planned_amount=item[0].amount,
+                    )
+                    print('Expense item:', expense_item, 'Created:', item_created)
+                    # If no expense category listed
 
         except Exception as err:
             print('Error:', err)
         return super(AddBudgetPeriod, self).form_valid(form)
+
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
@@ -900,6 +934,7 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
         form.instance.user = user
         return super(AddIncomeTransaction, self).form_valid(form)
 
+
 class AddExpenseCategory(SuccessMessageMixin, CreateView):
     model = ExpenseCategory
     fields = ['budget_period', 'name']
@@ -927,6 +962,7 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
         user = self.request.user
         form.instance.user = user
         return super(AddExpenseCategory, self).form_valid(form)
+
 
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(SuccessMessageMixin, CreateView):
@@ -961,6 +997,7 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         form.instance.user = user
         return super(AddExpenseTransaction, self).form_valid(form)
 
+
 class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
@@ -978,6 +1015,7 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
         user = self.request.user
         form.instance.user = user
         return super(AddExpenseBudgetItem, self).form_valid(form)
+
 
 class DeleteBudget(SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
@@ -1093,6 +1131,7 @@ class AddScheduleItem(SuccessMessageMixin, CreateView):
         form.instance.user = user
         return super(AddScheduleItem, self).form_valid(form)
 
+
 class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
     model = ScheduleItem
     fields = ['name', 'amount', 'category', 'first_due_date', 'frequency']
@@ -1112,12 +1151,3 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteScheduleItem, self).delete(request, *args, **kwargs)
-
-
-# # Transactions Views
-# def transactions(request):
-#     return render(request, 'budgets/transactions.html')
-
-# # Report Views
-# def reports(request):
-#     return render(request, 'budgets/reports.html')

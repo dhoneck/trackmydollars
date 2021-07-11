@@ -282,10 +282,9 @@ class ExpenseTransaction(models.Model):
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
-    category = models.CharField(max_length=50, default="", blank=True)
+    category = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     first_due_date = models.DateField()
-    # end_date = models.DateField()
     frequency = models.CharField(max_length=50, choices=FREQUENCY)
 
     def __str__(self):
@@ -353,3 +352,26 @@ class ScheduleItem(models.Model):
 
         # print(f'The total for {self.name} for the date ({year}, {month}) is ${total_amount}')
         return total_amount
+
+    def monthly_occurrences(self, year, month):
+        """Returns the money schedule item and total for a particular year/month pair"""
+        occurrences = [self, Decimal(0.00)]
+
+        # Get the time delta to find due dates
+        time_delta = self.get_time_delta()
+
+        # Set the date cutoff - 1st day of the following month
+        date_cutoff = date(year, month, 1) + relativedelta(months=+1)
+
+        date_to_check = self.first_due_date
+
+        # Check for recurring due dates
+        while date_cutoff > date_to_check:
+            if date_to_check.month == month and date_to_check.year == year:
+                occurrences[1] += self.amount
+            date_to_check += time_delta
+
+        if occurrences[1]:
+            return occurrences
+        else:
+            return None
