@@ -626,10 +626,11 @@ def get_budget_period(user, month, year):
         month_by_num = datetime_object.month
         bp = BudgetPeriod.objects.get(user=user, month=month_by_num, year=year)
     except BudgetPeriod.DoesNotExist:
-        print('Does not exist, dummy')
+        raise BudgetPeriod.DoesNotExist
     except Exception as err:
         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
     return bp
+
 
 def budget(request):
     # Get current month and year to pass onto another view as a default
@@ -755,8 +756,6 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'bp'
     success_message = 'Budget period successfully updated!'
 
-    # def
-
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
@@ -767,6 +766,7 @@ def specific_budget(request, month, year):
         # bp = BudgetPeriod.objects.get(user=request.user.id, month=month_by_num, year=year)
 
         bp = get_budget_period(user=request.user.id, month=month, year=year)
+        print('HERE IS THE BP:', bp)
 
         total_planned_income = Decimal(0.00)
         total_planned_expenses = Decimal(0.00)
@@ -790,7 +790,6 @@ def specific_budget(request, month, year):
             if item.type == 'Reserve':
                 total_actual_income += item.planned_amount
                 reserved_funds += item.planned_amount
-
 
         # Total income transactions
             for t in item.income_transactions.all():
@@ -821,8 +820,6 @@ def specific_budget(request, month, year):
                     if t.credit_payoff:
                         old_debt_paid += t.amount
                         total_paid_debt += t.amount
-
-
 
         print('Old list:', all_transactions)
         sorted_transactions = sorted(all_transactions, key=lambda x: x.date, reverse=True)
