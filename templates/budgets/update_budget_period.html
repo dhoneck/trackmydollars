@@ -1,0 +1,9 @@
+{% extends 'budgets/base.html' %}
+{% block title %}TrackMyDollars | Update Budget Period{% endblock %}
+{% block content %}
+  <h2>Update Budget Period</h2>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

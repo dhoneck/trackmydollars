@@ -42,7 +42,7 @@
     </div>
     <div class="budget-overview-container">
       <p><strong>Checking Account</strong></p>
-      <p><pre>Starting Balance ${{ starting_balance }}</pre></p>
+      <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_balance }}</a></pre></p>
       <p><pre>Debits/Credits   ${{ debits_credits }}</pre></p>
       <p><pre>Current Balance  ${{ current_balance }}</pre></p>
     </div>
@@ -110,7 +110,7 @@
     <table class="budget-table">
       <thead>
       <tr>
-        <th>{{ x.name }}</th>
+        <th><a href="expense-category/{{ x.id }}/update">{{ x.name }}</a></th>
         <th>Planned</th>
         <th>Spent</th>
         <th>Transactions</th>

@@ -526,8 +526,8 @@ class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
 
 
 class UpdateExpenseCategory(SuccessMessageMixin, UpdateView):
-    model = IncomeTransaction
-    fields = '__all__'
+    model = ExpenseCategory
+    fields = ['name']
     template_name = 'budgets/update_expense_category.html'
     success_url = '../../'
     pk_url_kwarg = 'ecid'
@@ -619,6 +619,18 @@ def view_revolving_debt_details(request, id):
 
 
 # Add Budget Views
+def get_budget_period(user, month, year):
+    bp = None
+    try:
+        datetime_object = datetime.strptime(month, '%B')
+        month_by_num = datetime_object.month
+        bp = BudgetPeriod.objects.get(user=user, month=month_by_num, year=year)
+    except BudgetPeriod.DoesNotExist:
+        print('Does not exist, dummy')
+    except Exception as err:
+        return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
+    return bp
+
 def budget(request):
     # Get current month and year to pass onto another view as a default
     current_month = datetime.today().strftime('%B').lower()
@@ -735,13 +747,26 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         return super(AddBudgetPeriod, self).form_valid(form)
 
 
+class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
+    model = BudgetPeriod
+    fields = ['starting_bank_balance']
+    template_name = 'budgets/update_budget_period.html'
+    success_url = '../'
+    pk_url_kwarg = 'bp'
+    success_message = 'Budget period successfully updated!'
+
+    # def
+
+
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
     # TODO: Get the received field to work - total the actual income and savings
     try:
-        datetime_object = datetime.strptime(month, '%B')
-        month_by_num = datetime_object.month
-        bp = BudgetPeriod.objects.get(user=request.user.id, month=month_by_num, year=year)
+        # datetime_object = datetime.strptime(month, '%B')
+        # month_by_num = datetime_object.month
+        # bp = BudgetPeriod.objects.get(user=request.user.id, month=month_by_num, year=year)
+
+        bp = get_budget_period(user=request.user.id, month=month, year=year)
 
         total_planned_income = Decimal(0.00)
         total_planned_expenses = Decimal(0.00)
