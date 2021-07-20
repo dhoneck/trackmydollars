@@ -28,7 +28,7 @@ class BudgetPeriodForm(forms.Form):
     year = forms.IntegerField()
     starting_bank_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
     usable_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
-    add_money_schedule_items = forms.BooleanField()
+    add_money_schedule_items = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         print('KWARGS:', kwargs)
