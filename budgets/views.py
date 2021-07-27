@@ -7,12 +7,12 @@ from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from decimal import *
 from .models import *
-from budgets.forms import BudgetPeriodForm
+from django.db.models import F
 from functools import partial
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from budgets.forms import CustomUserCreationForm
+from budgets.forms import CustomUserCreationForm, BudgetPeriodForm, ExpenseTransactionForm, ExpenseTransactionDebtPaymentForm
 from django.contrib.auth.decorators import login_required
 
 # TODO: Get users to sign in by email
@@ -618,12 +618,31 @@ def view_revolving_debt_details(request, id):
     return render(request, 'budgets/view_revolving_debt.html', context)
 
 
+def get_month_and_year_from_request(request):
+    split_url = request.get_full_path().split('/')
+    print('Split URL', split_url)
+    month = split_url[2]
+    year = split_url[3]
+    print('Month:', month)
+    print('Year:', year)
+    return month, year
+
+
 # Add Budget Views
 def get_budget_period(user, month, year):
+    print('In get_budget_period')
+    print('User:', user, type(user), 'Month:', month, type(month), 'Year:', year, type(year))
+    month = str(month)  # Convert for testing
     bp = None
+    print('IS ALPHA:', month.isalpha())
+
     try:
-        datetime_object = datetime.strptime(month, '%B')
-        month_by_num = datetime_object.month
+        if month.isalpha:  # Convert from alpha (e.g. july) to int (e.g. 7)
+            datetime_object = datetime.strptime(month, '%B')
+            month_by_num = datetime_object.month
+            print('month_by_num:', month_by_num, type(month_by_num))
+        else:
+            month_by_num = int(month)
         bp = BudgetPeriod.objects.get(user=user, month=month_by_num, year=year)
     except BudgetPeriod.DoesNotExist:
         raise BudgetPeriod.DoesNotExist
@@ -764,7 +783,7 @@ def specific_budget(request, month, year):
         # datetime_object = datetime.strptime(month, '%B')
         # month_by_num = datetime_object.month
         # bp = BudgetPeriod.objects.get(user=request.user.id, month=month_by_num, year=year)
-
+        print('Budget month:', month, type(month), 'Budget year:', year, type(year))
         bp = get_budget_period(user=request.user.id, month=month, year=year)
         print('HERE IS THE BP:', bp)
 
@@ -988,15 +1007,23 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
 
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(SuccessMessageMixin, CreateView):
-    model = ExpenseTransaction
-    fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'credit_payoff', 'date']
+    # model = ExpenseTransaction
+    # fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'credit_payoff', 'date']
     template_name = 'budgets/add_expense_transaction.html'
+    form_class = ExpenseTransactionForm
     success_url = '../../../../'
     success_message = 'Expense transaction successfully added!'
 
+    def get_form_kwargs(self):
+        kwargs = super(AddExpenseTransaction, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user.id})
+        return kwargs
+
     def get_initial(self):
         # TODO: Make sure foreign key 'Budget Item' only shows that months items
-        return {'expense_budget_item': self.request.get_full_path().split('/')[-2],
+        return {
+                'user': self.request.user.id,
+                'expense_budget_item': self.request.get_full_path().split('/')[-2],
                 'date': datetime.today(),
                 }
 
@@ -1015,8 +1042,24 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        # If transaction was a credit purchase, add item to new debt expense
+        if form.cleaned_data['credit_purchase']:
+            month, year = get_month_and_year_from_request(self.request)
+            user = self.request.user.id
+            bp = get_budget_period(user, month, year)
+
+            expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=user, budget_period=bp, name='New Debt')
+
+            try:
+                expense_bi, created = ExpenseBudgetItem.objects.get_or_create(
+                    user_id=user,
+                    expense_category=expense_cat,
+                    name='New Debt',
+                    defaults={'planned_amount': 0},
+                )
+            finally:
+                expense_bi.planned_amount += form.cleaned_data['amount']
+                expense_bi.save()
         return super(AddExpenseTransaction, self).form_valid(form)
 
 
@@ -1052,12 +1095,10 @@ class DeleteBudget(SuccessMessageMixin, DeleteView):
 
 
 def view_transactions(request, month, year):
-    print('Viewing transactions')
     datetime_object = datetime.strptime(month, '%B')
     month_by_num = datetime_object.month
     bp = BudgetPeriod.objects.get(month=month_by_num, year=year)
 
-    print(bp)
     context = {}
     try:
         context['income_budget_items'] = IncomeBudgetItem.objects.filter(budget_period=bp.id)
@@ -1068,6 +1109,31 @@ def view_transactions(request, month, year):
     context['year'] = year
 
     return render(request, 'budgets/view_transactions.html', context)
+
+
+class AddDebtPayment(SuccessMessageMixin, CreateView):
+    # model = ExpenseTransaction
+    # fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'credit_payoff', 'date']
+    template_name = 'budgets/add_expense_transaction.html'
+    form_class = ExpenseTransactionDebtPaymentForm
+    success_url = '../../../../'
+    success_message = 'Expense transaction successfully added!'
+
+    def get_form_kwargs(self):
+        kwargs = super(AddDebtPayment, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user.id})
+        return kwargs
+
+    def get_initial(self):
+        # TODO: Make sure foreign key 'Budget Item' only shows that months items
+        return {
+            'user': self.request.user.id,
+            'expense_budget_item': self.request.get_full_path().split('/')[-2],
+            'date': datetime.today(),
+        }
+
+    def form_valid(self, form):
+        return super(AddDebtPayment, self).form_valid(form)
 
 
 # Schedule Views
@@ -1119,8 +1185,6 @@ def view_schedule(request):
     for idx, month in enumerate(month_labels):
         if month == 'Jan':
             month_labels[idx] = 'Jan ' + year
-
-    print(month_labels)
 
     item_data = []
 

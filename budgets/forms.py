@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from .models import BudgetPeriod
+from .models import BudgetPeriod, ExpenseTransaction
 
 CHOICES = (
     (1, 'Jan'),
@@ -41,3 +41,29 @@ class BudgetPeriodForm(forms.Form):
 
 class DateForm(forms.Form):
     date = forms.DateTimeField(input_formats=['%Y-%m-%d'])
+
+
+class ExpenseTransactionForm(forms.ModelForm):
+    class Meta:
+        model = ExpenseTransaction
+        exclude = ['user', 'credit_payoff']
+
+    def __init__(self, *args, **kwargs):
+        print('KWARGS:', kwargs)
+        print('ARGS:', args)
+        self.user = kwargs.pop('user')
+        print('USER IN FORM:', self.user)
+        super(ExpenseTransactionForm, self).__init__(*args, **kwargs)
+
+
+class ExpenseTransactionDebtPaymentForm(forms.ModelForm):
+    class Meta:
+        model = ExpenseTransaction
+        exclude = ['user', 'credit_purchase', 'credit_payoff',]
+
+    def __init__(self, *args, **kwargs):
+        print('KWARGS:', kwargs)
+        print('ARGS:', args)
+        self.user = kwargs.pop('user')
+        print('USER IN FORM:', self.user)
+        super(ExpenseTransactionDebtPaymentForm, self).__init__(*args, **kwargs)

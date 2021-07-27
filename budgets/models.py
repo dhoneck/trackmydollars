@@ -220,7 +220,6 @@ class IncomeTransaction(models.Model):
         # unique_together = ('user', 'budget_item', 'name',)
 
 
-
 class ExpenseCategory(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='expense_categories')
@@ -232,6 +231,7 @@ class ExpenseCategory(models.Model):
     class Meta:
         verbose_name_plural = 'Expense categories'
         unique_together = ('user', 'name', 'budget_period')
+
 
 class ExpenseBudgetItem(models.Model):
     EXPENSE_CHOICES = (
@@ -278,6 +278,7 @@ class ExpenseTransaction(models.Model):
 
     def get_signed_value(self):
         return f'-{self.amount}'
+
 
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
