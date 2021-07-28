@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Sum, Count
+from django.db.models import Sum
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
@@ -45,7 +45,7 @@ NEED_WANT_SAVINGS_DEBT = (
 
 # Asset and Debt Models
 class Asset(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True)
 
@@ -61,7 +61,7 @@ class Asset(models.Model):
 
 
 class Debt(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True, default='')
     interest_rate = models.DecimalField(max_digits=9, decimal_places=4, blank=True, null=True)
@@ -89,7 +89,7 @@ class RevolvingDebt(Debt):
 
 
 class Balance(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=9, decimal_places=2)
     date = models.DateField(blank=True, null=True)
     # date = models.DateField(input_formats=['%d/%m/%Y %H:%M'], blank=True, null=True)
@@ -106,8 +106,7 @@ class Balance(models.Model):
     class Meta:
         get_latest_by = 'date'
         abstract = True
-        # widgets = {
-        #     'YourDateTimeField': DateWidget(attrs = {'id':'id_dateTimeField'}, bootstrap_version=3, usel10n=True)
+
 
 class AssetBalance(Balance):
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE, related_name='balances')
@@ -149,7 +148,7 @@ class BudgetPeriod(models.Model):
         (11, 'Nov'),
         (12, 'Dec'),
     )
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
     starting_bank_balance = models.DecimalField(max_digits=9, decimal_places=2, null=True)
@@ -169,7 +168,7 @@ class IncomeBudgetItem(models.Model):
         ('Reserve', 'Reserve'),
     )
 
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -193,7 +192,7 @@ class IncomeTransaction(models.Model):
     # TODO: Add limited_choices_to in budget_item to prevent seeing other months items
     # https://stackoverflow.com/questions/31578559/django-foreignkey-limit-choices-to-a-different-foreignkey-id
     # https://stackoverflow.com/questions/7133455/django-limit-choices-to-doesnt-work-on-manytomanyfield
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     budget_item = models.ForeignKey('IncomeBudgetItem',
                                     on_delete=models.CASCADE,
                                     related_name='income_transactions',
@@ -217,11 +216,10 @@ class IncomeTransaction(models.Model):
 
     class Meta:
         ordering = ('-amount', 'name',)
-        # unique_together = ('user', 'budget_item', 'name',)
 
 
 class ExpenseCategory(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='expense_categories')
     name = models.CharField(max_length=50)
 
@@ -245,7 +243,7 @@ class ExpenseBudgetItem(models.Model):
         ('Transfer', 'Transfer'),
         ('Reserve', 'Reserve'),
     )
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -255,10 +253,10 @@ class ExpenseBudgetItem(models.Model):
         return self.name + ' for $' + str(self.planned_amount) + ' : ' + str(self.expense_category)
 
     def __float__(self):
-        if self.amount is None:
+        if self.planned_amount is None:
             return 0.00
         else:
-            return float(self.amount)
+            return float(self.planned_amount)
 
     def get_total_transactions(self):
         return self.expense_transactions.count()
@@ -271,7 +269,7 @@ class ExpenseBudgetItem(models.Model):
 
 
 class ExpenseTransaction(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     expense_budget_item = models.ForeignKey('ExpenseBudgetItem', on_delete=models.CASCADE, related_name='expense_transactions')
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -287,7 +285,7 @@ class ExpenseTransaction(models.Model):
 
 
 class ScheduleItem(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     category = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
@@ -299,22 +297,21 @@ class ScheduleItem(models.Model):
 
     def get_time_delta(self):
         if self.frequency == 'Weekly':
-            td = timedelta(weeks=1)
+            return timedelta(weeks=1)
         elif self.frequency == 'Every two weeks':
-            td = timedelta(weeks=2)
+            return timedelta(weeks=2)
         elif self.frequency == 'Monthly':
-            td = relativedelta(months=+1)
+            return relativedelta(months=+1)
         elif self.frequency == 'Every two months':
-            td = relativedelta(months=+2)
+            return relativedelta(months=+2)
         elif self.frequency == 'Quarterly':
-            td = relativedelta(months=+4)
+            return relativedelta(months=+4)
         elif self.frequency == 'Every six months':
-            td = relativedelta(months=+6)
+            return relativedelta(months=+6)
         elif self.frequency == 'Yearly':
-            td = relativedelta(years=+1)
+            return relativedelta(years=+1)
         elif self.frequency == 'One time only':
-            pass # TODO: Do I need to implement something here? I could run into issues in the future
-        return td
+            return relativedelta(days=0)
 
     def get_next_payment(self):
         """Calculates the next payment date"""

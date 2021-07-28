@@ -59,6 +59,108 @@ def register(request):
             return redirect(reverse("dashboard"))
 
 
+# Helper Functions
+def format_numbers(**kwargs):
+    """Formats strings to the correct amount of spaces based on longest number"""
+    # Get the length of the longest integral number
+    max_integral_length = 0
+    for value in kwargs.values():
+        len_of_value = len(str(value).split('.')[0])
+        if len_of_value > max_integral_length:
+            max_integral_length = len_of_value
+
+    # Calculate number of commas
+    commas = 0
+    if max_integral_length > 3:
+        commas = max_integral_length//3
+
+    # Add total length of formatted number
+    full_length = max_integral_length + commas + 3
+
+    # Format numbers based on longest length
+    formatted_numbers = {}
+    format_string = "$ {:" + str(full_length) + ",.2f}"
+    for key, value in kwargs.items():
+        formatted_numbers[key] = format_string.format(value)
+    return formatted_numbers
+
+
+def add_lists(x, y):
+    return x + y
+
+
+def subtract_lists(x, y):
+    return x - y
+
+
+def get_last_12_months_labels(get_next_12=False):
+    """Get a list of abbreviated month names and a list of tuples containing year and month as strings"""
+    month_labels = []
+    year_month_labels = []
+
+    current_date = datetime.today()
+
+    # If get_next_12 is set to True it will set the current_date value 11 months ahead
+    if get_next_12:
+        current_date = current_date + relativedelta(months=11)
+
+    month = (current_date.strftime('%b %Y'))
+    month_labels.append(month)
+
+    year_month = (current_date.strftime('%Y'), current_date.strftime('%m').lstrip('0'))
+    year_month_labels.append(year_month)
+
+    for m in range(1, 12):
+        adjusted_date = current_date+relativedelta(months=-m)
+        if m == 11:  # Makes last month include the year as well
+            month = adjusted_date.strftime('%b %Y')
+        else:
+            month = adjusted_date.strftime('%b')
+        year_month = (adjusted_date.strftime('%Y'), adjusted_date.strftime('%m').lstrip('0'))
+        month_labels.insert(0, month)
+        year_month_labels.insert(0, year_month)
+
+    return month_labels, year_month_labels
+
+
+def get_last_12_months_data(year, month, obj, obj_bal, user):
+    """Add up the balances for an object based on year and month"""
+    total_for_month = Decimal(0.00)
+
+    # Loop through all of the objects
+    for a in obj.objects.filter(user=user):
+
+        filter_args = {}
+        if issubclass(obj, Asset):
+            filter_args['asset__id'] = a.id
+        elif issubclass(obj, RevolvingDebt) or issubclass(obj, InstallmentDebt):
+            filter_args['debt__id'] = a.id
+
+        filter_args['date__year'] = year
+        filter_args['date__month'] = month
+
+        bal = obj_bal.objects.filter(**filter_args).first()
+
+        if bal is not None:
+            total_for_month += bal.balance
+
+        elif bal is None:  # Check for last balance entry
+            # kwargs
+            kwargs = {"date__lt": date(int(year), int(month), 1)}
+            if issubclass(obj, Asset):
+                kwargs['asset_id'] = a.id
+            elif issubclass(obj, RevolvingDebt):
+                kwargs['debt_id'] = a.id
+            elif issubclass(obj, InstallmentDebt):
+                kwargs['debt_id'] = a.id
+
+            remaining_balance = obj_bal.objects.filter(**kwargs).first()
+            if remaining_balance is not None:
+                total_for_month += remaining_balance.balance
+
+    return float(total_for_month)
+
+
 # User Based Views
 @login_required(login_url='../accounts/login/')
 def dashboard(request):
@@ -118,108 +220,6 @@ def dashboard(request):
                   )
 
 
-def format_numbers(**kwargs):
-    """Formats strings to the correct amount of spaces based on longest number"""
-    # Get the length of the longest integral number
-    max_integral_length = 0
-    for value in kwargs.values():
-        len_of_value = len(str(value).split('.')[0])
-        if len_of_value > max_integral_length:
-            max_integral_length = len_of_value
-
-    # Calculate number of commas
-    commas = 0
-    if max_integral_length > 3:
-        commas = max_integral_length//3
-
-    # Add total length of formatted number
-    full_length = max_integral_length + commas + 3
-
-    # Format numbers based on longest length
-    formatted_numbers = {}
-    format_string = "$ {:" + str(full_length) + ",.2f}"
-    for key, value in kwargs.items():
-        formatted_numbers[key] = format_string.format(value)
-    return formatted_numbers
-
-
-def add_lists(x, y):
-    return x + y
-
-
-def subtract_lists(x, y):
-    return x - y
-
-
-def get_last_12_months_labels(get_next_12=False):
-    """Get a list of abbreviated month names and a list of tuples containing year and month as strings"""
-    month_labels = []
-    year_month_labels = []
-
-    current_date = datetime.today()
-
-    # If get_next_12 is set to True it will set the current_date value 11 months ahead
-    if get_next_12 == True:
-        current_date = current_date + relativedelta(months=11)
-
-
-    month = (current_date.strftime('%b %Y'))
-    month_labels.append(month)
-
-    year_month = (current_date.strftime('%Y'), current_date.strftime('%m').lstrip('0'))
-    year_month_labels.append(year_month)
-
-    for m in range(1, 12):
-        adjusted_date = current_date+relativedelta(months=-m)
-        if m == 11:  # Makes last month include the year as well
-            month = adjusted_date.strftime('%b %Y')
-        else:
-            month = adjusted_date.strftime('%b')
-        year_month = (adjusted_date.strftime('%Y'), adjusted_date.strftime('%m').lstrip('0'))
-        month_labels.insert(0, month)
-        year_month_labels.insert(0, year_month)
-
-    return month_labels, year_month_labels
-
-
-def get_last_12_months_data(year, month, obj, obj_bal, user):
-    """Add up the balances for an object based on year and month"""
-    total_for_month = Decimal(0.00)
-
-    # Loop through all of the objects
-    for a in obj.objects.filter(user=user):
-
-        filter_args = {}
-        if issubclass(obj, Asset):
-            filter_args['asset__id'] = a.id
-        elif issubclass(obj, RevolvingDebt) or issubclass(obj, InstallmentDebt):
-            filter_args['debt__id'] = a.id
-
-        filter_args['date__year'] = year
-        filter_args['date__month'] = month
-
-        bal = obj_bal.objects.filter(**filter_args).first()
-
-        if bal is not None:
-            total_for_month += bal.balance
-
-        elif bal is None:  # Check for last balance entry
-            # kwargs
-            kwargs = {"date__lt": date(int(year), int(month), 1)}
-            if issubclass(obj, Asset):
-                kwargs['asset_id'] = a.id
-            elif issubclass(obj, RevolvingDebt):
-                kwargs['debt_id'] = a.id
-            elif issubclass(obj, InstallmentDebt):
-                kwargs['debt_id'] = a.id
-
-            remaining_balance = obj_bal.objects.filter(**kwargs).first()
-            if remaining_balance is not None:
-                total_for_month += remaining_balance.balance
-
-    return float(total_for_month)
-
-
 # Asset Views
 @login_required(login_url='../accounts/login/')
 def assets_debts(request):
@@ -270,8 +270,7 @@ class AddAsset(SuccessMessageMixin, CreateView):
     success_message = 'Asset successfully added!'
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddAsset, self).form_valid(form)
 
 
@@ -318,8 +317,7 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddAssetBalance, self).form_valid(form)
 
 
@@ -353,8 +351,7 @@ class AddInstallmentDebt(SuccessMessageMixin, CreateView):
     success_message = 'Installment debt successfully added!'
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddInstallmentDebt, self).form_valid(form)
 
 
@@ -366,8 +363,7 @@ class AddRevolvingDebt(SuccessMessageMixin, CreateView):
     success_message = 'Revolving debt successfully added!'
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddRevolvingDebt, self).form_valid(form)
 
 
@@ -384,14 +380,13 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddRevolvingDebtBalance, self).form_valid(form)
 
 
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
-    fields = ['name', 'type', 'interest_rate', 'initial_amount', 'minimum_payment', 'payoff_date']
+    fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
     template_name = 'budgets/update_installment_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -444,8 +439,7 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddInstallmentDebtBalance, self).form_valid(form)
 
 
@@ -915,8 +909,7 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddIncomeBudgetItem, self).form_valid(form)
 
 
@@ -946,8 +939,7 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddIncomeTransaction, self).form_valid(form)
 
 
@@ -970,8 +962,7 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
         return {'budget_period': bpid,}
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddExpenseCategory, self).form_valid(form)
 
 
@@ -1047,8 +1038,7 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddExpenseBudgetItem, self).form_valid(form)
 
 
@@ -1189,8 +1179,7 @@ class AddScheduleItem(SuccessMessageMixin, CreateView):
     success_message = 'Schedule item successfully added!'
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
+        form.instance.user = self.request.user
         return super(AddScheduleItem, self).form_valid(form)
 
 
