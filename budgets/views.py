@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 from decimal import *
 from .models import *
 from django.db.models import F
+from django.db import IntegrityError
 from functools import partial
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
@@ -304,30 +305,64 @@ class DeleteAsset(SuccessMessageMixin, DeleteView):
         return super(DeleteAsset, self).delete(request, *args, **kwargs)
 
 
+# TODO: Remove asset from the form and add it to the template
+# TODO: Handle form when values are not unique
 class AddAssetBalance(SuccessMessageMixin, CreateView):
     model = AssetBalance
-    fields = ['asset', 'balance', 'date']
+    fields = ['balance', 'date']
     template_name = 'budgets/add_asset_balance.html'
     success_url = '../view'
     success_message = 'Asset balance successfully added!'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asset_id = int(self.request.get_full_path().split('/')[-3])
+        asset_name = Asset.objects.get(id=asset_id).name
+        context['asset_name'] = asset_name
+        return context
+
     def get_initial(self):
-        return {'asset': self.request.get_full_path().split('/')[-3],
-                'date': datetime.today().strftime("%Y-%m-%d"),
-                }
+        return {'date': datetime.today().strftime("%Y-%m-%d")}
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(AddAssetBalance, self).form_valid(form)
+        try:
+            form.instance.user = self.request.user
+            form.instance.asset_id = int(self.request.get_full_path().split('/')[-3])
+            return super(AddAssetBalance, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                )
+            )
 
 
 class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
     model = AssetBalance
-    fields = ['asset', 'balance', 'date']
+    fields = ['balance', 'date']
     template_name = 'budgets/update_asset_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Asset balance successfully updated!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asset_id = int(self.request.get_full_path().split('/')[-3])
+        asset_name = Asset.objects.get(id=asset_id).name
+        context['asset_name'] = asset_name
+        return context
+
+    def form_valid(self, form):
+        try:
+            return super(UpdateAssetBalance, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                )
+            )
 
 
 class DeleteAssetBalance(SuccessMessageMixin, DeleteView):

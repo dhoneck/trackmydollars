@@ -3,6 +3,10 @@
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
 {% block content %}
   <h2>Add Asset Balance</h2>
+  {% if message %}
+  <p class="alert">{{ message }}</p>
+  {% endif %}
+  <p>{{ asset_name }}</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">
