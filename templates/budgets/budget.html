@@ -110,7 +110,11 @@
     <table class="budget-table">
       <thead>
       <tr>
+        {% if x.is_new_debt %}
+        <th>{{ x.name }}</th>
+        {% else %}
         <th><a href="expense-category/{{ x.id }}/update">{{ x.name }}</a></th>
+        {% endif %}
         <th>Planned</th>
         <th>Spent</th>
         <th>Transactions</th>
@@ -126,19 +130,27 @@
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_spent }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_transactions }}</a></td>
           <td>
+            {% if x.is_new_debt %}
+            <a href="pay-debt"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
+            {% else %}
+            {% if not x.is_new_debt %}
             <a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/add-expense-transaction"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
+            {% endif %}
             <a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
             <a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            {% endif %}
           </td>
 
         </tr>
         {% endfor %}
+        {% if not x.is_new_debt %}
         <tr>
           <td>
             <a href="expense-category/{{ x.id }}/add-expense-budget-item"><img src="{% static 'images/plus.png' %}" class="action-imgs"></a>
             <a href="expense-category/{{ x.id }}/delete"><img src="{% static 'images/minus.png' %}" class="action-imgs"></a>
           </td>
         </tr>
+        {% endif %}
       </tbody>
     </table>
     {% endfor %}

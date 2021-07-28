@@ -31,10 +31,7 @@ class BudgetPeriodForm(forms.Form):
     add_money_schedule_items = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
-        print('KWARGS:', kwargs)
-        print('ARGS:', args)
         self.user = kwargs.pop('user')
-        print('USER IN FORM:', self.user)
         super(BudgetPeriodForm, self).__init__(*args, **kwargs)
         self.fields['template'] = forms.ModelChoiceField(required=False, queryset=BudgetPeriod.objects.filter(user_id=self.user).order_by('-month', '-year'))
 
@@ -49,21 +46,15 @@ class ExpenseTransactionForm(forms.ModelForm):
         exclude = ['user', 'credit_payoff']
 
     def __init__(self, *args, **kwargs):
-        print('KWARGS:', kwargs)
-        print('ARGS:', args)
         self.user = kwargs.pop('user')
-        print('USER IN FORM:', self.user)
         super(ExpenseTransactionForm, self).__init__(*args, **kwargs)
 
 
 class ExpenseTransactionDebtPaymentForm(forms.ModelForm):
     class Meta:
         model = ExpenseTransaction
-        exclude = ['user', 'credit_purchase', 'credit_payoff',]
+        fields = ['name', 'amount', 'date']
 
     def __init__(self, *args, **kwargs):
-        print('KWARGS:', kwargs)
-        print('ARGS:', args)
         self.user = kwargs.pop('user')
-        print('USER IN FORM:', self.user)
         super(ExpenseTransactionDebtPaymentForm, self).__init__(*args, **kwargs)

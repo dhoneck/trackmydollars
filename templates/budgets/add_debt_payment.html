@@ -1,0 +1,10 @@
+{% extends 'budgets/base.html' %}
+{% block title %}TrackMyDollars | Add Debt Payment{% endblock %}
+{% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
+{% block content %}
+  <h2>Add Debt Payment</h2>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save" name="{{ destination }}">
+  </form>
+{% endblock %}

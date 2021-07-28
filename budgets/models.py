@@ -228,6 +228,12 @@ class ExpenseCategory(models.Model):
     def __str__(self):
         return self.name + ' for ' + str(self.budget_period)
 
+    def is_new_debt(self):
+        if self.name == 'New Debt':
+            return True
+        else:
+            return False
+
     class Meta:
         verbose_name_plural = 'Expense categories'
         unique_together = ('user', 'name', 'budget_period')

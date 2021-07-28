@@ -171,7 +171,7 @@ def get_last_12_months_labels(get_next_12=False):
 
     for m in range(1, 12):
         adjusted_date = current_date+relativedelta(months=-m)
-        if m == 11:  # Makes last month print the year as well
+        if m == 11:  # Makes last month include the year as well
             month = adjusted_date.strftime('%b %Y')
         else:
             month = adjusted_date.strftime('%b')
@@ -194,8 +194,6 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
             filter_args['asset__id'] = a.id
         elif issubclass(obj, RevolvingDebt) or issubclass(obj, InstallmentDebt):
             filter_args['debt__id'] = a.id
-        else:
-            print('No class found!')
 
         filter_args['date__year'] = year
         filter_args['date__month'] = month
@@ -214,8 +212,6 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
                 kwargs['debt_id'] = a.id
             elif issubclass(obj, InstallmentDebt):
                 kwargs['debt_id'] = a.id
-            else:
-                print('No class found!')
 
             remaining_balance = obj_bal.objects.filter(**kwargs).first()
             if remaining_balance is not None:
@@ -620,27 +616,20 @@ def view_revolving_debt_details(request, id):
 
 def get_month_and_year_from_request(request):
     split_url = request.get_full_path().split('/')
-    print('Split URL', split_url)
     month = split_url[2]
     year = split_url[3]
-    print('Month:', month)
-    print('Year:', year)
     return month, year
 
 
 # Add Budget Views
 def get_budget_period(user, month, year):
-    print('In get_budget_period')
-    print('User:', user, type(user), 'Month:', month, type(month), 'Year:', year, type(year))
     month = str(month)  # Convert for testing
     bp = None
-    print('IS ALPHA:', month.isalpha())
 
     try:
         if month.isalpha:  # Convert from alpha (e.g. july) to int (e.g. 7)
             datetime_object = datetime.strptime(month, '%B')
             month_by_num = datetime_object.month
-            print('month_by_num:', month_by_num, type(month_by_num))
         else:
             month_by_num = int(month)
         bp = BudgetPeriod.objects.get(user=user, month=month_by_num, year=year)
@@ -673,7 +662,6 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         split_url = self.request.get_full_path().split('/')
         month = datetime.strptime(split_url[-4], '%B').month
         year = split_url[-3]
-        print('MONTH', month, '-', 'YEAR', year)
         return {'month': month, 'year': year}
 
     def get_context_data(self, **kwargs):
@@ -691,8 +679,6 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         form_year = form.cleaned_data['year']
         form_month = form.cleaned_data['month']
         form_sbb = form.cleaned_data['starting_bank_balance']
-        print('Form year:', form_year)
-        print('Form month:', form_month)
 
         try:
             # Create a new budget period
@@ -706,7 +692,6 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
             if template_bp:
                 # Add income budget items to the new budget period
                 ibi = IncomeBudgetItem.objects.filter(budget_period_id=template_bp)
-                print('ibi:', ibi)
                 for item in ibi:
                     item.pk = None
                     item.budget_period_id = new_bp.id
@@ -735,35 +720,25 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
             # Check for current month's budget items
             items_for_month = []
             if add_money_schedule_items:
-                print('Adding money schedule items')
-                print('Here are all schedule items:')
-                print(ScheduleItem.objects.filter(user=self.request.user.id))
                 # for item in ScheduleItem.objects.filter(user=self.request.user.id).exclude(frequency="Monthly"):
                 for item in ScheduleItem.objects.filter(user=self.request.user.id):
                     match = item.monthly_occurrences(int(form_year), int(form_month))
                     if match:
                         items_for_month.append(item.monthly_occurrences(int(form_year), int(form_month)))
-                print('Schedule Items for this month')
-                print(items_for_month)
 
                 # Add money schedule items to budget
                 for item in items_for_month:
-                    print('Adding to budget:', item)
-
                     # Check if expense category already exists
                     expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=current_user, budget_period=new_bp, name=item[0].category)
-                    print('New category:', expense_cat, 'Created:', cat_created)
 
                     expense_item, item_created = ExpenseBudgetItem.objects.get_or_create(
                         expense_category=expense_cat,
                         name=item[0].name,
                         planned_amount=item[0].amount,
                     )
-                    print('Expense item:', expense_item, 'Created:', item_created)
-                    # If no expense category listed
 
         except Exception as err:
-            print('Error:', err)
+            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
         return super(AddBudgetPeriod, self).form_valid(form)
 
 
@@ -780,12 +755,7 @@ def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
     # TODO: Get the received field to work - total the actual income and savings
     try:
-        # datetime_object = datetime.strptime(month, '%B')
-        # month_by_num = datetime_object.month
-        # bp = BudgetPeriod.objects.get(user=request.user.id, month=month_by_num, year=year)
-        print('Budget month:', month, type(month), 'Budget year:', year, type(year))
         bp = get_budget_period(user=request.user.id, month=month, year=year)
-        print('HERE IS THE BP:', bp)
 
         total_planned_income = Decimal(0.00)
         total_planned_expenses = Decimal(0.00)
@@ -817,15 +787,16 @@ def specific_budget(request, month, year):
 
         # Sum the planned expenses
         old_debt_paid = Decimal(0.00)
+        # expense_categories = bp.expense_categories.exclude(name='New Debt')
         expense_categories = bp.expense_categories.all()
 
         for category in expense_categories:
             for expense_budget_item in category.expense_budget_items.all():
-                total_planned_expenses += expense_budget_item.planned_amount
+                if expense_budget_item.name != 'New Debt':
+                    total_planned_expenses += expense_budget_item.planned_amount
 
                 # Check if reserved funds
                 if expense_budget_item.type == 'Reserve':
-                    print('In reserve conditional for:', expense_budget_item)
                     total_actual_expenses += expense_budget_item.planned_amount
                     reserved_funds -= expense_budget_item.planned_amount
 
@@ -840,30 +811,40 @@ def specific_budget(request, month, year):
                         old_debt_paid += t.amount
                         total_paid_debt += t.amount
 
-        print('Old list:', all_transactions)
+        # Add debt payment transactions to all_transactions
+        try:
+            new_debt = bp.expense_categories.get(name='New Debt')
+        except ExpenseCategory.DoesNotExist:
+            new_debt = None
+        if new_debt:
+            # Remove New Debt from queryset and re-add it to a list to add it to the end
+            expense_categories = expense_categories.exclude(name='New Debt')
+            expense_categories = list(expense_categories)
+            expense_categories.append(bp.expense_categories.get(name='New Debt'))
+
         sorted_transactions = sorted(all_transactions, key=lambda x: x.date, reverse=True)
 
     except BudgetPeriod.DoesNotExist:
-        print('Does not exist, dummy')
         return HttpResponseRedirect('add-budget/')
     except Exception as err:
-        print('Second except clause')
         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
 
     left_to_plan = total_planned_income - total_planned_expenses
     left_to_spend = total_actual_income - total_actual_expenses
     total_remaining_debt = total_new_debt - total_paid_debt
 
-    print('Reserved Funds:', reserved_funds)
     debits_credits = total_actual_income - total_actual_expenses - reserved_funds
     current_balance = bp.starting_bank_balance + debits_credits
+
+
     return render(request,
                   'budgets/budget.html',
                   {
                    'month': month.capitalize(),
                    'year': year,
                    'income_budget_items': income_budget_items,
-                   'expense_categories': bp.expense_categories.all(),
+                   'expense_categories': expense_categories,
+                   'new_debt': new_debt,
                    'total_planned_income': total_planned_income,
                    'total_planned_expenses': total_planned_expenses,
                    'total_actual_income': total_actual_income,
@@ -894,7 +875,6 @@ def change_budget(request, month, year):
 
     adjusted_month = adjusted_date.strftime("%B")
     adjusted_year = adjusted_date.year
-    print(adjusted_month, adjusted_year)
 
     return HttpResponseRedirect(f'../../{adjusted_month}/{adjusted_year}')
 
@@ -929,12 +909,8 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
         try:
             m = datetime.strptime(self.request.get_full_path().split('/')[-3], '%B').month
             bpid = BudgetPeriod.objects.get(user=self.request.user, month=m, year=int(self.request.get_full_path().split('/')[-2]))
-            print(bpid)
-            print(m)
-        except:
-            print('In except clause')
-        print(self.request.get_full_path().split('/')[-2])
-        print(self.request.get_full_path().split('/')[-3],)
+        except Exception as err:
+            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
         return {'budget_period': bpid,
                 }
 
@@ -945,7 +921,6 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
 
 
 class AddIncomeTransaction(SuccessMessageMixin, CreateView):
-    print('AddingIncomeTransaction')
     model = IncomeTransaction
     fields = ['budget_item', 'name', 'amount', 'date']
     template_name = 'budgets/add_income_transaction.html'
@@ -987,16 +962,11 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
         bpid = None
         try:
             split_url = self.request.get_full_path().split('/')
-            print(split_url)
             month = datetime.strptime(split_url[-3], '%B').month
-            print(month)
             year = split_url[-2]
-            print(month, year)
             bpid = BudgetPeriod.objects.get(user=self.request.user, month=month, year=year)
-            print(bpid)
-            # print(m)
-        except:
-            print('In except clause')
+        except Exception as err:
+            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
         return {'budget_period': bpid,}
 
     def form_valid(self, form):
@@ -1112,12 +1082,10 @@ def view_transactions(request, month, year):
 
 
 class AddDebtPayment(SuccessMessageMixin, CreateView):
-    # model = ExpenseTransaction
-    # fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'credit_payoff', 'date']
-    template_name = 'budgets/add_expense_transaction.html'
+    template_name = 'budgets/add_debt_payment.html'
     form_class = ExpenseTransactionDebtPaymentForm
-    success_url = '../../../../'
-    success_message = 'Expense transaction successfully added!'
+    success_url = '../'
+    success_message = 'Debt payment successfully added!'
 
     def get_form_kwargs(self):
         kwargs = super(AddDebtPayment, self).get_form_kwargs()
@@ -1125,14 +1093,22 @@ class AddDebtPayment(SuccessMessageMixin, CreateView):
         return kwargs
 
     def get_initial(self):
-        # TODO: Make sure foreign key 'Budget Item' only shows that months items
         return {
-            'user': self.request.user.id,
-            'expense_budget_item': self.request.get_full_path().split('/')[-2],
             'date': datetime.today(),
         }
 
     def form_valid(self, form):
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user.id
+        bp = get_budget_period(user, month, year)
+        new_debt_bi = bp.expense_categories.get(name='New Debt').expense_budget_items.get(name='New Debt').id
+
+        self.object = form.save(commit=False)
+        self.object.user_id = user
+        self.object.expense_budget_item_id = new_debt_bi
+        self.object.credit_payoff = True
+        self.object.save()
+
         return super(AddDebtPayment, self).form_valid(form)
 
 
