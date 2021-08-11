@@ -2,6 +2,10 @@
 {% block title %}TrackMyDollars | Add Income Budget Item{% endblock %}
 {% block content %}
   <h2>Add Income Budget Item</h2>
+  {% if message %}
+    <p class="alert">{{ message }}</p>
+  {% endif %}
+  <p>{{ budget_period.get_month_display }}, {{ budget_period.year }}</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">

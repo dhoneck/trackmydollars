@@ -404,10 +404,17 @@ class AddRevolvingDebt(SuccessMessageMixin, CreateView):
 
 class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
     model = RevolvingDebtBalance
-    fields = ['debt', 'balance', 'date',]
+    fields = ['balance', 'date',]
     template_name = 'budgets/add_revolving_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        debt_id = int(self.request.get_full_path().split('/')[-3])
+        debt_name = RevolvingDebt.objects.get(id=debt_id).name
+        context['debt_name'] = debt_name
+        return context
 
     def get_initial(self):
         return {'debt': self.request.get_full_path().split('/')[-3],
@@ -415,8 +422,17 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(AddRevolvingDebtBalance, self).form_valid(form)
+        try:
+            form.instance.user = self.request.user
+            form.instance.debt_id = int(self.request.get_full_path().split('/')[-3])
+            return super(AddRevolvingDebtBalance, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                )
+            )
 
 
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
@@ -463,10 +479,17 @@ class DeleteRevolvingDebt(SuccessMessageMixin, DeleteView):
 
 class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
     model = InstallmentDebtBalance
-    fields = ['debt', 'balance', 'date']
+    fields = ['balance', 'date']
     template_name = 'budgets/add_installment_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        debt_id = int(self.request.get_full_path().split('/')[-3])
+        debt_name = InstallmentDebt.objects.get(id=debt_id).name
+        context['debt_name'] = debt_name
+        return context
 
     def get_initial(self):
         return {'debt': self.request.get_full_path().split('/')[-3],
@@ -474,17 +497,44 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
                 }
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(AddInstallmentDebtBalance, self).form_valid(form)
+        try:
+            form.instance.user = self.request.user
+            form.instance.debt_id = int(self.request.get_full_path().split('/')[-3])
+            return super(AddInstallmentDebtBalance, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                )
+            )
 
 
 class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
     model = InstallmentDebtBalance
-    fields = ['debt', 'balance', 'date']
+    fields = ['balance', 'date']
     template_name = 'budgets/update_installment_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully updated!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        debt_id = int(self.request.get_full_path().split('/')[-3])
+        debt_name = InstallmentDebt.objects.get(id=debt_id).name
+        context['debt_name'] = debt_name
+        return context
+
+    def form_valid(self, form):
+        try:
+            return super(UpdateInstallmentDebtBalance, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                )
+            )
 
 
 class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
@@ -501,20 +551,52 @@ class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
 
 class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
     model = RevolvingDebtBalance
-    fields = ['debt', 'balance', 'date']
+    fields = ['balance', 'date']
     template_name = 'budgets/update_revolving_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully updated!'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        debt_id = int(self.request.get_full_path().split('/')[-3])
+        debt_name = RevolvingDebt.objects.get(id=debt_id).name
+        context['debt_name'] = debt_name
+        return context
+
+    def form_valid(self, form):
+        try:
+            return super(UpdateRevolvingDebtBalance, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                )
+            )
+
 
 class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
     model = IncomeBudgetItem
-    fields = '__all__'
+    fields = ['name', 'planned_amount', 'type']
     template_name = 'budgets/update_income_budget_item.html'
     success_url = '../../'
     pk_url_kwarg = 'ibiid'
     success_message = 'Income budget item successfully updated!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user
+        context['budget_period'] = get_budget_period(user, month, year)
+        return context
+
+    def form_valid(self, form):
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user
+        form.instance.budget_period = get_budget_period(user, month, year)
+        form.instance.user = user
+        return super(UpdateIncomeBudgetItem, self).form_valid(form)
 
 
 class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
@@ -573,12 +655,16 @@ class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
 
 class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
     model = ExpenseBudgetItem
-    fields = '__all__'
+    fields = ['expense_category', 'name', 'planned_amount', 'type']
     template_name = 'budgets/update_expense_budget_item.html'
     success_url = '../../../../'
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully updated!'
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(UpdateExpenseBudgetItem, self).form_valid(form)
 
 class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
     model = ExpenseBudgetItem
@@ -594,12 +680,16 @@ class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
 
 class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
     model = ExpenseTransaction
-    fields = '__all__'
+    fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'date']
     template_name = 'budgets/update_expense_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'etid'
     success_message = 'Expense transaction item successfully updated!'
 
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        return super(UpdateExpenseTransaction, self).form_valid(form)
 
 class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
     model = ExpenseTransaction
@@ -928,23 +1018,33 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
 
 class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
     model = IncomeBudgetItem
-    fields = ['budget_period', 'name', 'planned_amount', 'type']
+    fields = ['name', 'planned_amount', 'type']
     template_name = 'budgets/add_income_budget_item.html'
     success_url = './'
     success_message = 'Income budget item successfully added!'
 
-    def get_initial(self):
-        bpid = None
-        try:
-            m = datetime.strptime(self.request.get_full_path().split('/')[-3], '%B').month
-            bpid = BudgetPeriod.objects.get(user=self.request.user, month=m, year=int(self.request.get_full_path().split('/')[-2]))
-        except Exception as err:
-            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
-        return {'budget_period': bpid,
-                }
+    # def get_initial(self):
+    #     bpid = None
+    #     try:
+    #         m = datetime.strptime(self.request.get_full_path().split('/')[-3], '%B').month
+    #         bpid = BudgetPeriod.objects.get(user=self.request.user, month=m, year=int(self.request.get_full_path().split('/')[-2]))
+    #     except Exception as err:
+    #         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
+    #     return {'budget_period': bpid,
+    #             }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user
+        context['budget_period'] = get_budget_period(user, month, year)
+        return context
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user
+        form.instance.budget_period = get_budget_period(user, month, year)
+        form.instance.user = user
         return super(AddIncomeBudgetItem, self).form_valid(form)
 
 
@@ -980,31 +1080,39 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
 
 class AddExpenseCategory(SuccessMessageMixin, CreateView):
     model = ExpenseCategory
-    fields = ['budget_period', 'name']
+    fields = ['name']
     template_name = 'budgets/add_expense_category.html'
     success_url = './'
     success_message = 'Expense category successfully added!'
 
-    def get_initial(self):
-        bpid = None
-        try:
-            split_url = self.request.get_full_path().split('/')
-            month = datetime.strptime(split_url[-3], '%B').month
-            year = split_url[-2]
-            bpid = BudgetPeriod.objects.get(user=self.request.user, month=month, year=year)
-        except Exception as err:
-            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
-        return {'budget_period': bpid,}
+    # def get_initial(self):
+    #     bpid = None
+    #     try:
+    #         split_url = self.request.get_full_path().split('/')
+    #         month = datetime.strptime(split_url[-3], '%B').month
+    #         year = split_url[-2]
+    #         bpid = BudgetPeriod.objects.get(user=self.request.user, month=month, year=year)
+    #     except Exception as err:
+    #         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
+    #     return {'budget_period': bpid,}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user
+        context['budget_period'] = get_budget_period(user, month, year)
+        return context
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
+        month, year = get_month_and_year_from_request(self.request)
+        user = self.request.user
+        form.budget_period = get_budget_period(user, month, year)
+        form.instance.user = user
         return super(AddExpenseCategory, self).form_valid(form)
 
 
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(SuccessMessageMixin, CreateView):
-    # model = ExpenseTransaction
-    # fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'credit_payoff', 'date']
     template_name = 'budgets/add_expense_transaction.html'
     form_class = ExpenseTransactionForm
     success_url = '../../../../'
@@ -1018,7 +1126,6 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
     def get_initial(self):
         # TODO: Make sure foreign key 'Budget Item' only shows that months items
         return {
-                'user': self.request.user.id,
                 'expense_budget_item': self.request.get_full_path().split('/')[-2],
                 'date': datetime.today(),
                 }
@@ -1041,21 +1148,28 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         # If transaction was a credit purchase, add item to new debt expense
         if form.cleaned_data['credit_purchase']:
             month, year = get_month_and_year_from_request(self.request)
-            user = self.request.user.id
+            user = self.request.user
+            form.instance.user = user
             bp = get_budget_period(user, month, year)
 
-            expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=user, budget_period=bp, name='New Debt')
+            expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user=user, budget_period=bp, name='New Debt')
 
             try:
                 expense_bi, created = ExpenseBudgetItem.objects.get_or_create(
-                    user_id=user,
+                    user=user,
                     expense_category=expense_cat,
                     name='New Debt',
                     defaults={'planned_amount': 0},
                 )
-            finally:
                 expense_bi.planned_amount += form.cleaned_data['amount']
                 expense_bi.save()
+            except IntegrityError:
+                return self.render_to_response(
+                    self.get_context_data(
+                        form=form,
+                        message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                    )
+                )
         return super(AddExpenseTransaction, self).form_valid(form)
 
 
