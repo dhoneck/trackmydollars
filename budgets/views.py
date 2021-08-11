@@ -1106,7 +1106,7 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         month, year = get_month_and_year_from_request(self.request)
         user = self.request.user
-        form.budget_period = get_budget_period(user, month, year)
+        form.instance.budget_period = get_budget_period(user, month, year)
         form.instance.user = user
         return super(AddExpenseCategory, self).form_valid(form)
 
