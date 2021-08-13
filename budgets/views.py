@@ -1145,13 +1145,13 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+
         # If transaction was a credit purchase, add item to new debt expense
         if form.cleaned_data['credit_purchase']:
             month, year = get_month_and_year_from_request(self.request)
-            user = self.request.user
-            form.instance.user = user
             bp = get_budget_period(user, month, year)
-
             expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user=user, budget_period=bp, name='New Debt')
 
             try:
