@@ -854,6 +854,7 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                         expense_category=expense_cat,
                         name=item[0].name,
                         planned_amount=item[0].amount,
+                        user_id=item[0].user_id,
                     )
 
         except Exception as err:
