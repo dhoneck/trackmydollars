@@ -43,7 +43,7 @@ class DateForm(forms.Form):
 class ExpenseTransactionForm(forms.ModelForm):
     class Meta:
         model = ExpenseTransaction
-        exclude = ['user', 'credit_payoff']
+        exclude = ['expense_budget_item', 'user', 'credit_payoff']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')

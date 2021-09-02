@@ -613,11 +613,16 @@ class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
 
 class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
     model = IncomeTransaction
-    fields = '__all__'
+    fields = ['name', 'amount', 'date']
     template_name = 'budgets/update_income_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'itid'
     success_message = 'Income transaction successfully updated!'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.budget_item_id = self.request.get_full_path().split('/')[-4]
+        return super(UpdateIncomeTransaction, self).form_valid(form)
 
 
 class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
@@ -655,16 +660,27 @@ class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
 
 class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
     model = ExpenseBudgetItem
-    fields = ['expense_category', 'name', 'planned_amount', 'type']
+    fields = ['name', 'planned_amount', 'type']
     template_name = 'budgets/update_expense_budget_item.html'
     success_url = '../../../../'
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully updated!'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context['expense_category'] = ExpenseCategory.objects.get(id=self.request.get_full_path().split('/')[-4])
+        except Exception as err:
+            print('There was an error:', err)
+            context['expense_category'] = None
+        return context
+
     def form_valid(self, form):
         user = self.request.user
         form.instance.user = user
+        form.instance.expense_category_id = self.request.get_full_path().split('/')[-4]
         return super(UpdateExpenseBudgetItem, self).form_valid(form)
+
 
 class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
     model = ExpenseBudgetItem
@@ -680,7 +696,7 @@ class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
 
 class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
     model = ExpenseTransaction
-    fields = ['expense_budget_item', 'name', 'amount', 'credit_purchase', 'date']
+    fields = ['name', 'amount', 'credit_purchase', 'date']
     template_name = 'budgets/update_expense_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'etid'
@@ -689,6 +705,7 @@ class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
     def form_valid(self, form):
         user = self.request.user
         form.instance.user = user
+        form.instance.expense_budget_item_id = self.request.get_full_path().split('/')[-4]
         return super(UpdateExpenseTransaction, self).form_valid(form)
 
 class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
@@ -1024,16 +1041,6 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
     success_url = './'
     success_message = 'Income budget item successfully added!'
 
-    # def get_initial(self):
-    #     bpid = None
-    #     try:
-    #         m = datetime.strptime(self.request.get_full_path().split('/')[-3], '%B').month
-    #         bpid = BudgetPeriod.objects.get(user=self.request.user, month=m, year=int(self.request.get_full_path().split('/')[-2]))
-    #     except Exception as err:
-    #         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
-    #     return {'budget_period': bpid,
-    #             }
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         month, year = get_month_and_year_from_request(self.request)
@@ -1051,7 +1058,7 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
 
 class AddIncomeTransaction(SuccessMessageMixin, CreateView):
     model = IncomeTransaction
-    fields = ['budget_item', 'name', 'amount', 'date']
+    fields = ['name', 'amount', 'date']
     template_name = 'budgets/add_income_transaction.html'
     success_message = 'Income transaction successfully added!'
 
@@ -1062,12 +1069,17 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
             return '../../'
 
     def get_initial(self):
-        return {'budget_item': self.request.get_full_path().split('/')[-2],
+        return {
                 'date': datetime.today(),
                 }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        try:
+            context['income_budget_item'] = IncomeBudgetItem.objects.get(id=self.request.get_full_path().split('/')[-2])
+        except Exception as err:
+            print('There was an error:', err)
+            context['income_budget_item'] = None
         if self.request.META.get('HTTP_REFERER').split('/')[-1] == 'view':
             context['destination'] = 'back_to_item_view'
         else:
@@ -1076,6 +1088,7 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.budget_item_id = self.request.get_full_path().split('/')[-2]
         return super(AddIncomeTransaction, self).form_valid(form)
 
 
@@ -1127,7 +1140,6 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
     def get_initial(self):
         # TODO: Make sure foreign key 'Budget Item' only shows that months items
         return {
-                'expense_budget_item': self.request.get_full_path().split('/')[-2],
                 'date': datetime.today(),
                 }
 
@@ -1139,6 +1151,11 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        try:
+            context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=self.request.get_full_path().split('/')[-2])
+        except Exception as err:
+            print('There was an error:', err)
+            context['expense_budget_item'] = None
         if self.request.META.get('HTTP_REFERER').split('/')[-1] == 'view':
             context['destination'] = 'back_to_item_view'
         else:
@@ -1148,6 +1165,7 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         user = self.request.user
         form.instance.user = user
+        form.instance.expense_budget_item_id = self.request.get_full_path().split('/')[-2]
 
         # If transaction was a credit purchase, add item to new debt expense
         if form.cleaned_data['credit_purchase']:

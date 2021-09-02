@@ -3,9 +3,9 @@
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
 {% block content %}
   <h2>Add Income Transaction</h2>
+  <p>{{ income_budget_item.name }}</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save" name="{{ destination }}">
   </form>
-{#  {{ test }}#}
 {% endblock %}
