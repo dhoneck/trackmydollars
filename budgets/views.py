@@ -166,6 +166,7 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
 @login_required(login_url='../accounts/login/')
 def dashboard(request):
     """ Shows an overview of the user's account """
+    # TODO: Fix rounding issues for the net worth line - I see it has a rounding issue with too many decimals
     # Sum Assets
     asset_total = Decimal(0.00)
     for a in Asset.objects.filter(user=request.user.id):
