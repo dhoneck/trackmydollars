@@ -61,7 +61,19 @@
           <tr>
             <td>{{ transaction.date | date:"M j"}}</td>
             <td>{{ transaction.name }}</td>
-            <td>{{ transaction.get_signed_value }}</td>
+            <td>
+              {% if transaction.is_positive %}
+                <span class="positive-number">{{ transaction.get_signed_value }}</span>
+              {% else %}
+                <span class="negative-number">{{ transaction.get_signed_value }}</span>
+              {% endif %}
+              <br>
+              {% if transaction.credit_purchase %}
+                <span class="credit-card" title="Credit Card Purchase">CC Purchase</span>
+              {% elif transaction.credit_payoff %}
+                <span class="credit-card" title="Credit Card Payment">CC Payment</span>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </table>
@@ -77,6 +89,7 @@
       <thead>
         <tr>
           <th>Income for {{ month }}</th>
+          <th>Type</th>
           <th>Planned</th>
           <th>Received</th>
           <th>Transactions</th>
@@ -87,6 +100,16 @@
         {% for x in income_budget_items %}
         <tr>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.name }}</a></td>
+          <td>
+            <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>
+{#            {% if x.type == 'Income' %}#}
+{#              <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>#}
+{#            {% elif x.type == 'Transfer' %}#}
+{#              <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>#}
+{#            {% elif x.type == 'Reserve' %}#}
+{#              <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>#}
+{#            {% endif %}#}
+          </td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.planned_amount }}</a></td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_received }}</a></td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_transactions }}</a></td>
@@ -124,8 +147,8 @@
       <tbody>
         {% for y in x.expense_budget_items.all %}
         <tr>
-
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.name }}</a></td>
+          <td><a href="income-budget-item/{{ x.id }}/view">{{ y.type }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.planned_amount }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_spent }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_transactions }}</a></td>

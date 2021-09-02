@@ -242,6 +242,7 @@ button:hover {
 
 #transaction-table td {
   padding: 5px 10px;
+  height: 34px;
 }
 
 aside {
@@ -319,6 +320,26 @@ label, input {
 
 span.helptext {
   display: none;
+}
+
+.positive-number {
+  color: green;
+}
+
+.negative-number {
+  color: indianred;
+  opacity: 1;
+}
+
+.credit-card {
+  /*background-color: #527EA5;*/
+  background-color: indianred;
+  color: #F1F0F4;
+  opacity: .6;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 3px;
+  border-radius: 3px;
 }
 
 /*******************************

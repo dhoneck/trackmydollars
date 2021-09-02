@@ -1195,18 +1195,21 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
 class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
-    fields = ['expense_category', 'name', 'planned_amount', 'type']
+    fields = ['name', 'planned_amount', 'type']
     template_name = 'budgets/add_expense_budget_item.html'
     success_url = '../../'
     success_message = 'Expense budget item successfully added!'
 
-    def get_initial(self):
-        ecid = self.request.get_full_path().split('/')[-2]
-        return {'expense_category': ecid,
-                }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        expense_category_id = int(self.request.get_full_path().split('/')[-2])
+        expense_category = ExpenseCategory.objects.get(id=expense_category_id)
+        context['expense_category'] = expense_category
+        return context
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.expense_category_id = self.request.get_full_path().split('/')[-2]
         return super(AddExpenseBudgetItem, self).form_valid(form)
 
 

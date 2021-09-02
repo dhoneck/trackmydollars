@@ -205,6 +205,9 @@ class IncomeTransaction(models.Model):
     def get_signed_value(self):
         return f'+{self.amount}'
 
+    def is_positive(self):
+        return True
+
     def __float__(self):
         if self.amount is None:
             return 0.00
@@ -283,6 +286,8 @@ class ExpenseTransaction(models.Model):
     def get_signed_value(self):
         return f'-{self.amount}'
 
+    def is_positive(self):
+        return False
 
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
