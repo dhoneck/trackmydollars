@@ -229,21 +229,32 @@ button:hover {
 }
 
 #transaction-table {
-  width: 350px;
   display: block;
   overflow-y: auto;
   max-height: 600px;
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
 }
 
-#transaction-table tbody {
-  display: table;
-  width: 100%;
-}
 
 #transaction-table td {
   padding: 5px 10px;
   height: 34px;
 }
+
+#transaction-table th:nth-child(1) {
+  width: 25%;
+}
+
+#transaction-table th:nth-child(2) {
+  width: 50%;
+}
+
+#transaction-table th:nth-child(3) {
+  width: 25%;
+}
+
 
 aside {
   background: lightgray;
@@ -253,7 +264,7 @@ aside {
   padding: 5px;
   border-radius: 5px;
   margin-bottom: 10px;
-  width: 100%;
+  width: 400px;
 }
 
 aside table {
