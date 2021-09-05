@@ -30,9 +30,9 @@
     </div>
     <div class="budget-overview-container">
       <p><strong>Actual Budget</strong></p>
-      <p><pre>Actual Income    ${{ total_actual_income }}</pre></p>
-      <p><pre>Actual Expenses  ${{ total_actual_expenses }}</pre></p>
-      <p><pre>Difference       ${{ left_to_spend }}</pre></p>
+      <p><pre>Actual In   ${{ total_actual_income }}</pre></p>
+      <p><pre>Actual Out  ${{ total_actual_expenses }}</pre></p>
+      <p><pre>Difference  ${{ left_to_spend }}</pre></p>
     </div>
     <div class="budget-overview-container">
       <p><strong>Credit Cards</strong></p>
@@ -118,9 +118,9 @@
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_received }}</a></td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_transactions }}</a></td>
           <td>
-            <a href="income-budget-item/{{ x.id }}/add-income-transaction"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
-            <a href="income-budget-item/{{ x.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
-            <a href="income-budget-item/{{ x.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            <a href="income-budget-item/{{ x.id }}/add-income-transaction" title="Add Income Transaction"><img src="{% static 'images/add-icon.png' %}" class="action-imgs"></a>
+            <a href="income-budget-item/{{ x.id }}/update" title="Edit Income Budget Item"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="income-budget-item/{{ x.id }}/delete" title="Delete Income Budget Item"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
           </td>
         </tr>
         {% endfor %}
@@ -142,6 +142,7 @@
         {% else %}
         <th><a href="expense-category/{{ x.id }}/update">{{ x.name }}</a></th>
         {% endif %}
+        <th>Type</th>
         <th>Planned</th>
         <th>Spent</th>
         <th>Transactions</th>
@@ -152,7 +153,7 @@
         {% for y in x.expense_budget_items.all %}
         <tr>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.name }}</a></td>
-          <td><a href="income-budget-item/{{ x.id }}/view">{{ y.type }}</a></td>
+          <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.type }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.planned_amount }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_spent }}</a></td>
           <td><a href="expense-category/{{ x.id }}/expense-budget-item/{{ y.id }}/view">{{ y.get_total_transactions }}</a></td>
@@ -173,8 +174,8 @@
         {% if not x.is_new_debt %}
         <tr>
           <td>
-            <a href="expense-category/{{ x.id }}/add-expense-budget-item"><img src="{% static 'images/plus.png' %}" class="action-imgs"></a>
-            <a href="expense-category/{{ x.id }}/delete"><img src="{% static 'images/minus.png' %}" class="action-imgs"></a>
+            <a href="expense-category/{{ x.id }}/add-expense-budget-item" title="Add Expense Budget Item"><img src="{% static 'images/plus.png' %}" class="action-imgs"></a>
+            <a href="expense-category/{{ x.id }}/delete" title="Delete Expense Category"><img src="{% static 'images/minus.png' %}" class="action-imgs"></a>
           </td>
         </tr>
         {% endif %}

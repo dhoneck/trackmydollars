@@ -289,6 +289,7 @@ class ExpenseTransaction(models.Model):
     def is_positive(self):
         return False
 
+
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)

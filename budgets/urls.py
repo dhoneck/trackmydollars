@@ -67,4 +67,6 @@ urlpatterns = [
     path('schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-schedule-item'),
     path('schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
     path('schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
+    # Reports
+    path('reports/', views.view_reports, name='reports'),
 ]

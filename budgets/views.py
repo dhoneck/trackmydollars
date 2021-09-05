@@ -709,6 +709,7 @@ class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
         form.instance.expense_budget_item_id = self.request.get_full_path().split('/')[-4]
         return super(UpdateExpenseTransaction, self).form_valid(form)
 
+
 class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
     model = ExpenseTransaction
     template_name = 'budgets/delete_expense_transaction.html'
@@ -718,6 +719,10 @@ class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
+
+        # If a CC transaction was deleted, adjust the "New Debt" section
+
+
         return super(DeleteExpenseTransaction, self).delete(request, *args, **kwargs)
 
 
@@ -1374,3 +1379,7 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteScheduleItem, self).delete(request, *args, **kwargs)
+
+# Report Views
+def view_reports(request):
+    return render(request, 'budgets/reports.html')
