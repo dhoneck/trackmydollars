@@ -719,10 +719,6 @@ class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-
-        # If a CC transaction was deleted, adjust the "New Debt" section
-
-
         return super(DeleteExpenseTransaction, self).delete(request, *args, **kwargs)
 
 
@@ -896,7 +892,6 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
-    # TODO: Get the received field to work - total the actual income and savings
     try:
         bp = get_budget_period(user=request.user.id, month=month, year=year)
 
@@ -911,8 +906,6 @@ def specific_budget(request, month, year):
 
         income_budget_items = bp.income_budget_items.all()
 
-        ec = bp.expense_categories.filter(user=request.user.id),
-
         all_transactions = []
 
         for item in income_budget_items:
@@ -923,14 +916,57 @@ def specific_budget(request, month, year):
                 total_actual_income += item.planned_amount
                 reserved_funds += item.planned_amount
 
-        # Total income transactions
+            # Total income transactions
             for t in item.income_transactions.all():
                 total_actual_income += t.amount
                 all_transactions.append(t)
 
+        # Check the transactions for new debt and adjust if needed
+        print('Transactions Filter Method')
+
+        credit_expense_transactions = ExpenseTransaction.objects.filter(
+            expense_budget_item__expense_category__budget_period=bp,
+            credit_purchase=True
+        )
+        print(f'Sum {credit_expense_transactions.aggregate(Sum("amount"))}')
+        cc_purchase_total = credit_expense_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal(0.00)
+
+        new_debt_category = bp.expense_categories.filter(name='New Debt')
+        print(f'New debt {new_debt_category}')
+
+        if new_debt_category:
+            print('New Debt Exists')
+            new_debt_budget_item = new_debt_category[0].expense_budget_items.all()[0]
+
+            if new_debt_budget_item.planned_amount == cc_purchase_total:
+                print('Do nothing w/ new debt!')
+            else:
+                print('Modifying new debt!')
+                new_debt_budget_item.planned_amount = cc_purchase_total
+                if new_debt_budget_item.planned_amount == 0:
+                    print('Planned amount is 0, remove New Debt')
+                    new_debt_budget_item.expense_category.delete()
+                else:
+                    print('Planned amount is not 0, modify New Debt')
+                    new_debt_budget_item.save()
+        if not new_debt_category and cc_purchase_total:
+            try:
+                user = request.user
+                expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user=user, budget_period=bp, name='New Debt')
+                expense_bi, created = ExpenseBudgetItem.objects.get_or_create(
+                    user=user,
+                    expense_category=expense_cat,
+                    name='New Debt',
+                    planned_amount=cc_purchase_total,
+                )
+                expense_bi.planned_amount = cc_purchase_total
+                expense_bi.save()
+            except IntegrityError:
+                print(f'Your data has not been saved.')
+
         # Sum the planned expenses
         old_debt_paid = Decimal(0.00)
-        # expense_categories = bp.expense_categories.exclude(name='New Debt')
+
         expense_categories = bp.expense_categories.all()
 
         for category in expense_categories:
@@ -978,7 +1014,6 @@ def specific_budget(request, month, year):
 
     debits_credits = total_actual_income - total_actual_expenses - reserved_funds
     current_balance = bp.starting_bank_balance + debits_credits
-
 
     return render(request,
                   'budgets/budget.html',
@@ -1379,6 +1414,7 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteScheduleItem, self).delete(request, *args, **kwargs)
+
 
 # Report Views
 def view_reports(request):
