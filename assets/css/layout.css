@@ -239,7 +239,7 @@ button:hover {
 
 
 #transaction-table td {
-  padding: 5px 10px;
+  padding: 10px 10px;
   height: 34px;
 }
 
@@ -278,7 +278,7 @@ aside table {
 
 #budget-sidebar {
   /*width: 380px;*/
-  margin-right: 20px;
+  /*margin-right: 20px;*/
 }
 
 .frequency-header {
@@ -342,6 +342,9 @@ span.helptext {
   opacity: 1;
 }
 
+.budget-item-name {
+  font-size: 10px;
+}
 
 .transfer-in, .transfer-out, .reserve-in, .reserve-out, .credit-card {
   opacity: .6;

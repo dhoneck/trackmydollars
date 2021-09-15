@@ -63,7 +63,23 @@
             {% for transaction in all_transactions %}
               <tr>
                 <td>{{ transaction.date | date:"M j"}}</td>
-                <td title="{{ transaction.name }}">{{ transaction.name }}</td>
+                {% if transaction.budget_item.name %}
+                <td title="{{ transaction.name }}">
+                  <a href="income-budget-item/{{ transaction.budget_item.id }}/view">
+                    <span>{{ transaction.name }}</span>
+                    <br>
+                    <span class="budget-item-name">{{ transaction.budget_item.name }}</span>
+                  </a>
+                </td>
+                {% elif transaction.expense_budget_item.name %}
+                <td title="{{ transaction.name }}">
+                  <a href="expense-category/{{ transaction.expense_budget_item.expense_category.id }}/expense-budget-item/{{ transaction.expense_budget_item.id }}/view">
+                    <span>{{ transaction.name }}</span>
+                    <br>
+                    <span class="budget-item-name">{{ transaction.expense_budget_item.name }}</span>
+                  </a>
+                {% endif %}
+                </td>
                 <td>
                   {% if transaction.is_positive %}
                     <span class="positive-number">{{ transaction.get_signed_value }}</span>
@@ -106,13 +122,6 @@
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.name }}</a></td>
           <td>
             <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>
-{#            {% if x.type == 'Income' %}#}
-{#              <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>#}
-{#            {% elif x.type == 'Transfer' %}#}
-{#              <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>#}
-{#            {% elif x.type == 'Reserve' %}#}
-{#              <a href="income-budget-item/{{ x.id }}/view">{{ x.type }}</a>#}
-{#            {% endif %}#}
           </td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.planned_amount }}</a></td>
           <td><a href="income-budget-item/{{ x.id }}/view">{{ x.get_total_received }}</a></td>
