@@ -4,11 +4,14 @@ from . import views
 from budgets.views import *
 
 urlpatterns = [
+    # General 4443URLs
     path('', views.index, name='index'),
-    url(r"^accounts/", include("django.contrib.auth.urls")),
     # path('about/', views.about, name='about'),
     # path('contact/', views.contact, name='contact'),
-    url(r"^register/", views.register, name="register"),
+    # Registration and User URLs
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^register/', views.register, name='register'),
+    # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
     # Asset & Debt URLs
     path('assets-debts/', views.assets_debts, name='assets_debts'),
@@ -33,6 +36,11 @@ urlpatterns = [
     path('assets-debts/revolving-debts/<int:id>/add-balance/', AddRevolvingDebtBalance.as_view()),
     path('assets-debts/revolving-debts/<int:id>/update-balance/<int:bid>', UpdateRevolvingDebtBalance.as_view()),
     path('assets-debts/revolving-debts/<int:id>/delete-balance/<int:bid>', DeleteRevolvingDebtBalance.as_view()),
+    # Money Schedule URLs
+    path('schedule/', views.view_schedule, name='schedule'),
+    path('schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-schedule-item'),
+    path('schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
+    path('schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
     # General Budget URLs
     path('budget/', views.budget, name='budget'),
     path('budget/<month>/<int:year>/', views.specific_budget),
@@ -62,11 +70,11 @@ urlpatterns = [
     path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/add-expense-transaction', AddExpenseTransaction.as_view()),
     path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/expense-transaction/<int:etid>/update', UpdateExpenseTransaction.as_view()),
     path('budget/<month>/<int:year>/expense-category/<int:ecid>/expense-budget-item/<int:etiid>/expense-transaction/<int:etid>/delete', DeleteExpenseTransaction.as_view()),
-    # Money Schedule
-    path('schedule/', views.view_schedule, name='schedule'),
-    path('schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-schedule-item'),
-    path('schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
-    path('schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
-    # Reports
+    # Reports URLs
     path('reports/', views.view_reports, name='reports'),
+    # Offers URLS
+    path('offers/', views.view_offers, name='offers'),
+    # Support URLS
+    path('support/', views.view_support, name='support'),
 ]
+

@@ -1,8 +1,8 @@
 from decimal import Decimal
+from datetime import datetime, timedelta, date
 
 from django.db import models
 from django.db.models import Sum
-from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
 INCOME_OR_EXPENSE = (
@@ -22,18 +22,24 @@ FREQUENCY = (
 )
 
 MONTHS = (
-    ('01', 'Jan'),
-    ('02', 'Feb'),
-    ('03', 'Mar'),
-    ('04', 'Apr'),
-    ('05', 'May'),
-    ('06', 'Jun'),
-    ('07', 'Jul'),
-    ('08', 'Aug'),
-    ('09', 'Sep'),
-    ('10', 'Oct'),
-    ('11', 'Nov'),
-    ('12', 'Dec'),
+    (1, 'Jan'),
+    (2, 'Feb'),
+    (3, 'Mar'),
+    (4, 'Apr'),
+    (5, 'May'),
+    (6, 'Jun'),
+    (7, 'Jul'),
+    (8, 'Aug'),
+    (9, 'Sep'),
+    (10, 'Oct'),
+    (11, 'Nov'),
+    (12, 'Dec'),
+)
+
+INCOME_CHOICES = (
+    ('Income', 'Income'),
+    ('Transfer', 'Transfer'),
+    ('Reserve', 'Reserve'),
 )
 
 NEED_WANT_SAVINGS_DEBT = (
@@ -63,8 +69,8 @@ class Asset(models.Model):
 class Debt(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50, blank=True, default='')
-    interest_rate = models.DecimalField(max_digits=9, decimal_places=4, blank=True, null=True)
+    type = models.CharField(max_length=50, blank=True)
+    interest_rate = models.DecimalField(max_digits=11, decimal_places=4, blank=True, null=True)
 
     def __str__(self):
         if self.type == '':
@@ -79,20 +85,19 @@ class Debt(models.Model):
 
 
 class InstallmentDebt(Debt):
-    initial_amount = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
-    minimum_payment = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
+    initial_amount = models.DecimalField(max_digits=11, decimal_places=2, blank=True, null=True)
+    minimum_payment = models.DecimalField(max_digits=11, decimal_places=2, blank=True, null=True)
     payoff_date = models.DateField(blank=True, null=True)
 
 
 class RevolvingDebt(Debt):
-    credit_limit = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
+    credit_limit = models.DecimalField(max_digits=11, decimal_places=2, blank=True, null=True)
 
 
 class Balance(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=9, decimal_places=2)
+    balance = models.DecimalField(max_digits=11, decimal_places=2)
     date = models.DateField(blank=True, null=True)
-    # date = models.DateField(input_formats=['%d/%m/%Y %H:%M'], blank=True, null=True)
 
     def __str__(self):
         return str(self.balance)
@@ -132,169 +137,12 @@ class RevolvingDebtBalance(Balance):
         ordering = ('-date', 'debt')
 
 
-# Budget Models
-class BudgetPeriod(models.Model):
-    CHOICES = (
-        (1, 'Jan'),
-        (2, 'Feb'),
-        (3, 'Mar'),
-        (4, 'Apr'),
-        (5, 'May'),
-        (6, 'Jun'),
-        (7, 'Jul'),
-        (8, 'Aug'),
-        (9, 'Sep'),
-        (10, 'Oct'),
-        (11, 'Nov'),
-        (12, 'Dec'),
-    )
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    month = models.IntegerField(choices=CHOICES, default=datetime.today().month)
-    year = models.PositiveIntegerField(default=datetime.today().year)
-    starting_bank_balance = models.DecimalField(max_digits=9, decimal_places=2, null=True)
-
-    class Meta:
-        unique_together = ('user', 'month', 'year',)
-        verbose_name_plural = 'Monthly budget info'
-
-    def __str__(self):
-        return str(self.year) + ' - ' + str(self.CHOICES[self.month-1][1])
-
-
-class IncomeBudgetItem(models.Model):
-    INCOME_CHOICES = (
-        ('Income', 'Income'),
-        ('Transfer', 'Transfer'),
-        ('Reserve', 'Reserve'),
-    )
-
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
-    name = models.CharField(max_length=50)
-    planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
-    type = models.CharField(max_length=50, choices=INCOME_CHOICES, default='Income')
-
-    def __str__(self):
-        return self.name + ' - ' + str(self.budget_period)
-
-    def get_total_transactions(self):
-        return self.income_transactions.count()
-
-    def get_total_received(self):
-        return self.income_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
-
-    class Meta:
-        ordering = ('-planned_amount', 'name',)
-        unique_together = ('user', 'budget_period', 'name',)
-
-
-class IncomeTransaction(models.Model):
-    # TODO: Add limited_choices_to in budget_item to prevent seeing other months items
-    # https://stackoverflow.com/questions/31578559/django-foreignkey-limit-choices-to-a-different-foreignkey-id
-    # https://stackoverflow.com/questions/7133455/django-limit-choices-to-doesnt-work-on-manytomanyfield
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    budget_item = models.ForeignKey('IncomeBudgetItem',
-                                    on_delete=models.CASCADE,
-                                    related_name='income_transactions',
-                                    # limit_choices_to={"budget_period_id": 2},
-                                    )
-    name = models.CharField(max_length=50)
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
-    date = models.DateField()
-
-    def get_signed_value(self):
-        return f'+{self.amount}'
-
-    def is_positive(self):
-        return True
-
-    def __float__(self):
-        if self.amount is None:
-            return 0.00
-        else:
-            return float(self.amount)
-
-    def __str__(self):
-        return self.name + ' for ' + '$' + str(self.amount) + ' on ' + str(self.date)
-
-    class Meta:
-        ordering = ('-amount', 'name',)
-
-
-class ExpenseCategory(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='expense_categories')
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name + ' for ' + str(self.budget_period)
-
-    def is_new_debt(self):
-        if self.name == 'New Debt':
-            return True
-        else:
-            return False
-
-    class Meta:
-        verbose_name_plural = 'Expense categories'
-        unique_together = ('user', 'name', 'budget_period')
-
-
-class ExpenseBudgetItem(models.Model):
-    EXPENSE_CHOICES = (
-        ('Expense', 'Expense'),
-        ('Transfer', 'Transfer'),
-        ('Reserve', 'Reserve'),
-    )
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
-    name = models.CharField(max_length=50)
-    planned_amount = models.DecimalField(max_digits=9, decimal_places=2)
-    type = models.CharField(max_length=50, choices=EXPENSE_CHOICES, default='Expense')
-
-    def __str__(self):
-        return self.name + ' for $' + str(self.planned_amount) + ' : ' + str(self.expense_category)
-
-    def __float__(self):
-        if self.planned_amount is None:
-            return 0.00
-        else:
-            return float(self.planned_amount)
-
-    def get_total_transactions(self):
-        return self.expense_transactions.count()
-
-    def get_total_spent(self):
-        return self.expense_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
-
-    class Meta:
-        unique_together = ('user', 'name', 'expense_category')
-
-
-class ExpenseTransaction(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    expense_budget_item = models.ForeignKey('ExpenseBudgetItem', on_delete=models.CASCADE, related_name='expense_transactions')
-    name = models.CharField(max_length=50)
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
-    credit_purchase = models.BooleanField(default=False)
-    credit_payoff = models.BooleanField(default=False)
-    date = models.DateField()
-
-    def __str__(self):
-        return f'{self.date} - {self.name}'
-
-    def get_signed_value(self):
-        return f'-{self.amount}'
-
-    def is_positive(self):
-        return False
-
-
+# Money Schedule Models
 class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     category = models.CharField(max_length=50)
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    amount = models.DecimalField(max_digits=11, decimal_places=2)
     first_due_date = models.DateField()
     frequency = models.CharField(max_length=50, choices=FREQUENCY)
 
@@ -385,3 +233,142 @@ class ScheduleItem(models.Model):
             return occurrences
         else:
             return None
+
+
+# Budget Models
+class BudgetPeriod(models.Model):
+    global MONTHS
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    month = models.IntegerField(choices=MONTHS, default=datetime.today().month)
+    year = models.PositiveIntegerField(default=datetime.today().year)
+    starting_bank_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True)
+
+    class Meta:
+        unique_together = ('user', 'month', 'year',)
+        verbose_name_plural = 'Monthly budget info'
+
+    def __str__(self):
+        return str(self.year) + ' - ' + str(MONTHS[self.month-1][1])
+
+
+class IncomeBudgetItem(models.Model):
+    global INCOME_CHOICES
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
+    name = models.CharField(max_length=50)
+    planned_amount = models.DecimalField(max_digits=11, decimal_places=2)
+    type = models.CharField(max_length=50, choices=INCOME_CHOICES, default='Income')
+
+    def __str__(self):
+        return self.name + ' - ' + str(self.budget_period)
+
+    def get_total_transactions(self):
+        return self.income_transactions.count()
+
+    def get_total_received(self):
+        return self.income_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
+
+    class Meta:
+        ordering = ('-planned_amount', 'name',)
+        unique_together = ('user', 'budget_period', 'name',)
+
+
+class IncomeTransaction(models.Model):
+    # TODO: Add limited_choices_to in budget_item to prevent seeing other months items
+    # https://stackoverflow.com/questions/31578559/django-foreignkey-limit-choices-to-a-different-foreignkey-id
+    # https://stackoverflow.com/questions/7133455/django-limit-choices-to-doesnt-work-on-manytomanyfield
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    budget_item = models.ForeignKey('IncomeBudgetItem',
+                                    on_delete=models.CASCADE,
+                                    related_name='income_transactions',
+                                    )
+    name = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=11, decimal_places=2)
+    date = models.DateField()
+
+    def get_signed_value(self):
+        return f'+{self.amount}'
+
+    def is_positive(self):
+        return True
+
+    def __float__(self):
+        if self.amount is None:
+            return 0.00
+        else:
+            return float(self.amount)
+
+    def __str__(self):
+        return self.name + ' for ' + '$' + str(self.amount) + ' on ' + str(self.date)
+
+    class Meta:
+        ordering = ('-amount', 'name',)
+
+
+class ExpenseCategory(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='expense_categories')
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name + ' for ' + str(self.budget_period)
+
+    def is_new_debt(self):
+        if self.name == 'New Debt':
+            return True
+        else:
+            return False
+
+    class Meta:
+        verbose_name_plural = 'Expense categories'
+        unique_together = ('user', 'name', 'budget_period')
+
+
+class ExpenseBudgetItem(models.Model):
+    EXPENSE_CHOICES = (
+        ('Expense', 'Expense'),
+        ('Transfer', 'Transfer'),
+        ('Reserve', 'Reserve'),
+    )
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
+    name = models.CharField(max_length=50)
+    planned_amount = models.DecimalField(max_digits=11, decimal_places=2)
+    type = models.CharField(max_length=50, choices=EXPENSE_CHOICES, default='Expense')
+
+    def __str__(self):
+        return self.name + ' for $' + str(self.planned_amount) + ' : ' + str(self.expense_category)
+
+    def __float__(self):
+        if self.planned_amount is None:
+            return 0.00
+        else:
+            return float(self.planned_amount)
+
+    def get_total_transactions(self):
+        return self.expense_transactions.count()
+
+    def get_total_spent(self):
+        return self.expense_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
+
+    class Meta:
+        unique_together = ('user', 'name', 'expense_category')
+
+
+class ExpenseTransaction(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    expense_budget_item = models.ForeignKey('ExpenseBudgetItem', on_delete=models.CASCADE, related_name='expense_transactions')
+    name = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=11, decimal_places=2)
+    credit_purchase = models.BooleanField(default=False)
+    credit_payoff = models.BooleanField(default=False)
+    date = models.DateField()
+
+    def __str__(self):
+        return f'{self.date} - {self.name}'
+
+    def get_signed_value(self):
+        return f'-{self.amount}'
+
+    def is_positive(self):
+        return False

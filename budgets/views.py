@@ -16,18 +16,19 @@ from django.urls import reverse
 from budgets.forms import CustomUserCreationForm, BudgetPeriodForm, ExpenseTransactionForm, ExpenseTransactionDebtPaymentForm
 from django.contrib.auth.decorators import login_required
 
-# TODO: Get users to sign in by email
-# TODO: Prevent users from being able to access each other's data
-# TODO: Add a transaction page
 # TODO: Add a template budget page and functionality
 # TODO: Allow users to delete expense categories
 # TODO: Implement money schedule imports into budget
 # TODO: Figure out old and new debt in budget
+# TODO: Add message script to each page - sometimes the message won't pop up until you go to a certain page
+# TODO: Make date picker close after selection
+# TODO: Fix table formatting - column spacing, alignment, currency
+# TODO: Fix the errors when importing templates and money schedule items
 
 
 # General Views
 def index(request):
-    """ Redirects index view to dashboard """
+    """ Redirects user to login screen or dashboard based on current authentication status """
     if request.user.is_authenticated:
         return render(request, 'budgets/dashboard.html')
     else:
@@ -45,6 +46,8 @@ def contact(request):
 
 
 # Registration Views
+# TODO: Get users to sign in by email
+# TODO: Prevent users from being able to access each other's data
 def register(request):
     """ User registration page """
     if request.method == "GET":
@@ -59,6 +62,14 @@ def register(request):
             login(request, user)
             return redirect(reverse("dashboard"))
 
+# User settings views
+#TODO: Add a user avatar next to their email
+#TODO: Add user settings page
+#TODO: Allow user to disable pages
+#TODO: Allow user to disable checking account tracking
+#TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
+#TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
+#TODO: Transfer Out Item Name (e.g. Reserved Funds)
 
 # Helper Functions
 def format_numbers(**kwargs):
@@ -163,6 +174,10 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
 
 
 # User Based Views
+# TODO: Add content from your money schedule
+# TODO: Add content from your budget
+# TODO: Prevent future month assets and debt balances from showing up in current month
+# TODO: Provide more options for viewing net worth (e.g. week, month, year, all time)
 @login_required(login_url='../accounts/login/')
 def dashboard(request):
     """ Shows an overview of the user's account """
@@ -889,6 +904,10 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'bp'
     success_message = 'Budget period successfully updated!'
 
+# TODO: Add an add transaction button
+# TODO: Add autofill
+# TODO: Allow users to move categories and budget items
+# TODO: Prevent users from being able to add reserve transactions - it should be automatically
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
@@ -1417,5 +1436,28 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
 
 
 # Report Views
+# TODO: Asset and debts reports
+# TODO: Money schedule reports
+# TODO: Budget reports
 def view_reports(request):
     return render(request, 'budgets/reports.html')
+
+
+# Offers page
+# TODO: Add offers page
+# TODO: Offer Discover credit card
+# TODO: Changing payment times to make sure you have money to pay bills between paychecks
+# TODO: 1-month advance in your checking to give you cushion
+# TODO: 3-6 months savings reserve
+# TODO: Account balance is currently low
+# TODO: Account balance will be too low to pay future expenses based on money cycle
+# TODO: Upcoming expenses
+def view_offers(request):
+    return render(request, 'budgets/offers.html')
+
+
+# Support Views
+# TODO: Create support articles
+# TODO: Create a support form
+def view_support(request):
+    return render(request, 'budgets/support.html')
