@@ -1,19 +1,14 @@
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Sum, Count
 from django.contrib import messages
-from datetime import datetime, timedelta, date
-from dateutil.relativedelta import relativedelta
-from decimal import *
 from .models import *
-from django.db.models import F
 from django.db import IntegrityError
 from functools import partial
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from budgets.forms import CustomUserCreationForm, BudgetPeriodForm, ExpenseTransactionForm, ExpenseTransactionDebtPaymentForm
+from budgets.forms import *
 from django.contrib.auth.decorators import login_required
 
 # TODO: Add a template budget page and functionality
@@ -62,14 +57,15 @@ def register(request):
             login(request, user)
             return redirect(reverse("dashboard"))
 
+
 # User settings views
-#TODO: Add a user avatar next to their email
-#TODO: Add user settings page
-#TODO: Allow user to disable pages
-#TODO: Allow user to disable checking account tracking
-#TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
-#TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
-#TODO: Transfer Out Item Name (e.g. Reserved Funds)
+# TODO: Add a user avatar next to their email
+# TODO: Add user settings page
+# TODO: Allow user to disable pages
+# TODO: Allow user to disable checking account tracking
+# TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
+# TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
+# TODO: Transfer Out Item Name (e.g. Reserved Funds)
 @login_required(login_url='../accounts/login/')
 def view_settings(request):
     return render(request, 'budgets/settings.html')
@@ -215,9 +211,13 @@ def dashboard(request):
     # Get a list of balances for assets, revolving debts, and installment debts for the last 12 months
     asset_partial = partial(get_last_12_months_data, obj=Asset, obj_bal=AssetBalance, user=request.user.id)
     asset_data = list(map(asset_partial, years, months))
-    rev_debts_partial = partial(get_last_12_months_data, obj=RevolvingDebt, obj_bal=RevolvingDebtBalance, user=request.user.id)
+    rev_debts_partial = partial(
+        get_last_12_months_data, obj=RevolvingDebt, obj_bal=RevolvingDebtBalance, user=request.user.id
+    )
     rev_debts_data = list(map(rev_debts_partial, years, months))
-    inst_debts_partial = partial(get_last_12_months_data, obj=InstallmentDebt, obj_bal=InstallmentDebtBalance, user=request.user.id)
+    inst_debts_partial = partial(
+        get_last_12_months_data, obj=InstallmentDebt, obj_bal=InstallmentDebtBalance, user=request.user.id
+    )
     inst_debts_data = list(map(inst_debts_partial, years, months))
 
     debt_data = list(map(add_lists, rev_debts_data, inst_debts_data))
@@ -424,7 +424,7 @@ class AddRevolvingDebt(SuccessMessageMixin, CreateView):
 
 class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
     model = RevolvingDebtBalance
-    fields = ['balance', 'date',]
+    fields = ['balance', 'date']
     template_name = 'budgets/add_revolving_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
@@ -869,7 +869,13 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
 
             usable_balance = form.cleaned_data['usable_balance']
             if usable_balance > 0:
-                reserve_bi = IncomeBudgetItem(name='Reserve Funds', planned_amount=usable_balance, budget_period_id=new_bp.id, user_id=current_user, type='Reserve')
+                reserve_bi = IncomeBudgetItem(
+                    name='Reserve Funds',
+                    planned_amount=usable_balance,
+                    budget_period_id=new_bp.id,
+                    user_id=current_user,
+                    type='Reserve'
+                )
                 reserve_bi.save()
 
             add_money_schedule_items = form.cleaned_data['add_money_schedule_items']
@@ -1339,28 +1345,27 @@ class AddDebtPayment(SuccessMessageMixin, CreateView):
 
 # Schedule Views
 def view_schedule(request):
-    context = {}
+    context = {
+        'weekly': ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date'),
+        'every_two_weeks': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date'),
+        'monthly': ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date'),
+        'every_two_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date'),
+        'quarterly': ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date'),
+        'every_six_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date'),
+        'yearly': ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date'),
+        'one_time': ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date'),
+    }
 
-    context['weekly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date')
-    context['every_two_weeks'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date')
-    context['monthly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date')
-    context['every_two_months'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date')
-    context['quarterly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date')
-    context['every_six_months'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date')
-    context['yearly'] = ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date')
-    context['one_time'] = ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date')
-
-    yearly_amount = Decimal(0.00)
-
-    totals = {}
-    totals['weekly_total'] = (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52
-    totals['every_two_weeks_total'] = (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26
-    totals['monthly_total'] = (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12
-    totals['every_two_months_total'] = (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6
-    totals['quarterly_total'] = (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4
-    totals['every_six_months_total'] = (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2
-    totals['yearly_total'] = (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1
-    totals['one_time_total'] = (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1
+    totals = {
+        'weekly_total': (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52,
+        'every_two_weeks_total': (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26,
+        'monthly_total': (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12,
+        'every_two_months_total': (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6,
+        'quarterly_total': (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4,
+        'every_six_months_total': (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2,
+        'yearly_total': (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
+        'one_time_total': (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
+    }
 
     entire_total = Decimal(0.00)
     non_monthly_total = Decimal(0.00)

@@ -78,4 +78,3 @@ urlpatterns = [
     # Support URLS
     path('support/', views.view_support, name='support'),
 ]
-

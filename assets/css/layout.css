@@ -326,8 +326,8 @@ aside table {
 }
 
 label, input {
-   display: block;
- }
+  display: block;
+}
 
 span.helptext {
   display: none;
@@ -406,4 +406,32 @@ Notifications
 
 .success a, .success a:visited, .success a:hover, .success a:active {
     color: inherit;
+}
+
+/*******************************
+Offers
+*******************************/
+.offer-link .offer-listing:hover {
+  color: initial;
+  opacity: .80;
+}
+
+.offer-listing {
+  background-color: lightgray;
+  border: black solid 2px;
+  border-radius: 5px;
+}
+
+.offer-logo {
+  height: 100px;
+  width: 100px;
+  float: left;
+  border-radius: inherit;
+}
+
+.offer-description {
+  display: inline-block;
+  height: 100px;
+  margin-left: 10px;
+  /*margin-top: 10px;*/
 }
