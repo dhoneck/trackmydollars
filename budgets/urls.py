@@ -11,6 +11,7 @@ urlpatterns = [
     # Registration and User URLs
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^register/', views.register, name='register'),
+    path('settings/', views.view_settings, name='settings'),
     # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
     # Asset & Debt URLs

@@ -70,6 +70,10 @@ def register(request):
 #TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
 #TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
 #TODO: Transfer Out Item Name (e.g. Reserved Funds)
+@login_required(login_url='../accounts/login/')
+def view_settings(request):
+    return render(request, 'budgets/settings.html')
+
 
 # Helper Functions
 def format_numbers(**kwargs):
@@ -1443,7 +1447,7 @@ def view_reports(request):
     return render(request, 'budgets/reports.html')
 
 
-# Offers page
+# Offers Views
 # TODO: Add offers page
 # TODO: Offer Discover credit card
 # TODO: Changing payment times to make sure you have money to pay bills between paychecks

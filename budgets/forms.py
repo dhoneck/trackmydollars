@@ -58,3 +58,6 @@ class ExpenseTransactionDebtPaymentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(ExpenseTransactionDebtPaymentForm, self).__init__(*args, **kwargs)
+
+# class SettingsForm(forms.Form):
+
