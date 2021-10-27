@@ -1,7 +1,13 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Add Budget{% endblock %}
+{% block script %}{% endblock %}
 {% block content %}
   <h2>Add Budget</h2>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
   <div class="button-container">
     <button onclick="window.location.href = '../previous';"><</button>
     <button>{{ month }}</button>

@@ -395,8 +395,7 @@ td {
 /*******************************
 Notifications
 *******************************/
-.success {
-  background-color: mediumseagreen;
+.success, .error {
   list-style-type: none;
   margin-left: -10px;
   padding: 10px;
@@ -404,8 +403,16 @@ Notifications
   font-weight: bold;
 }
 
-.success a, .success a:visited, .success a:hover, .success a:active {
+.success a, .success a:visited, .success a:hover, .success a:active, .error a, .error a:visited, .error a:hover, .error a:active {
     color: inherit;
+}
+
+.success {
+  background-color: mediumseagreen;
+}
+
+.error {
+  background-color: lightcoral;
 }
 
 /*******************************

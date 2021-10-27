@@ -5,9 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% endblock %}</title>
-{#    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">#}
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
-    {% block script %}{% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".success").fadeOut(10000);
+        });
+        $(document).ready(function(){
+            $(".error").fadeOut(10000);
+        });
+    </script>
   </head>
   <body>
     <header>
@@ -29,9 +36,7 @@
           <a href="{% url 'settings' %}">{{ user.email }}</a>
           <a href="{% url 'logout' %}">Log Out</a>
         </div>
-
       </div>
-
     </header>
     <div class="content-container">
       {% block content %}{% endblock %}

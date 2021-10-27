@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     """ Redirects user to login screen or dashboard based on current authentication status """
     if request.user.is_authenticated:
-        return render(request, 'budgets/dashboard.html')
+        return redirect('dashboard')
     else:
         return redirect('accounts/login/')
 
@@ -804,6 +804,11 @@ def budget(request):
     return HttpResponseRedirect(f'{current_month}/{current_year}')
 
 
+# TODO: Fix duplicate budget period message
+# TODO: Fix conflicts of template and monthly schedule
+# TODO: Add clickable month and year
+# TODO: Make the month and year unchangeable
+# TODO: Show the money schedule items
 class AddBudgetPeriod(FormView, SuccessMessageMixin):
     template_name = 'budgets/add_budget.html'
     form_class = BudgetPeriodForm
@@ -811,18 +816,22 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
     success_message = 'Budget successfully added!'
 
     def get_form_kwargs(self):
+        # Set the user for the form based on the request
         kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user.id})
+        #
+        # split_url = self.request.get_full_path().split('/')
+        # month = datetime.strptime(split_url[-4], '%B').month
+        # year = split_url[-3]
+        # print("MONTH:", type(month))
+        # print("YEAR:", type(year))
+
+        kwargs.update({
+            'user': self.request.user.id,
+        })
         return kwargs
 
-    def get_initial(self):
-        split_url = self.request.get_full_path().split('/')
-        month = datetime.strptime(split_url[-4], '%B').month
-        year = split_url[-3]
-        return {'month': month, 'year': year}
-
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
+        # Provide the month and year to the template
         context = super().get_context_data(**kwargs)
         split_url = self.request.get_full_path().split('/')
         month = split_url[-4]
@@ -833,16 +842,19 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
 
     def form_valid(self, form):
         current_user = self.request.user.id
-        form_year = form.cleaned_data['year']
-        form_month = form.cleaned_data['month']
+
+        split_url = self.request.get_full_path().split('/')
+        month = datetime.strptime(split_url[-4], '%B').month
+        year = split_url[-3]
+
         form_sbb = form.cleaned_data['starting_bank_balance']
 
         try:
             # Create a new budget period
-            BudgetPeriod(year=form_year, month=form_month, starting_bank_balance=form_sbb, user_id=current_user).save()
+            BudgetPeriod(year=year, month=month, starting_bank_balance=form_sbb, user_id=current_user).save()
 
             # Retrieve the new budget period
-            new_bp = BudgetPeriod.objects.get(year=form_year, month=form_month, user_id=current_user)
+            new_bp = BudgetPeriod.objects.get(year=year, month=month, user_id=current_user)
 
             # Check to see if there is a template budget period - if there is add those items to current budget
             template_bp = form.cleaned_data['template']
@@ -885,9 +897,9 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
             if add_money_schedule_items:
                 # for item in ScheduleItem.objects.filter(user=self.request.user.id).exclude(frequency="Monthly"):
                 for item in ScheduleItem.objects.filter(user=self.request.user.id):
-                    match = item.monthly_occurrences(int(form_year), int(form_month))
+                    match = item.monthly_occurrences(int(year), int(month))
                     if match:
-                        items_for_month.append(item.monthly_occurrences(int(form_year), int(form_month)))
+                        items_for_month.append(item.monthly_occurrences(int(year), int(month)))
 
                 # Add money schedule items to budget
                 for item in items_for_month:
@@ -901,6 +913,9 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                         user_id=item[0].user_id,
                     )
 
+        except IntegrityError:
+            messages.error(self.request, f"Budget already exists for {month}, {year}.")
+            return HttpResponseRedirect(self.request.get_full_path())
         except Exception as err:
             return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
         return super(AddBudgetPeriod, self).form_valid(form)
@@ -1452,9 +1467,7 @@ def view_reports(request):
     return render(request, 'budgets/reports.html')
 
 
-# Offers Views
-# TODO: Add offers page
-# TODO: Offer Discover credit card
+# Offer Views
 # TODO: Changing payment times to make sure you have money to pay bills between paychecks
 # TODO: 1-month advance in your checking to give you cushion
 # TODO: 3-6 months savings reserve
@@ -1466,7 +1479,7 @@ def view_offers(request):
 
 
 # Support Views
-# TODO: Create support articles
 # TODO: Create a support form
+# TODO: Create support articles
 def view_support(request):
     return render(request, 'budgets/support.html')
