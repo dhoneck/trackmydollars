@@ -372,3 +372,10 @@ class ExpenseTransaction(models.Model):
 
     def is_positive(self):
         return False
+
+
+class ContactEntry(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    reason_for_contact = models.CharField(max_length=100)
+    description = models.TextField()
+    date_submitted = models.DateField(auto_now=True)

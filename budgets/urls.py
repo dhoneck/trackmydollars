@@ -76,5 +76,5 @@ urlpatterns = [
     # Offers URLS
     path('offers/', views.view_offers, name='offers'),
     # Support URLS
-    path('support/', views.view_support, name='support'),
+    path('contact/', AddContactEntry.as_view(), name='contact'),
 ]

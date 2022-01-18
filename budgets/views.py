@@ -1481,5 +1481,13 @@ def view_offers(request):
 # Support Views
 # TODO: Create a support form
 # TODO: Create support articles
-def view_support(request):
-    return render(request, 'budgets/support.html')
+class AddContactEntry(SuccessMessageMixin, CreateView):
+    model = ContactEntry
+    fields = ['reason_for_contact', 'description']
+    template_name = 'budgets/add_contact_entry.html'
+    success_url = './'
+    success_message = 'Contact form successfully submitted!'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(AddContactEntry, self).form_valid(form)

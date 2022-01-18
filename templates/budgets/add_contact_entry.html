@@ -10,5 +10,13 @@
       });
   </script>
   <h2>Support</h2>
-  <p>Coming soon!</p>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
 {% endblock %}
