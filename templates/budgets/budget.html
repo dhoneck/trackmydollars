@@ -80,13 +80,20 @@
                   {% if transaction.is_positive %}
                     <span class="positive-number">{{ transaction.get_signed_value }}</span>
                   {% else %}
-                    <span class="negative-number">{{ transaction.get_signed_value }}</span>
+                    {% if transaction.is_refund %}
+                      <span class="refund-expense">{{ transaction.get_signed_value }}</span>
+                    {% else %}
+                      <span class="negative-number">{{ transaction.get_signed_value }}</span>
+                    {% endif %}
+
                   {% endif %}
                   <br>
                   {% if transaction.credit_purchase %}
                     <span class="credit-card" title="Credit Card Purchase">CC Purchase</span>
                   {% elif transaction.credit_payoff %}
                     <span class="credit-card" title="Credit Card Payment">CC Payment</span>
+                  {% elif transaction.is_refund %}
+                    <span class="refund" title="Refund">Refund</span>
                   {% endif %}
                 </td>
               </tr>

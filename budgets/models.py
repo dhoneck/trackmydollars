@@ -368,10 +368,19 @@ class ExpenseTransaction(models.Model):
         return f'{self.date} - {self.name}'
 
     def get_signed_value(self):
-        return f'-{self.amount}'
+        if self.amount < 0:  # For negative expenses (refunds)
+            return f'+{abs(self.amount)}'
+        else:
+            return f'-{self.amount}'
 
     def is_positive(self):
         return False
+
+    def is_refund(self):
+        if self.amount < 0:
+            return True
+        else:
+            return False
 
 
 class ContactEntry(models.Model):

@@ -333,7 +333,7 @@ span.helptext {
   display: none;
 }
 
-.positive-number {
+.positive-number, .refund-expense {
   color: green;
 }
 
@@ -346,7 +346,7 @@ span.helptext {
   font-size: 10px;
 }
 
-.transfer-in, .transfer-out, .reserve-in, .reserve-out, .credit-card {
+.transfer-in, .transfer-out, .reserve-in, .reserve-out, .credit-card, .refund {
   opacity: .6;
   font-size: 10px;
   font-weight: bold;
@@ -370,6 +370,10 @@ span.helptext {
   /*border-radius: 3px;*/
 }
 
+.refund {
+  background-color: green;
+  color: #F1F0F4;
+}
 /*******************************
 Forms
 *******************************/
