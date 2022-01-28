@@ -31,16 +31,22 @@
       <p><pre>Difference  ${{ left_to_spend }}</pre></p>
     </div>
     <div class="budget-overview-container">
+      <p><strong>Checking Account</strong></p>
+      <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_bank_balance }}</a></pre></p>
+      <p><pre>Balance Change   ${{ bank_balance_change }}</pre></p>
+      <p><pre>Current Balance  ${{ current_bank_balance }}</pre></p>
+    </div>
+    <div class="budget-overview-container">
       <p><strong>Credit Cards</strong></p>
       <p><pre>New Debt     ${{ total_new_debt }}</pre></p>
       <p><pre>Paid Debt    ${{ total_paid_debt }}</pre></p>
       <p><pre>Amount Left  ${{ total_remaining_debt }}</pre></p>
     </div>
     <div class="budget-overview-container">
-      <p><strong>Checking Account</strong></p>
-      <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_balance }}</a></pre></p>
-      <p><pre>Balance Change   ${{ debits_credits }}</pre></p>
-      <p><pre>Current Balance  ${{ current_balance }}</pre></p>
+      <p><strong>Cash</strong></p>
+      <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_cash_balance }}</a></pre></p>
+      <p><pre>Balance Change   ${{ cash_balance_change }}</pre></p>
+      <p><pre>Current Balance  ${{ current_cash_balance }}</pre></p>
     </div>
 
 
@@ -77,24 +83,25 @@
                 {% endif %}
                 </td>
                 <td>
+                {% if transaction.is_positive %}
+                  <span class="green">{{ transaction.get_signed_value }}</span>
+                {% else %}
+                  <span class="red">{{ transaction.get_signed_value }}</span>
+                {% endif %}
+                <br>
+                {% if transaction.is_refund %}
+                  <span class="green-fill" title="Refund">Refund</span>
+                {% elif transaction.credit_purchase %}
+                  <span class="red-fill" title="Credit Card Purchase">CC Purchase</span>
+                {% elif transaction.credit_payoff %}
+                  <span class="red-fill" title="Credit Card Payment">CC Payment</span>
+                {% elif transaction.cash %}
                   {% if transaction.is_positive %}
-                    <span class="positive-number">{{ transaction.get_signed_value }}</span>
+                    <span class="green-fill">Cash</span>
                   {% else %}
-                    {% if transaction.is_refund %}
-                      <span class="refund-expense">{{ transaction.get_signed_value }}</span>
-                    {% else %}
-                      <span class="negative-number">{{ transaction.get_signed_value }}</span>
-                    {% endif %}
-
+                    <span class="red-fill">Cash</span>
                   {% endif %}
-                  <br>
-                  {% if transaction.credit_purchase %}
-                    <span class="credit-card" title="Credit Card Purchase">CC Purchase</span>
-                  {% elif transaction.credit_payoff %}
-                    <span class="credit-card" title="Credit Card Payment">CC Payment</span>
-                  {% elif transaction.is_refund %}
-                    <span class="refund" title="Refund">Refund</span>
-                  {% endif %}
+                {% endif %}
                 </td>
               </tr>
             {% endfor %}

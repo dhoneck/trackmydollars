@@ -633,7 +633,7 @@ class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
 
 class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
     model = IncomeTransaction
-    fields = ['name', 'amount', 'date']
+    fields = ['name', 'amount', 'cash', 'date']
     template_name = 'budgets/update_income_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'itid'
@@ -716,7 +716,7 @@ class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
 
 class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
     model = ExpenseTransaction
-    fields = ['name', 'amount', 'credit_purchase', 'date']
+    fields = ['name', 'amount', 'credit_purchase', 'cash', 'date']
     template_name = 'budgets/update_expense_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'etid'
@@ -848,10 +848,11 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         year = split_url[-3]
 
         form_sbb = form.cleaned_data['starting_bank_balance']
+        form_scb = form.cleaned_data['starting_cash_balance']
 
         try:
             # Create a new budget period
-            BudgetPeriod(year=year, month=month, starting_bank_balance=form_sbb, user_id=current_user).save()
+            BudgetPeriod(year=year, month=month, starting_bank_balance=form_sbb, starting_cash_balance=form_scb, user_id=current_user).save()
 
             # Retrieve the new budget period
             new_bp = BudgetPeriod.objects.get(year=year, month=month, user_id=current_user)
@@ -879,11 +880,11 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                         i.expense_category_id = new_id
                         i.save()
 
-            usable_balance = form.cleaned_data['usable_balance']
-            if usable_balance > 0:
+            usable_cash_balance = form.cleaned_data['usable_cash_balance']
+            if usable_cash_balance > 0:
                 reserve_bi = IncomeBudgetItem(
                     name='Reserve Funds',
-                    planned_amount=usable_balance,
+                    planned_amount=usable_cash_balance,
                     budget_period_id=new_bp.id,
                     user_id=current_user,
                     type='Reserve'
@@ -923,7 +924,7 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
 
 class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
     model = BudgetPeriod
-    fields = ['starting_bank_balance']
+    fields = ['starting_bank_balance', 'starting_cash_balance']
     template_name = 'budgets/update_budget_period.html'
     success_url = '../'
     pk_url_kwarg = 'bp'
@@ -943,6 +944,10 @@ def specific_budget(request, month, year):
         total_planned_expenses = Decimal(0.00)
         total_actual_income = Decimal(0.00)
         total_actual_expenses = Decimal(0.00)
+        total_bank_income = Decimal(0.00)
+        total_bank_expenses = Decimal(0.00)
+        total_cash_income = Decimal(0.00)
+        total_cash_expenses = Decimal(0.00)
         total_old_debt = Decimal(0.00)
         total_new_debt = Decimal(0.00)
         total_paid_debt = Decimal(0.00)
@@ -964,6 +969,10 @@ def specific_budget(request, month, year):
             for t in item.income_transactions.all():
                 total_actual_income += t.amount
                 all_transactions.append(t)
+                if t.cash:
+                    total_cash_income += t.amount
+                elif not t.cash:
+                    total_bank_income += t.amount
 
         # Check the transactions for new debt and adjust if needed
         print('Transactions Filter Method')
@@ -1056,8 +1065,17 @@ def specific_budget(request, month, year):
     left_to_spend = total_actual_income - total_actual_expenses
     total_remaining_debt = total_new_debt - total_paid_debt
 
-    debits_credits = total_actual_income - total_actual_expenses - reserved_funds
-    current_balance = bp.starting_bank_balance + debits_credits
+    bank_balance_change = total_bank_income - total_bank_expenses
+    current_bank_balance = bp.starting_bank_balance + bank_balance_change
+
+    cash_balance_change = total_cash_income - total_cash_expenses
+    current_cash_balance = bp.starting_cash_balance + cash_balance_change
+
+    # bank_balance_change = total_actual_income - total_actual_expenses - reserved_funds
+    # current_bank_balance = bp.starting_bank_balance + bank_balance_change
+
+    # cash_balance_change = total_actual_income - total_actual_expenses - reserved_funds
+    # current_cash_balance = bp.starting_cash_balance + cash_balance_change
 
     return render(request,
                   'budgets/budget.html',
@@ -1078,9 +1096,12 @@ def specific_budget(request, month, year):
                    'left_to_spend': left_to_spend,
                    'bp_id': bp.id,
                    'all_transactions': sorted_transactions,
-                   'starting_balance': bp.starting_bank_balance,
-                   'debits_credits': debits_credits,
-                   'current_balance': current_balance,
+                   'starting_bank_balance': bp.starting_bank_balance,
+                   'bank_balance_change': bank_balance_change,
+                   'current_bank_balance': current_bank_balance,
+                   'starting_cash_balance': bp.starting_cash_balance,
+                   'cash_balance_change': cash_balance_change,
+                   'current_cash_balance': current_cash_balance,
                   }
                   )
 
@@ -1143,7 +1164,7 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
 
 class AddIncomeTransaction(SuccessMessageMixin, CreateView):
     model = IncomeTransaction
-    fields = ['name', 'amount', 'date']
+    fields = ['name', 'amount', 'cash', 'date']
     template_name = 'budgets/add_income_transaction.html'
     success_message = 'Income transaction successfully added!'
 

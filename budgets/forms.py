@@ -25,7 +25,9 @@ class CustomUserCreationForm(UserCreationForm):
 
 class BudgetPeriodForm(forms.Form):
     starting_bank_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
-    usable_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
+    usable_bank_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
+    starting_cash_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
+    usable_cash_balance = forms.DecimalField(max_digits=9, decimal_places=2, required=True)
     add_money_schedule_items = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):

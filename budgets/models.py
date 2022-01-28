@@ -241,7 +241,8 @@ class BudgetPeriod(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     month = models.IntegerField(choices=MONTHS, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
-    starting_bank_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True)
+    starting_bank_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True, default=0.00)
+    starting_cash_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True, default=0.00)
 
     class Meta:
         unique_together = ('user', 'month', 'year',)
@@ -284,6 +285,7 @@ class IncomeTransaction(models.Model):
                                     )
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
+    cash = models.BooleanField(default=False)
     date = models.DateField()
 
     def get_signed_value(self):
@@ -362,6 +364,7 @@ class ExpenseTransaction(models.Model):
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     credit_purchase = models.BooleanField(default=False)
     credit_payoff = models.BooleanField(default=False)
+    cash = models.BooleanField(default=False)
     date = models.DateField()
 
     def __str__(self):
@@ -374,13 +377,13 @@ class ExpenseTransaction(models.Model):
             return f'-{self.amount}'
 
     def is_positive(self):
-        return False
-
-    def is_refund(self):
         if self.amount < 0:
             return True
         else:
             return False
+
+    def is_refund(self):
+        return self.is_positive()
 
 
 class ContactEntry(models.Model):
