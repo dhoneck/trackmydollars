@@ -1037,7 +1037,11 @@ def specific_budget(request, month, year):
                     all_transactions.append(t)
                     if t.credit_purchase:
                         total_new_debt += t.amount
+                    elif t.cash:
+                        total_cash_expenses += t.amount
+                        total_actual_expenses += t.amount
                     else:
+                        total_bank_expenses += t.amount
                         total_actual_expenses += t.amount
                     if t.credit_payoff:
                         old_debt_paid += t.amount
@@ -1065,9 +1069,13 @@ def specific_budget(request, month, year):
     left_to_spend = total_actual_income - total_actual_expenses
     total_remaining_debt = total_new_debt - total_paid_debt
 
+    print('total_bank_income: ', total_bank_income)
+    print('total_bank_expenses: ', total_bank_expenses)
     bank_balance_change = total_bank_income - total_bank_expenses
     current_bank_balance = bp.starting_bank_balance + bank_balance_change
 
+    print('total_cash_income: ', total_cash_income)
+    print('total_cash_expenses: ', total_cash_expenses)
     cash_balance_change = total_cash_income - total_cash_expenses
     current_cash_balance = bp.starting_cash_balance + cash_balance_change
 
