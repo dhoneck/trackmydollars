@@ -880,10 +880,21 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                         i.expense_category_id = new_id
                         i.save()
 
+            usable_bank_balance = form.cleaned_data['usable_bank_balance']
+            if usable_bank_balance > 0:
+                reserve_bi = IncomeBudgetItem(
+                    name='Bank Reserve',
+                    planned_amount=usable_bank_balance,
+                    budget_period_id=new_bp.id,
+                    user_id=current_user,
+                    type='Reserve'
+                )
+                reserve_bi.save()
+
             usable_cash_balance = form.cleaned_data['usable_cash_balance']
             if usable_cash_balance > 0:
                 reserve_bi = IncomeBudgetItem(
-                    name='Reserve Funds',
+                    name='Cash Reserve',
                     planned_amount=usable_cash_balance,
                     budget_period_id=new_bp.id,
                     user_id=current_user,
@@ -930,10 +941,23 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'bp'
     success_message = 'Budget period successfully updated!'
 
+# TODO: Fix auto reserve - only shows cash reserves
+# TODO: Add transaction splitting
 # TODO: Add an add transaction button
 # TODO: Add autofill
 # TODO: Allow users to move categories and budget items
 # TODO: Prevent users from being able to add reserve transactions - it should be automatically
+# TODO: Prevent negative incomes
+# TODO: Add the ability to move transactions to other budget items
+# TODO: Add quick edits with Ajax
+# TODO: Add expense fund calculator
+# TODO: Add a notification of outstanding CC balances from previous month
+# TODO: Fix forms when duplicate data is added (e.g. adding a budget template and adding money schedule items
+# TODO: Show money schedule items when adding a new budget
+# TODO: Add help tooltips for various items such as budget overview items
+# TODO: Add the ability to add sinking funds for expense fund to your income
+# TODO: Add the ability to adjust your reserve funds after initial budget period creation
+# TODO: Fix the "Skipping Django collectstatic since the env var DISABLE_COLLECTSTATIC is set."
 
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
