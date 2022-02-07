@@ -32,7 +32,11 @@ class BudgetPeriodForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
+        money_schedule_items = kwargs.pop('money_schedule_items')
+        print('money_schedule_items: ' + money_schedule_items)
         super(BudgetPeriodForm, self).__init__(*args, **kwargs)
+        print(self.fields)
+        self.fields['add_money_schedule_items'] = forms.BooleanField(required=False, label_suffix=f' ({money_schedule_items}):')
         self.fields['template'] = forms.ModelChoiceField(required=False, queryset=BudgetPeriod.objects.filter(user_id=self.user).order_by('-month', '-year'))
 
 

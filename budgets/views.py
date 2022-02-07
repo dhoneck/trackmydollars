@@ -816,17 +816,31 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
     success_message = 'Budget successfully added!'
 
     def get_form_kwargs(self):
+        # Get list of money schedule items and their totals
+        month, year = get_month_and_year_from_request(self.request)
+        print(f'DOES THIS WORK?: {month} {year}')
+        month_number = datetime.strptime(month, "%B").month
+        print(month_number)
+
+        money_schedule_items = ''
+        for item in ScheduleItem.objects.filter(user=self.request.user.id):
+            print('ITEM: ' + str(item))
+            match = item.monthly_occurrences(int(year), month_number)
+            if match:
+                money_schedule_items += item.name + ' $' + str(item.get_monthly_total(int(year), month_number)) + ', '
+
+        # Remove trailing comma
+        if money_schedule_items[-2:] == ', ':
+            money_schedule_items = money_schedule_items[:-2]
+        else:
+           money_schedule_items = 'No Schedule Items This Month'
+
+
         # Set the user for the form based on the request
         kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
-        #
-        # split_url = self.request.get_full_path().split('/')
-        # month = datetime.strptime(split_url[-4], '%B').month
-        # year = split_url[-3]
-        # print("MONTH:", type(month))
-        # print("YEAR:", type(year))
-
         kwargs.update({
             'user': self.request.user.id,
+            'money_schedule_items': money_schedule_items,
         })
         return kwargs
 
