@@ -57,7 +57,7 @@ def register(request):
             login(request, user)
             return redirect(reverse("dashboard"))
 
-
+###########################
 # User settings views
 # TODO: Add a user avatar next to their email
 # TODO: Add user settings page
@@ -66,10 +66,143 @@ def register(request):
 # TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
 # TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
 # TODO: Transfer Out Item Name (e.g. Reserved Funds)
-@login_required(login_url='../accounts/login/')
-def view_settings(request):
-    return render(request, 'budgets/settings.html')
+class EditSettings(FormView, SuccessMessageMixin):
+    template_name = 'budgets/settings.html'
+    form_class = SettingsForm
+    success_url = '../'
+    success_message = 'Settings successfully added!'
 
+    # def get_form_kwargs(self):
+    #     # Get list of money schedule items and their totals
+    #     month, year = get_month_and_year_from_request(self.request)
+    #     print(f'DOES THIS WORK?: {month} {year}')
+    #     month_number = datetime.strptime(month, "%B").month
+    #     print(month_number)
+    #
+    #     money_schedule_items = ''
+    #     for item in ScheduleItem.objects.filter(user=self.request.user.id):
+    #         print('ITEM: ' + str(item))
+    #         match = item.monthly_occurrences(int(year), month_number)
+    #         if match:
+    #             money_schedule_items += item.name + ' $' + str(item.get_monthly_total(int(year), month_number)) + ', '
+    #
+    #     # Remove trailing comma
+    #     if money_schedule_items[-2:] == ', ':
+    #         money_schedule_items = money_schedule_items[:-2]
+    #     else:
+    #         money_schedule_items = 'No Schedule Items This Month'
+    #
+    #
+    #     # Set the user for the form based on the request
+    #     kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
+    #     kwargs.update({
+    #         'user': self.request.user.id,
+    #         'money_schedule_items': money_schedule_items,
+    #     })
+    #     return kwargs
+    #
+    # def get_context_data(self, **kwargs):
+    #     # Provide the month and year to the template
+    #     context = super().get_context_data(**kwargs)
+    #     split_url = self.request.get_full_path().split('/')
+    #     month = split_url[-4]
+    #     year = split_url[-3]
+    #     context['month'] = month.capitalize()
+    #     context['year'] = year
+    #     return context
+    #
+    # def form_valid(self, form):
+    #     current_user = self.request.user.id
+    #
+    #     split_url = self.request.get_full_path().split('/')
+    #     month = datetime.strptime(split_url[-4], '%B').month
+    #     year = split_url[-3]
+    #
+    #     form_sbb = form.cleaned_data['starting_bank_balance']
+    #     form_scb = form.cleaned_data['starting_cash_balance']
+    #
+    #     try:
+    #         # Create a new budget period
+    #         BudgetPeriod(year=year, month=month, starting_bank_balance=form_sbb, starting_cash_balance=form_scb, user_id=current_user).save()
+    #
+    #         # Retrieve the new budget period
+    #         new_bp = BudgetPeriod.objects.get(year=year, month=month, user_id=current_user)
+    #
+    #         # Check to see if there is a template budget period - if there is add those items to current budget
+    #         template_bp = form.cleaned_data['template']
+    #         if template_bp:
+    #             # Add income budget items to the new budget period
+    #             ibi = IncomeBudgetItem.objects.filter(budget_period_id=template_bp)
+    #             for item in ibi:
+    #                 item.pk = None
+    #                 item.budget_period_id = new_bp.id
+    #                 item.save()
+    #             # Add expense categories and expense budget items to the new budget period
+    #             ec = ExpenseCategory.objects.filter(budget_period_id=template_bp)
+    #             for category in ec:
+    #                 original_id = category.id
+    #                 budget_items = category.expense_budget_items.all()
+    #                 category.id = None
+    #                 category.budget_period_id = new_bp.id
+    #                 category.save()
+    #                 new_id = category.id
+    #                 for i in budget_items:
+    #                     i.id = None
+    #                     i.expense_category_id = new_id
+    #                     i.save()
+    #
+    #         usable_bank_balance = form.cleaned_data['usable_bank_balance']
+    #         if usable_bank_balance > 0:
+    #             reserve_bi = IncomeBudgetItem(
+    #                 name='Bank Reserve',
+    #                 planned_amount=usable_bank_balance,
+    #                 budget_period_id=new_bp.id,
+    #                 user_id=current_user,
+    #                 type='Reserve'
+    #             )
+    #             reserve_bi.save()
+    #
+    #         usable_cash_balance = form.cleaned_data['usable_cash_balance']
+    #         if usable_cash_balance > 0:
+    #             reserve_bi = IncomeBudgetItem(
+    #                 name='Cash Reserve',
+    #                 planned_amount=usable_cash_balance,
+    #                 budget_period_id=new_bp.id,
+    #                 user_id=current_user,
+    #                 type='Reserve'
+    #             )
+    #             reserve_bi.save()
+    #
+    #         add_money_schedule_items = form.cleaned_data['add_money_schedule_items']
+    #
+    #         # Check for current month's budget items
+    #         items_for_month = []
+    #         if add_money_schedule_items:
+    #             # for item in ScheduleItem.objects.filter(user=self.request.user.id).exclude(frequency="Monthly"):
+    #             for item in ScheduleItem.objects.filter(user=self.request.user.id):
+    #                 match = item.monthly_occurrences(int(year), int(month))
+    #                 if match:
+    #                     items_for_month.append(item.monthly_occurrences(int(year), int(month)))
+    #
+    #             # Add money schedule items to budget
+    #             for item in items_for_month:
+    #                 # Check if expense category already exists
+    #                 expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=current_user, budget_period=new_bp, name=item[0].category)
+    #
+    #                 expense_item, item_created = ExpenseBudgetItem.objects.get_or_create(
+    #                     expense_category=expense_cat,
+    #                     name=item[0].name,
+    #                     planned_amount=item[0].amount,
+    #                     user_id=item[0].user_id,
+    #                 )
+    #
+    #     except IntegrityError:
+    #         messages.error(self.request, f"Budget already exists for {month}, {year}.")
+    #         return HttpResponseRedirect(self.request.get_full_path())
+    #     except Exception as err:
+    #         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
+    #     return super(AddBudgetPeriod, self).form_valid(form)
+############
 
 # Helper Functions
 def format_numbers(**kwargs):

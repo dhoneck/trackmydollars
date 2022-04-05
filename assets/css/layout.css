@@ -420,3 +420,20 @@ Offers
   height: 100px;
   margin-left: 10px;
 }
+
+.settings {
+  list-style: none;
+  padding: 0;
+}
+
+.settings ul {
+  margin: 0px;
+}
+
+.settings input {
+  float: left;
+}
+
+.settings li {
+  margin: 10px 0;
+}

@@ -4,14 +4,14 @@ from . import views
 from budgets.views import *
 
 urlpatterns = [
-    # General 4443URLs
+    # General URLs
     path('', views.index, name='index'),
     # path('about/', views.about, name='about'),
     # path('contact/', views.contact, name='contact'),
     # Registration and User URLs
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^register/', views.register, name='register'),
-    path('settings/', views.view_settings, name='settings'),
+    path('settings', EditSettings.as_view(), name='settings'),
     # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
     # Asset & Debt URLs

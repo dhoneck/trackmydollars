@@ -63,5 +63,22 @@ class ExpenseTransactionDebtPaymentForm(forms.ModelForm):
         self.user = kwargs.pop('user')
         super(ExpenseTransactionDebtPaymentForm, self).__init__(*args, **kwargs)
 
-# class SettingsForm(forms.Form):
 
+SECTIONS = (
+    ('dashboard', 'Dashboard'),
+    ('assets & debts', 'Assets & Debts'),
+    ('money schedule', 'Money Schedule'),
+    ('budget', 'Budget'),
+    ('reports', 'Reports'),
+    ('offers', 'Offers'),
+    ('support', 'Support'),
+)
+
+
+class SettingsForm(forms.Form):
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    hide_sections = forms.MultipleChoiceField(
+        choices=SECTIONS,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'settings'})
+    )
