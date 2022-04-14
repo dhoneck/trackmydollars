@@ -1,8 +1,8 @@
 /*******************************
 General
 *******************************/
-html {
-  min-height: 100%;
+html, body {
+  height: 100%;
 }
 
 body {
@@ -137,7 +137,7 @@ Body
 *******************************/
 #login-form-container {
   background-color: lightgray;
-  width: 400px;
+  max-width: 400px;
   border-radius: 5px;
   padding: 10px;
   margin: 40px auto;
@@ -436,4 +436,18 @@ Offers
 
 .settings li {
   margin: 10px 0;
+}
+
+
+/*******************************
+Media Queries
+*******************************/
+@media only screen and (max-width: 480px) {
+  #logo-dark h1 {
+    font-size: 1.5em;
+  }
+
+  #logo-dark h2 {
+    font-size: 1em;
+  }
 }
