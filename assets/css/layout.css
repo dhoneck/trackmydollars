@@ -309,7 +309,7 @@ aside table {
   border-radius: 10px;
 }
 
-label, input {
+label, input, select {
   display: block;
 }
 

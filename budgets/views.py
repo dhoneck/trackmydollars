@@ -1561,14 +1561,14 @@ class AddDebtPayment(SuccessMessageMixin, CreateView):
 # Schedule Views
 def view_schedule(request):
     context = {
-        'weekly': ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date'),
-        'every_two_weeks': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date'),
-        'monthly': ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date'),
-        'every_two_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date'),
-        'quarterly': ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date'),
-        'every_six_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date'),
-        'yearly': ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date'),
-        'one_time': ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date'),
+        'weekly': ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date__month', 'first_due_date__day'),
+        'every_two_weeks': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date__month', 'first_due_date__day'),
+        'monthly': ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date__month', 'first_due_date__day'),
+        'every_two_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date__month', 'first_due_date__day'),
+        'quarterly': ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date__month', 'first_due_date__day'),
+        'every_six_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date__month', 'first_due_date__day'),
+        'yearly': ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date__month', 'first_due_date__day'),
+        'one_time': ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date__month', 'first_due_date__day'),
     }
 
     totals = {
@@ -1628,7 +1628,7 @@ def view_schedule(request):
 
 class AddScheduleItem(SuccessMessageMixin, CreateView):
     model = ScheduleItem
-    fields = ['name', 'amount', 'category', 'first_due_date', 'frequency']
+    fields = ['name', 'amount', 'category', 'type', 'first_due_date', 'frequency']
     template_name = 'schedule/add_schedule_item.html'
     success_url = '/schedule/'
     success_message = 'Schedule item successfully added!'

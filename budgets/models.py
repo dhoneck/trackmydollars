@@ -42,6 +42,21 @@ INCOME_CHOICES = (
     ('Reserve', 'Reserve'),
 )
 
+EXPENSE_CHOICES = (
+    ('Expense', 'Expense'),
+    ('Transfer', 'Transfer'),
+    ('Reserve', 'Reserve'),
+)
+
+INCOME_EXPENSE_CHOICES = (
+    ('Income', 'Income'),
+    ('Transfer', 'Income Transfer'),
+    ('Reserve', 'Income Reserve'),
+    ('Expense', 'Expense'),
+    ('Transfer', 'Expense Transfer'),
+    ('Reserve', 'Expense Reserve'),
+)
+
 NEED_WANT_SAVINGS_DEBT = (
     ('Need', 'Need'),
     ('Want', 'Want'),
@@ -142,6 +157,7 @@ class ScheduleItem(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     category = models.CharField(max_length=50)
+    type = models.CharField(max_length=50, choices=INCOME_EXPENSE_CHOICES, default='Expense')
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     first_due_date = models.DateField()
     frequency = models.CharField(max_length=50, choices=FREQUENCY)
@@ -237,7 +253,6 @@ class ScheduleItem(models.Model):
 
 # Budget Models
 class BudgetPeriod(models.Model):
-    global MONTHS
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     month = models.IntegerField(choices=MONTHS, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
@@ -253,7 +268,6 @@ class BudgetPeriod(models.Model):
 
 
 class IncomeBudgetItem(models.Model):
-    global INCOME_CHOICES
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
     name = models.CharField(max_length=50)
@@ -327,11 +341,6 @@ class ExpenseCategory(models.Model):
 
 
 class ExpenseBudgetItem(models.Model):
-    EXPENSE_CHOICES = (
-        ('Expense', 'Expense'),
-        ('Transfer', 'Transfer'),
-        ('Reserve', 'Reserve'),
-    )
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
     name = models.CharField(max_length=50)
