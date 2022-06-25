@@ -1,12 +1,23 @@
 /*******************************
 General
 *******************************/
+:root {
+  --green: #4DCE69;
+  --dark-blue: #0F74B7;
+  --light-blue: #1592D7;
+  --white: #FFFFFF;
+  --gray: #F5F7F8;
+  --gold: #F2BA52;
+  --old-blue: #527EA5;
+
+}
+
 html, body {
   height: 100%;
 }
 
 body {
-  background-color: #F1F0F4;
+  background-color: var(--gray);;
   font-family: Roboto, sans-serif;
   margin: 0;
 }
@@ -32,12 +43,12 @@ a:hover {
 Header, Logo, Nav
 *******************************/
 #logo-dark {
-  background-color: #527EA5;
+  background-color: var(--green);
   padding: 20px;
 }
 
 #logo-dark h1, #logo-dark h2 {
-  color: #F1F0F4;
+  color: var(--gray);
   margin: 0;
   text-align: center;
 }
@@ -45,7 +56,7 @@ Header, Logo, Nav
 #logo {
   display: inline-block;
   margin: 28px 16px 10px 16px;
-  color: white;
+  color: var(--green);
   font-family: Bahnschrift;
 }
 
@@ -60,7 +71,7 @@ Header, Logo, Nav
 }
 
 .topnav {
-  background-color: #527EA5;;
+  background-color: var(--dark-blue);;
   display: inline-block;
   width: 100%;
   padding: 10px;
@@ -86,24 +97,28 @@ Header, Logo, Nav
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: #527EA5;
+  background-color: var(--white);
   overflow-x: hidden;
-  box-shadow: 2px 0px 2px #888888;
+  /*box-shadow: 2px 0px 2px var(--dark-blue);*/
 }
 
 nav a {
   padding: 7px 16px 7px 16px;
-  background-color: lightcoral;
-  color: white;
+  /*background-color: lightcoral;*/
+  /*color: var(--gray);*/
   display: block;
   margin-top: 10px;
   font-weight: bold;
-  box-shadow: 0px 2px 2px #888888;
+  /*box-shadow: 0px 2px 2px #888888;*/
 }
 
 nav a:hover, .topnav a:hover {
   opacity: 0.8;
-  color: white;
+  color: var(--green);
+}
+
+.active {
+  color: var(--light-blue);
 }
 
 .content-container {
@@ -115,13 +130,12 @@ nav a:hover, .topnav a:hover {
 }
 
 #user-section {
-  background-color: lightgray;
   font-size: .9rem;
   position: absolute;
   padding: 5px;
   bottom: 0px;
   width: 100%;
-  border-top: 2px solid #F1F0F4;
+  border-top: 2px solid var(--gray);
 }
 
 #user-section a {
@@ -155,8 +169,8 @@ Body
 }
 
 #login-form-container input[type=submit] {
-  background-color: #527EA5;
-  color: #F1F0F4;
+  background-color: var(--green);
+  color: var(--white);;
   height: 35px;
   font-weight: bold;
   cursor: pointer;
@@ -165,7 +179,7 @@ Body
 }
 
 #login-form-container input:focus {
-  outline-color: #527EA5;
+  outline-color: var(--dark-blue);
 }
 
 #login-form-container input[type=submit]:hover {
@@ -339,17 +353,17 @@ span.helptext {
 
 .transfer-in, .reserve-in {
   background-color: green;
-  color: #F1F0F4;
+  color: var(--white);;
 }
 
 .transfer-out, .reserve-out, .red-fill {
   background-color: indianred;
-  color: #F1F0F4;
+  color: var(--white);;
 }
 
 .green-fill {
   background-color: green;
-  color: #F1F0F4;
+  color: var(--white);;
 }
 /*******************************
 Forms
