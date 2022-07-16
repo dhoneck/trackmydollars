@@ -8,152 +8,157 @@
           $(".success").fadeOut(10000);
       });
   </script>
-  <h2>Assets & Debts</h2>
-  <div id="net-worth-container">
-    <h3>Net Worth</h3>
-    <table id="net-worth-table">
-      <tr>
-        <td>Assets</td>
-        <td><pre>{{ asset_total }}</pre></td>
-      </tr>
-      <tr>
-        <td>Debts</td>
-        <td><pre>{{ debt_total }}</pre></td>
-      </tr>
-      <tr>
-        <td><strong>Net Worth</strong></td>
-        <td><strong><pre>{{ net_worth_total }}</pre></strong></td>
-      </tr>
-    </table>
-  </div>
-  {% if messages %}
-    {% for message in messages %}
-      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-    {% endfor %}
-  {% endif %}
 
-  <h3>Assets</h3>
-  <div class="button-container">
-    <button onclick="window.location.href = '{% url 'add-asset' %}';">Add Asset</button>
-  </div>
-  {% if assets  %}
-  <table class="asset-debt-table">
-    <tr>
-      <th>Asset Name</th>
-      <th>Asset Type</th>
-      <th class="right-align">Current Value</th>
-      <th class="right-align">Last Updated</th>
-    {% for item in assets %}
-      <tr>
-        <td><a href="assets/{{ item.id }}/view">{{ item.name }}</a></td>
-
-        {% if item.type %}
-          <td><a href="assets/{{ item.id }}/view">{{ item.type }}</a></td>
-        {% else %}
-          <td><a href="assets/{{ item.id }}/view">n/a</a></td>
-        {% endif %}
-
-        {% if item.balances.first %}
-          <td class="right-align"><a href="assets/{{ item.id }}/view"><pre>${{ item.balances.first }}</pre></a></td>
-        {% else %}
-          <td class="right-align"><a href="assets/{{ item.id }}/view"><pre>n/a</pre></a></td>
-        {% endif %}
-
-        {% if item.balances.first.date %}
-          <td class="right-align"><a href="assets/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
-        {% else %}
-          <td class="right-align"><a href="assets/{{ item.id }}/view">n/a</a></td>
-        {% endif %}
-      </tr>
-    {% endfor %}
-  </table>
-  {% endif %}
-
-  <h3>Installment Debts</h3>
-  <div class="button-container">
-    <button onclick="window.location.href = '{% url 'add-installment-debt' %}';">Add Installment Debt</button>
-  </div>
-  {% if installment_debts  %}
-  <table class="asset-debt-table">
-    <tr>
-      <th>Debt Name</th>
-      <th>Debt Type</th>
-      <th class="right-align">Initial Balance</th>
-      <th class="right-align">Current Balance</th>
-      <th class="right-align">Last Updated</th>
-      {% for item in installment_debts %}
+  <div class="main-container">
+    <h2 class="page-heading">Assets & Debts</h2>
+    <h3>Assets</h3>
+      <div class="button-container">
+        <button onclick="window.location.href = '{% url 'add-asset' %}';">Add Asset</button>
+      </div>
+      {% if assets  %}
+      <table class="asset-debt-table">
         <tr>
-          <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+          <th>Asset Name</th>
+          <th>Asset Type</th>
+          <th class="right-align">Current Value</th>
+          <th class="right-align">Last Updated</th>
+        {% for item in assets %}
+          <tr>
+            <td><a href="assets/{{ item.id }}/view">{{ item.name }}</a></td>
 
-          {% if item.type %}
-            <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
-          {% else %}
-            <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
+            {% if item.type %}
+              <td><a href="assets/{{ item.id }}/view">{{ item.type }}</a></td>
+            {% else %}
+              <td><a href="assets/{{ item.id }}/view">n/a</a></td>
+            {% endif %}
 
-          {% if item.initial_amount %}
-            <td class="right-align"><a href="installment-debts/{{ item.id }}/view">${{ item.initial_amount }}</a></td>
-          {% else %}
-            <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
+            {% if item.balances.first %}
+              <td class="right-align"><a href="assets/{{ item.id }}/view"><pre>${{ item.balances.first }}</pre></a></td>
+            {% else %}
+              <td class="right-align"><a href="assets/{{ item.id }}/view"><pre>n/a</pre></a></td>
+            {% endif %}
 
-          {% if item.balances.first %}
-            <td class="right-align"><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
-          {% else %}
-            <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
+            {% if item.balances.first.date %}
+              <td class="right-align"><a href="assets/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
+            {% else %}
+              <td class="right-align"><a href="assets/{{ item.id }}/view">n/a</a></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
 
-          {% if item.balances.first.date %}
-            <td class="right-align"><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
-          {% else %}
-            <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
-        </tr>
-      {% endfor %}
-  </table>
-  {% endif %}
-
-  <h3>Revolving Debts</h3>
-  <div class="button-container">
-    <button onclick="window.location.href = '{% url 'add-revolving-debt' %}';">Add Revolving Debt</button>
-  </div>
-  {% if revolving_debts  %}
-  <table class="asset-debt-table">
-    <tr>
-      <th>Debt Name</th>
-      <th>Debt Type</th>
-      <th class="right-align">Credit Limit</th>
-      <th class="right-align">Current Balance</th>
-      <th class="right-align">Last Updated</th>
-      {% for item in revolving_debts %}
+      <h3>Installment Debts</h3>
+      <div class="button-container">
+        <button onclick="window.location.href = '{% url 'add-installment-debt' %}';">Add Installment Debt</button>
+      </div>
+      {% if installment_debts  %}
+      <table class="asset-debt-table">
         <tr>
-          <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+          <th>Debt Name</th>
+          <th>Debt Type</th>
+          <th class="right-align">Initial Balance</th>
+          <th class="right-align">Current Balance</th>
+          <th class="right-align">Last Updated</th>
+          {% for item in installment_debts %}
+            <tr>
+              <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
 
-          {% if item.type %}
-            <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
-          {% else %}
-            <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
+              {% if item.type %}
+                <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% else %}
+                <td><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
 
-          {% if item.credit_limit %}
-            <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">${{ item.credit_limit }}</a></td>
-          {% else %}
-            <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
+              {% if item.initial_amount %}
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">${{ item.initial_amount }}</a></td>
+              {% else %}
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
 
-          {% if item.balances.first %}
-            <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
-          {% else %}
-            <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
+              {% if item.balances.first %}
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+              {% else %}
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
 
-          {% if item.balances.first.date %}
-            <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
-          {% else %}
-            <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
-          {% endif %}
-        </tr>
-      {% endfor %}
-  </table>
-  {% endif %}
+              {% if item.balances.first.date %}
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
+              {% else %}
+                <td class="right-align"><a href="installment-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+      </table>
+      {% endif %}
+
+      <h3>Revolving Debts</h3>
+      <div class="button-container">
+        <button onclick="window.location.href = '{% url 'add-revolving-debt' %}';">Add Revolving Debt</button>
+      </div>
+      {% if revolving_debts  %}
+      <table class="asset-debt-table">
+        <tr>
+          <th>Debt Name</th>
+          <th>Debt Type</th>
+          <th class="right-align">Credit Limit</th>
+          <th class="right-align">Current Balance</th>
+          <th class="right-align">Last Updated</th>
+          {% for item in revolving_debts %}
+            <tr>
+              <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+
+              {% if item.type %}
+                <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
+              {% else %}
+                <td><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+
+              {% if item.credit_limit %}
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">${{ item.credit_limit }}</a></td>
+              {% else %}
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+
+              {% if item.balances.first %}
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">${{ item.balances.first }}</a></td>
+              {% else %}
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+
+              {% if item.balances.first.date %}
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">{{ item.balances.first.date | date:"M d, Y"}}</a></td>
+              {% else %}
+                <td class="right-align"><a href="revolving-debts/{{ item.id }}/view">n/a</a></td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+      </table>
+      {% endif %}
+  </div>
+
+  <div class="side-container">
+    <div id="net-worth-container">
+        <h3>Net Worth</h3>
+        <table id="net-worth-table">
+          <tr>
+            <td>Assets</td>
+            <td><pre>{{ asset_total }}</pre></td>
+          </tr>
+          <tr>
+            <td>Debts</td>
+            <td><pre>{{ debt_total }}</pre></td>
+          </tr>
+          <tr>
+            <td><strong>Net Worth</strong></td>
+            <td><strong><pre>{{ net_worth_total }}</pre></strong></td>
+          </tr>
+        </table>
+      </div>
+      {% if messages %}
+        {% for message in messages %}
+          <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+  </div>
 {% endblock %}

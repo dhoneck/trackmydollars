@@ -2,146 +2,91 @@
 {% block title %}TrackMyDollars | Dashboard{% endblock %}
 
 {% block content %}
-  <h2>Dashboard</h2>
-  <p>Hello, {{ user.username|default:'Guest'|title }}!</p>
-  <h3>Net Worth</h3>
-  <table>
-    <tr>
-      <td>Assets</td>
-      <td><pre>{{ asset_total }}</pre></td>
-    </tr>
-    <tr>
-      <td>Debts</td>
-      <td><pre>{{ debt_total }}</pre></td>
-    </tr>
-    <tr>
-      <td><strong>Net Worth</strong></td>
-      <td><strong><pre>{{ net_worth_total }}</pre></strong></td>
-    </tr>
-  </table>
-  <br>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-  <canvas id="myChart1" width="350" height="350"></canvas>
-  <script type="text/javascript">
-      var ctx = document.getElementById('myChart1').getContext('2d');
-      var myChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels: {{ labels|safe }},
-              datasets: [{
-                  label: 'Net Worth',
-                  data: {{ net_worth_data | safe }},
-                  backgroundColor: [
-                      'rgba(153, 102, 255, 0.2)',
-                  ],
-                  borderColor: [
-                      'rgba(153, 102, 255, 1)',
-                  ],
-                  borderWidth: 2,
-                  pointBackgroundColor: 'rgba(153, 102, 255, .5)',
-                  fill: false,
-                  lineTension: 0.4,
-              }, {
-                  label: 'Assets',
-                  data: {{ asset_data | safe }},
-                  backgroundColor: [
-                      'rgba(50, 168, 82, .2)',
-                  ],
-                  borderColor: [
-                      'rgba(50, 168, 82, .5)',
-                  ],
-                  borderWidth: 1,
-                  pointBackgroundColor: 'rgba(50, 168, 82, .5)',
-                  lineTension: 0.4,
-              }, {
-                  label: 'Debts',
-                  data: {{ debt_data | safe }},
-                  backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                  ],
-                  borderColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                  ],
-                  borderWidth: 1,
-                  pointBackgroundColor: 'rgba(255, 99, 132, 0.5)',
-                  lineTension: 0.4,
-              }]
-          },
-          options: {
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero: true,
-                          callback: function(value, index, values) {
-                              return '$' + value;
-                          },
-                          suggestedMin: -50000,
-                          suggestedMax: 50000,
-                      }
-                  }],
-              },
-              responsive: false,
-          }
-      });
-  </script>
-  <br>
-{#  <canvas id="myChart2" width="350" height="350"></canvas>#}
-{#  <script>#}
-{#      var ctx = document.getElementById('myChart2').getContext('2d');#}
-{#      var myChart = new Chart(ctx, {#}
-{#          type: 'line',#}
-{#          data: {#}
-{#              labels: {{ labels|safe }},#}
-{#              datasets: [{#}
-{#                  label: 'Net Budget',#}
-{#                  data: [],#}
-{#                  backgroundColor: [#}
-{#                      'rgba(153, 102, 255, 0.2)',#}
-{#                  ],#}
-{#                  borderColor: [#}
-{#                      'rgba(153, 102, 255, 1)',#}
-{#                  ],#}
-{#                  borderWidth: 2,#}
-{#                  pointBackgroundColor: 'rgba(153, 102, 255, .5)',#}
-{#                  fill: false#}
-{#              }, {#}
-{#                  label: 'Income',#}
-{#                  data: [],#}
-{#                  backgroundColor: [#}
-{#                      'rgba(50, 168, 82, .2)',#}
-{#                  ],#}
-{#                  borderColor: [#}
-{#                      'rgba(50, 168, 82, .5)',#}
-{#                  ],#}
-{#                  borderWidth: 1,#}
-{#                  pointBackgroundColor: 'rgba(50, 168, 82, .5)',#}
-{#              }, {#}
-{#                  label: 'Expenses',#}
-{#                  data: [],#}
-{#                  backgroundColor: [#}
-{#                      'rgba(255, 99, 132, 0.2)',#}
-{#                  ],#}
-{#                  borderColor: [#}
-{#                      'rgba(255, 99, 132, 0.5)',#}
-{#                  ],#}
-{#                  borderWidth: 1,#}
-{#                  pointBackgroundColor: 'rgba(255, 99, 132, 0.5)',#}
-{#              }]#}
-{#          },#}
-{#          options: {#}
-{#              scales: {#}
-{#                  yAxes: [{#}
-{#                      ticks: {#}
-{#                          beginAtZero: true,#}
-{#                          callback: function(value, index, values) {#}
-{#                              return '$' + value;#}
-{#                          }#}
-{#                      },#}
-{#                  }]#}
-{#              },#}
-{#              responsive: false,#}
-{#          }#}
-{#      });#}
-{#  </script>#}
-
+  <div class="main-container">
+    <h2 class="page-heading">Dashboard</h2>
+    <p>Hello, {{ user.username|default:'Guest'|title }}!</p>
+    <h3>Net Worth</h3>
+    <table>
+      <tr>
+        <td>Assets</td>
+        <td><pre>{{ asset_total }}</pre></td>
+      </tr>
+      <tr>
+        <td>Debts</td>
+        <td><pre>{{ debt_total }}</pre></td>
+      </tr>
+      <tr>
+        <td><strong>Net Worth</strong></td>
+        <td><strong><pre>{{ net_worth_total }}</pre></strong></td>
+      </tr>
+    </table>
+    <br>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <canvas id="myChart1" width="350" height="350"></canvas>
+    <script type="text/javascript">
+        var ctx = document.getElementById('myChart1').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels|safe }},
+                datasets: [{
+                    label: 'Net Worth',
+                    data: {{ net_worth_data | safe }},
+                    backgroundColor: [
+                        'rgba(153, 102, 255, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(153, 102, 255, 1)',
+                    ],
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(153, 102, 255, .5)',
+                    fill: false,
+                    lineTension: 0.4,
+                }, {
+                    label: 'Assets',
+                    data: {{ asset_data | safe }},
+                    backgroundColor: [
+                        'rgba(50, 168, 82, .2)',
+                    ],
+                    borderColor: [
+                        'rgba(50, 168, 82, .5)',
+                    ],
+                    borderWidth: 1,
+                    pointBackgroundColor: 'rgba(50, 168, 82, .5)',
+                    lineTension: 0.4,
+                }, {
+                    label: 'Debts',
+                    data: {{ debt_data | safe }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                    ],
+                    borderWidth: 1,
+                    pointBackgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    lineTension: 0.4,
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function(value, index, values) {
+                                return '$' + value;
+                            },
+                            suggestedMin: -50000,
+                            suggestedMax: 50000,
+                        }
+                    }],
+                },
+                responsive: false,
+            }
+        });
+    </script>
+  </div>
+{#  <div class="side-container">#}
+{##}
+{#  </div>#}
 {% endblock %}
