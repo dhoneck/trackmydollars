@@ -17,35 +17,37 @@
       <button onclick="window.location.href = 'next';">></button>
     </div>
     <br>
-    <div class="budget-overview-container">
-      <p><strong>Planned Budget</strong></p>
-      <p><pre>Planned Income    ${{ total_planned_income }}</pre></p>
-      <p><pre>Planned Expenses  ${{ total_planned_expenses }}</pre></p>
-      <p><pre>Left to Plan      ${{ left_to_plan }}</pre></p>
-    </div>
-    <div class="budget-overview-container">
-      <p><strong>Actual Budget</strong></p>
-      <p><pre>Actual In   ${{ total_actual_income }}</pre></p>
-      <p><pre>Actual Out  ${{ total_actual_expenses }}</pre></p>
-      <p><pre>Difference  ${{ left_to_spend }}</pre></p>
-    </div>
-    <div class="budget-overview-container">
-      <p><strong>Checking Account</strong></p>
-      <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_bank_balance }}</a></pre></p>
-      <p><pre>Balance Change   ${{ bank_balance_change }}</pre></p>
-      <p><pre>Current Balance  ${{ current_bank_balance }}</pre></p>
-    </div>
-    <div class="budget-overview-container">
-      <p><strong>Credit Cards</strong></p>
-      <p><pre>New Debt     ${{ total_new_debt }}</pre></p>
-      <p><pre>Paid Debt    ${{ total_paid_debt }}</pre></p>
-      <p><pre>Amount Left  ${{ total_remaining_debt }}</pre></p>
-    </div>
-    <div class="budget-overview-container">
-      <p><strong>Cash</strong></p>
-      <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_cash_balance }}</a></pre></p>
-      <p><pre>Balance Change   ${{ cash_balance_change }}</pre></p>
-      <p><pre>Current Balance  ${{ current_cash_balance }}</pre></p>
+    <div class="budget-flex-container">
+      <div class="budget-overview-container">
+        <p><strong>Planned Budget</strong></p>
+        <p><pre>Planned Income    ${{ total_planned_income }}</pre></p>
+        <p><pre>Planned Expenses  ${{ total_planned_expenses }}</pre></p>
+        <p><pre>Left to Plan      ${{ left_to_plan }}</pre></p>
+      </div>
+      <div class="budget-overview-container">
+        <p><strong>Actual Budget</strong></p>
+        <p><pre>Actual In   ${{ total_actual_income }}</pre></p>
+        <p><pre>Actual Out  ${{ total_actual_expenses }}</pre></p>
+        <p><pre>Difference  ${{ left_to_spend }}</pre></p>
+      </div>
+      <div class="budget-overview-container">
+        <p><strong>Checking Account</strong></p>
+        <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_bank_balance }}</a></pre></p>
+        <p><pre>Balance Change   ${{ bank_balance_change }}</pre></p>
+        <p><pre>Current Balance  ${{ current_bank_balance }}</pre></p>
+      </div>
+      <div class="budget-overview-container">
+        <p><strong>Credit Cards</strong></p>
+        <p><pre>New Debt     ${{ total_new_debt }}</pre></p>
+        <p><pre>Paid Debt    ${{ total_paid_debt }}</pre></p>
+        <p><pre>Amount Left  ${{ total_remaining_debt }}</pre></p>
+      </div>
+      <div class="budget-overview-container">
+        <p><strong>Cash</strong></p>
+        <p><pre><a href="update-budget-period/{{ bp_id }}">Starting Balance ${{ starting_cash_balance }}</a></pre></p>
+        <p><pre>Balance Change   ${{ cash_balance_change }}</pre></p>
+        <p><pre>Current Balance  ${{ current_cash_balance }}</pre></p>
+      </div>
     </div>
     <h3>Income</h3>
     <div class="button-container">

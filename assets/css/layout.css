@@ -286,7 +286,7 @@ button:hover {
   padding: 10px;
   margin: 15px 0px;
   border-radius: 10px;
-  width: 60%;
+  width: 100%;
 }
 
 .budget-table th, .budget-table td {
@@ -303,8 +303,13 @@ button:hover {
   width: 100%;
 }
 
+.budget-flex-container {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
 .budget-overview-container {
-  display: inline-block;
   background-color: lightgray;
   padding: 10px;
   border-radius: 10px;
