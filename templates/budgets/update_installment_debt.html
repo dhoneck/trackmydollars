@@ -1,7 +1,7 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Installment Debt{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_payoff_date.html' %}{% endblock %}
-{% block content %}
+{% block main_content %}
   <h2>Update Installment Debt</h2>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}

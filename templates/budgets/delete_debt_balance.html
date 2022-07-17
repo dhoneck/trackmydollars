@@ -1,6 +1,6 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Delete Debt Balance{% endblock %}
-{% block content %}
+{% block main_content %}
   <h2>Delete Debt Balance</h2>
   <form method="post">{% csrf_token %}
     <p>Are you sure you want to delete the {{ object.date }} entry for ${{ object }} for "{{ object.debt }}"</p>

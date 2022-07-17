@@ -1,15 +1,15 @@
 {% extends 'budgets/base.html' %}
 {% load static %}
 {% block title %}TrackMyDollars | Offers{% endblock %}
+{% block page_heading %}Offers{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
 
-{% block content %}
+{% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);
       });
   </script>
-  <h2>Offers</h2>
   <h4>Credit Cards</h4>
   <a class="offer-link" href="https://refer.discover.com/s/dustinhoneck1">
     <div class="offer-listing">

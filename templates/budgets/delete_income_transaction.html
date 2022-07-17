@@ -1,6 +1,6 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Delete Income Transaction{% endblock %}
-{% block content %}
+{% block main_content %}
   <h2>Delete Income Transaction</h2>
   <form method="post">{% csrf_token %}
     <p>Are you sure you want to delete "{{ object }}" and all of its related data?</p>

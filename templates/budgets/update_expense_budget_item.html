@@ -1,6 +1,6 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Expense Budget Item{% endblock %}
-{% block content %}
+{% block main_content %}
   <h2>Update Expense Budget Item</h2>
   <p>{{ expense_category.name }}</p>
   <form method="post">{% csrf_token %}

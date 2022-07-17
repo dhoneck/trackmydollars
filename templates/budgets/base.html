@@ -43,9 +43,30 @@
           </div>
         </div>
       </header>
-      {% block content %}{% endblock %}
-{#      {% block content %}{% endblock %}#}
-    </div>
 
+      <h2 class="page-heading">
+        {% block page_heading %}
+      {% endblock %}</h2>
+
+      <div class="main-container">
+        {% block main_content %}{% endblock %}
+      </div>
+
+      <div class="side-container">
+        {% block side_content %}{% endblock %}
+      </div>
+
+
+    </div>
+    <script>
+      /* Removes side-container when empty (i.e. innerHTML will be 16 characters when empty*/
+      var sc = document.getElementsByClassName('side-container')[0]
+      if (sc.innerHTML <= 16) {
+        console.log('Removing empty side-container.')
+        sc.remove()
+      } else {
+        console.log('Keeping side-container')
+      }
+    </script>
   </body>
 </html>

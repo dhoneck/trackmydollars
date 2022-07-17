@@ -1,8 +1,9 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Add Budget{% endblock %}
 {% block script %}{% endblock %}
-{% block content %}
-  <h2>Add Budget</h2>
+{% block page_heading %}Add Budget{% endblock %}
+
+{% block main_content %}
   {% if messages %}
     {% for message in messages %}
       <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>

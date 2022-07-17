@@ -1,17 +1,16 @@
 {% extends 'budgets/base.html' %}
 {% load static %}
-{% block title %}TrackMyDollars | Schedule{% endblock %}
+{% block title %}TrackMyDollars | Money Schedule{% endblock %}
+{% block page_heading %}Money Schedule{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
 
-{% block content %}
+{% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);
       });
   </script>
 
-  <div class="main-container">
-    <h2>Money Schedule</h2>
     <div class="button-container">
       <button onclick="window.location.href = 'add-schedule-item';">Add Schedule Item</button>
     </div>
@@ -245,36 +244,36 @@
       </table>
       <p><pre>Yearly Total: ${{ totals.one_time_total }}</pre></p>
     {% endif %}
-  </div>
+{% endblock %}
 
-  <div class="side-container">
-    <h3>Totals</h3>
-    <table>
-      <tr>
-        <th>Totals</th>
-        <th>Amount</th>
-      </tr>
-      <tr>
-        <td><pre>Non Monthly</pre></td>
-        <td><pre>${{ totals.non_monthly_total }}</pre></td>
-      </tr>
-      <tr>
-        <td><pre>Per Month</pre></td>
-        <td><pre>${{ totals.non_monthly_per_month_total }}</pre></td>
-      </tr>
-    </table>
+{% block side_content %}
+  <h3>Totals</h3>
+  <table>
+    <tr>
+      <th>Totals</th>
+      <th>Amount</th>
+    </tr>
+    <tr>
+      <td><pre>Non Monthly</pre></td>
+      <td><pre>${{ totals.non_monthly_total }}</pre></td>
+    </tr>
+    <tr>
+      <td><pre>Per Month</pre></td>
+      <td><pre>${{ totals.non_monthly_per_month_total }}</pre></td>
+    </tr>
+  </table>
 
-    <table>
-      <tr>
-        <th>Month</th>
-        <th>Amount</th>
-      </tr>
-      {% for month, amount in month_data %}
-      <tr>
-        <td><pre>{{ month }}</pre></td>
-        <td><pre>${{ amount }}</pre></td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+  <table>
+    <tr>
+      <th>Month</th>
+      <th>Amount</th>
+    </tr>
+    {% for month, amount in month_data %}
+    <tr>
+      <td><pre>{{ month }}</pre></td>
+      <td><pre>${{ amount }}</pre></td>
+    </tr>
+    {% endfor %}
+  </table>
+
 {% endblock %}

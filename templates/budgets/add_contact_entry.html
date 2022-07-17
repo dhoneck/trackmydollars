@@ -1,15 +1,16 @@
 {% extends 'budgets/base.html' %}
 {% load static %}
 {% block title %}TrackMyDollars | Support{% endblock %}
+{% block page_heading %}Contact{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
 
-{% block content %}
+{% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);
       });
   </script>
-  <h2>Support</h2>
+
   {% if messages %}
     {% for message in messages %}
       <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>

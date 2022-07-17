@@ -1,7 +1,7 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Expense Transaction{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
-{% block content %}
+{% block main_content %}
   <h2>Update Expense Transaction</h2>
   <p>{{ expense_budget_item.name }}</p>
   <form method="post">{% csrf_token %}

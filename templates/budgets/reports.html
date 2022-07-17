@@ -1,9 +1,10 @@
 {% extends 'budgets/base.html' %}
 {% load static %}
 {% block title %}TrackMyDollars | Reports{% endblock %}
+{% block page_heading %}Reports{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
 
-{% block content %}
+{% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);

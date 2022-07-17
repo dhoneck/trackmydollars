@@ -1,7 +1,7 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Add Income Transaction{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
-{% block content %}
+{% block main_content %}
   <h2>Add Income Transaction</h2>
   <p>{{ income_budget_item.name }}</p>
   <form method="post">{% csrf_token %}
