@@ -50,7 +50,6 @@ urlpatterns = [
     path('budget/<month>/<int:year>/delete-budget/<int:id>', DeleteBudget.as_view()),
     path('budget/<month>/<int:year>/next', views.change_budget),
     path('budget/<month>/<int:year>/previous', views.change_budget),
-    path('budget/<month>/<int:year>/transactions', views.view_transactions),
     # Budget Income URLS
     path('budget/<month>/<int:year>/add-income-budget-item', AddIncomeBudgetItem.as_view()),
     path('budget/<month>/<int:year>/income-budget-item/<int:ibiid>/update', UpdateIncomeBudgetItem.as_view()),

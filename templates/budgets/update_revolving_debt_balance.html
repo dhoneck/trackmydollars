@@ -1,8 +1,9 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Revolving Debt Balance{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
+{% block page_heading %}Update Revolving Debt Balance{% endblock %}
+
 {% block main_content %}
-  <h2>Update Revolving Debt Balance</h2>
   {% if message %}
     <p class="alert">{{ message }}</p>
   {% endif %}

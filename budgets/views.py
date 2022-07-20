@@ -1510,23 +1510,6 @@ class DeleteBudget(SuccessMessageMixin, DeleteView):
         return super(DeleteBudget, self).delete(request, *args, **kwargs)
 
 
-def view_transactions(request, month, year):
-    datetime_object = datetime.strptime(month, '%B')
-    month_by_num = datetime_object.month
-    bp = BudgetPeriod.objects.get(month=month_by_num, year=year)
-
-    context = {}
-    try:
-        context['income_budget_items'] = IncomeBudgetItem.objects.filter(budget_period=bp.id)
-        context['expense_categories'] = ExpenseCategory.objects.filter(budget_period=bp.id)
-    except IncomeBudgetItem.DoesNotExist or ExpenseCategory.DoesNotExist:
-        return HttpResponseNotFound("Page not found!")
-    context['month'] = month.capitalize()
-    context['year'] = year
-
-    return render(request, 'budgets/view_transactions.html', context)
-
-
 class AddDebtPayment(SuccessMessageMixin, CreateView):
     template_name = 'budgets/add_debt_payment.html'
     form_class = ExpenseTransactionDebtPaymentForm

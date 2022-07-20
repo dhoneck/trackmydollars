@@ -1,8 +1,9 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Add Asset Balance{% endblock %}
+{% block page_heading %}Add Asset Balance{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
+
 {% block main_content %}
-  <h2>Add Asset Balance</h2>
   {% if message %}
   <p class="alert">{{ message }}</p>
   {% endif %}

@@ -2,14 +2,14 @@
 {% load static %}
 {% block title %}TrackMyDollars | View Asset{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+{% block page_heading %}View Asset{% endblock %}
+
 {% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);
       });
   </script>
-  <h2>View Asset</h2>
-  <br>
   {% if messages %}
     {% for message in messages %}
       <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>

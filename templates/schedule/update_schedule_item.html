@@ -1,8 +1,9 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Schedule Item{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_first_due_date.html' %}{% endblock %}
+{% block page_heading %}Update Schedule Item{% endblock %}
+
 {% block main_content %}
-  <h2>Update Schedule Item</h2>
   <form method="post">
     {%  csrf_token %}
     {{ form.as_p }}

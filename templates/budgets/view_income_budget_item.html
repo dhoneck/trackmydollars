@@ -2,13 +2,14 @@
 {% load static %}
 {% block title %}TrackMyDollars | View Income Budget Item{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+{% block page_heading %}View Income Budget Item{% endblock %}
+
 {% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);
       });
   </script>
-  <h2>View Income Budget Item</h2>
   <div class="button-container">
     <button onclick="window.location.href = '../../';">Back to Budget</button>
   </div>

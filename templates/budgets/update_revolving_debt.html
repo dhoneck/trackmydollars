@@ -1,7 +1,8 @@
 {% extends 'budgets/base.html' %}
 {% block title %}TrackMyDollars | Update Revolving Debt{% endblock %}
+{% block page_heading %}Update Revolving Debt{% endblock %}
+
 {% block main_content %}
-  <h2>Update Revolving Debt</h2>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">
