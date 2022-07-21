@@ -153,6 +153,7 @@
     <div class="side-container" id="budget-sidebar" style="margin-top: 0px;">
       <aside id="transaction-sidebar">
         <h3>Transactions</h3>
+        {% if all_transactions %}
         <table id="transaction-table">
           <thead>
             <tr>
@@ -207,6 +208,9 @@
             {% endfor %}
           </tbody>
         </table>
+      {% else %}
+        <p>No transactions</p>
+      {% endif %}
       </aside>
     </div>
   </div>
