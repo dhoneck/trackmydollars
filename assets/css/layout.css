@@ -364,6 +364,22 @@ span.helptext {
   background-color: green;
   color: var(--white);;
 }
+
+#net-worth-table {
+  width: 100%;
+}
+
+#net-worth-table th, #net-worth-table td {
+  width: 50%;
+}
+.money-schedule-side-table {
+  width: 100%;
+}
+
+.money-schedule-side-table th, .money-schedule-side-table td {
+  width: 50%;
+}
+
 /*******************************
 Forms
 *******************************/
