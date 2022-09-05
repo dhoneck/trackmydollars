@@ -235,7 +235,7 @@ def add_lists(x, y):
 
 
 def subtract_lists(x, y):
-    return x - y
+    return float('{:.2f}'.format(x-y))
 
 
 def get_last_12_months_labels(get_next_12=False):
