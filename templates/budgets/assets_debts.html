@@ -9,6 +9,11 @@
           $(".success").fadeOut(10000);
       });
   </script>
+  {% if messages %}
+      {% for message in messages %}
+        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+      {% endfor %}
+    {% endif %}
   <h3>Assets</h3>
   <div class="button-container">
     <button onclick="window.location.href = '{% url 'add-asset' %}';">Add Asset</button>
@@ -153,9 +158,4 @@
         </tr>
       </table>
     </div>
-    {% if messages %}
-      {% for message in messages %}
-        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-      {% endfor %}
-    {% endif %}
 {% endblock %}
