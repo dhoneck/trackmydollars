@@ -40,7 +40,7 @@ SECRET_KEY = 'ivyzq^ki*d1717(*086ll287xb=#f_ys6ear&v7ozy&18bj7c8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['track-my-dollars.herokuapp.com', '127.0.0.1', 'www.trackmydollars.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'www.trackmydollars.com',]
 
 
 # Application definition
@@ -95,15 +95,27 @@ WSGI_APPLICATION = 'TrackMyDollars.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+# Use for development
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'trackmydollars',
+#         'USER': 'postgres',
+#         'PASSWORD': '123456',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
+# Use for production
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'trackmydollars',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'USER': 'super',
+        'PASSWORD': 'HLxNGV6ZjQczslm1f9WtDM0h1OVKKbSc9rDyWNAD',
+        'HOST': 'dhoneck-2811.postgres.pythonanywhere-services.com',
+        'PORT': '12811',
     }
 }
 
