@@ -1,0 +1,532 @@
+/*******************************
+General
+*******************************/
+:root {
+  --green: mediumseagreen;
+  --dark-blue: #0F74B7;
+  --light-blue: #1592D7;
+  --white: #FFFFFF;
+  --gray: #F5F7F8;
+  --gold: #F2BA52;
+  --old-blue: #527EA5;
+
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--gray);;
+  font-family: Roboto, sans-serif;
+  margin: 0;
+}
+
+a, a:visited {
+  text-decoration: none;
+}
+
+a {
+  color: black
+}
+
+a:hover {
+  color: lightcoral;
+}
+
+.alert {
+  color: lightcoral;
+}
+
+
+/*******************************
+Grid Container
+*******************************/
+.grid {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: auto 5fr 2fr;
+  grid-template-rows: min-content 1fr;
+  grid-column-gap: 20px;
+  grid-template-areas:
+    "header page-header side-container"
+    "header main-container side-container";
+}
+
+header {
+  grid-area: header;
+}
+
+.main-container {
+  grid-area: main-container;
+  /*overflow-y: scroll;*/
+}
+
+/*.main-container::-webkit-scrollbar {*/
+/*    display: none;  !* Safari and Chrome *!*/
+/*}*/
+
+.side-container {
+  grid-area: side-container;
+}
+
+/*******************************
+Header, Logo, Nav
+*******************************/
+#logo-dark {
+  background-color: var(--green);
+  padding: 20px;
+}
+
+#logo-dark h1, #logo-dark h2 {
+  color: var(--gray);
+  margin: 0;
+  text-align: center;
+}
+
+#logo {
+  display: inline-block;
+  margin: 28px 16px 10px 16px;
+  color: var(--green);
+  font-family: Bahnschrift;
+}
+
+#logo h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+#logo h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.topnav {
+  background-color: var(--dark-blue);;
+  display: inline-block;
+  width: 100%;
+  padding: 10px;
+}
+
+.topnav #logo {
+  display: block;
+  margin: 10px 16px 20px 16px;
+}
+
+.topnav a {
+  padding: 7px 16px 7px 16px;
+  background-color: lightcoral;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0px 2px 2px #888888;
+}
+
+.sidenav {
+  height: 100%;
+  background-color: var(--white);
+  overflow-x: hidden;
+}
+
+nav {
+  border-top: 3px solid var(--gray);
+}
+nav a {
+  padding: 7px 16px 7px 16px;
+  /*background-color: lightcoral;*/
+  /*color: var(--gray);*/
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  /*box-shadow: 0px 2px 2px #888888;*/
+}
+
+nav a:hover, .topnav a:hover {
+  opacity: 0.8;
+  color: var(--green);
+}
+
+.active {
+  color: var(--light-blue);
+}
+
+.modified-content-container {
+  margin: 26px 26px
+}
+
+#user-section {
+  font-size: .9rem;
+  padding: 10px 5px 10px 16px ;
+  width: 100%;
+  margin-top: 5px;
+  border-top: 3px solid var(--gray);
+}
+
+#user-section a {
+  display: block;
+  width: calc(100% - 10px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/*******************************
+Body
+*******************************/
+#login-form-container {
+  background-color: lightgray;
+  max-width: 400px;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 40px auto;
+}
+
+#login-form-container h2 {
+  text-align: center;
+}
+#login-form-container input, #login-form-container input[type=submit] {
+  padding: 0 5px;
+  border: 0;
+  width: calc(100% - 10px);
+  height: 25px;
+  border-radius: 2px;
+}
+
+#login-form-container input[type=submit] {
+  background-color: var(--green);
+  color: var(--white);;
+  height: 35px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0;
+  width: 100%;
+}
+
+#login-form-container input:focus {
+  outline-color: var(--dark-blue);
+}
+
+#login-form-container input[type=submit]:hover {
+  opacity: .8;
+}
+
+pre {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+th {
+  text-align: left;
+}
+
+.asset-debt-table, .money-schedule-table {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 40px;
+}
+.asset-debt-table th, .asset-debt-table td {
+  padding: 5px 5px 5px 0;
+  white-space: nowrap;
+}
+
+button {
+  border: 1px solid darkgray;
+  padding: 5px 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  box-shadow: 2px 2px 3px #888888;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+
+
+#transaction-table {
+  width: 100%;
+  /*display: block;*/
+  /*overflow-y: auto;*/
+  /*max-height: 600px;*/
+  /*border-collapse: collapse;*/
+  /*width: 100%;*/
+  /*table-layout: fixed;*/
+}
+
+
+#transaction-table td {
+  padding: 10px 0px;
+  height: 34px;
+}
+
+/*#transaction-table th:nth-child(1) {*/
+/*  width: 25%;*/
+/*}*/
+
+/*#transaction-table th:nth-child(2) {*/
+/*  width: 50%;*/
+/*}*/
+
+/*#transaction-table th:nth-child(3) {*/
+/*  width: 25%;*/
+/*}*/
+
+.side-container {
+  background: var(--white);
+  padding: 5px;
+}
+
+.frequency-header {
+  margin-top: 50px;
+}
+
+.budget-table {
+  border: 1px solid gray;
+  padding: 10px;
+  margin: 15px 0px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.budget-table th, .budget-table td {
+  width: 150px;
+}
+
+.action-imgs {
+  width: 20px;
+  height: 20px;
+}
+
+#budget-container {
+  display: inline-block;
+  width: 100%;
+}
+
+.budget-flex-container {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.budget-overview-container {
+  background-color: lightgray;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#budget-credit-container {
+  display: inline-block;
+  background-color: lightgray;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+label, input, select {
+  display: block;
+}
+
+span.helptext {
+  display: none;
+}
+
+.green {
+  color: green;
+}
+
+.red {
+  color: indianred;
+}
+
+.budget-item-name {
+  font-size: 10px;
+}
+
+.transfer-in, .transfer-out, .reserve-in, .reserve-out, .green-fill, .red-fill {
+  opacity: .6;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 3px;
+  border-radius: 3px;
+}
+
+.transfer-in, .reserve-in {
+  background-color: green;
+  color: var(--white);;
+}
+
+.transfer-out, .reserve-out, .red-fill {
+  background-color: indianred;
+  color: var(--white);;
+}
+
+.green-fill {
+  background-color: green;
+  color: var(--white);;
+}
+
+#net-worth-table {
+  width: 100%;
+}
+
+#net-worth-table th, #net-worth-table td {
+  width: 50%;
+}
+.money-schedule-side-table {
+  width: 100%;
+}
+
+.money-schedule-side-table th, .money-schedule-side-table td {
+  width: 50%;
+}
+
+/*******************************
+Forms
+*******************************/
+
+
+/*******************************
+Tables
+*******************************/
+.right-align {
+  text-align: right;
+  padding-right: 10px;
+  margin-right: 10px;
+}
+
+td {
+  unicode-bidi: embed;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/*******************************
+Notifications
+*******************************/
+.success, .error {
+  list-style-type: none;
+  margin-left: -10px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.success a, .success a:visited, .success a:hover, .success a:active, .error a, .error a:visited, .error a:hover, .error a:active {
+    color: inherit;
+}
+
+.success {
+  background-color: mediumseagreen;
+}
+
+.error {
+  background-color: lightcoral;
+}
+
+/*******************************
+Offers
+*******************************/
+.offer-link .offer-listing:hover {
+  color: initial;
+  opacity: .80;
+}
+
+.offer-listing {
+  background-color: lightgray;
+  border: black solid 2px;
+  border-radius: 5px;
+}
+
+.offer-logo {
+  height: 100px;
+  width: 100px;
+  float: left;
+  border-radius: inherit;
+}
+
+.offer-description {
+  display: inline-block;
+  height: 100px;
+  margin-left: 10px;
+}
+
+.settings {
+  list-style: none;
+  padding: 0;
+}
+
+.settings ul {
+  margin: 0px;
+}
+
+.settings input {
+  float: left;
+}
+
+.settings li {
+  margin: 10px 0;
+}
+
+
+/*******************************
+Media Queries
+
+320px—480px: Mobile devices
+481px—768px: iPads, Tablets
+769px—1024px: Small screens, laptops
+1025px—1200px: Desktops, large screens
+1201px and more— Extra large screens, TV
+*******************************/
+@media only screen and (max-width: 1024px) {
+  .grid {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: min-content min-content 1fr;
+    grid-column-gap: 20px;
+    grid-template-areas:
+      "header page-heading"
+      "header side-container"
+      "header main-container";
+  }
+
+  .side-container {
+    border-radius: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    margin-left: -10px;
+    padding-left: 10px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .grid {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: auto;
+    grid-column-gap: 20px;
+    grid-template-areas:
+      "header"
+      "page-heading"
+      "side-container"
+      "main-container";
+  }
+
+  .page-heading, .main-container, .side-container {
+    margin-left: 16px;
+  }
+
+  nav a {
+    /*padding-top: 0;*/
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  #logo-dark h1 {
+    font-size: 1.5em;
+  }
+
+  #logo-dark h2 {
+    font-size: 1em;
+  }
+}
