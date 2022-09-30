@@ -7,6 +7,10 @@
     {{ form.as_p }}
     <input type="submit" value="Register">
   </form>
-  <br>
+  {% for message in messages %}
+  <div class="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
   <a href="{% url 'login' %}">Back to login</a>
 {% endblock %}

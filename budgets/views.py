@@ -45,6 +45,7 @@ def contact(request):
 # TODO: Prevent users from being able to access each other's data
 def register(request):
     """ User registration page """
+    print('REQUEST:', request)
     if request.method == "GET":
         return render(
             request, "registration/register.html",
@@ -56,6 +57,12 @@ def register(request):
             user = form.save()
             login(request, user)
             return redirect(reverse("dashboard"))
+        else:
+            messages.error(request, form.errors)
+            return render(
+                request, "registration/register.html",
+                {"form": CustomUserCreationForm}
+            )
 
 ###########################
 # User settings views
