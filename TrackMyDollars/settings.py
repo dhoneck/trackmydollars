@@ -37,8 +37,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'ivyzq^ki*d1717(*086ll287xb=#f_ys6ear&v7ozy&18bj7c8'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'www.trackmydollars.com',]
 
@@ -66,11 +64,6 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-# Added to force SSL based on https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
-# Activate for production and deactivate for development
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# SECURE_SSL_REDIRECT = True
-
 ROOT_URLCONF = 'TrackMyDollars.urls'
 
 TEMPLATES = [
@@ -93,31 +86,39 @@ TEMPLATES = [
 WSGI_APPLICATION = 'TrackMyDollars.wsgi.application'
 
 
+# Added to force SSL based on https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
+# Activate for production and deactivate for development
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 # Use for development
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'trackmydollars',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
-# Use for production
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'trackmydollars',
-#         'USER': 'super',
-#         'PASSWORD': 'HLxNGV6ZjQczslm1f9WtDM0h1OVKKbSc9rDyWNAD',
-#         'HOST': 'dhoneck-2811.postgres.pythonanywhere-services.com',
-#         'PORT': '12811',
+#         'USER': 'postgres',
+#         'PASSWORD': '123456',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
 #     }
 # }
+
+# Use for production
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'trackmydollars',
+        'USER': 'super',
+        'PASSWORD': 'HLxNGV6ZjQczslm1f9WtDM0h1OVKKbSc9rDyWNAD',
+        'HOST': 'dhoneck-2811.postgres.pythonanywhere-services.com',
+        'PORT': '12811',
+    }
+}
 
 import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=600)
