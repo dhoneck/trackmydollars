@@ -211,6 +211,7 @@ class EditSettings(FormView, SuccessMessageMixin):
     #     return super(AddBudgetPeriod, self).form_valid(form)
 ############
 
+
 # Helper Functions
 def format_numbers(**kwargs):
     """Formats strings to the correct amount of spaces based on longest number"""
@@ -820,26 +821,36 @@ class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
 
 class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
     model = ExpenseBudgetItem
-    fields = ['name', 'planned_amount', 'type']
+    fields = ['name', 'expense_category', 'planned_amount', 'type']
     template_name = 'budgets/update_expense_budget_item.html'
     success_url = '../../../../'
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully updated!'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            context['expense_category'] = ExpenseCategory.objects.get(id=self.request.get_full_path().split('/')[-4])
-        except Exception as err:
-            print('There was an error:', err)
-            context['expense_category'] = None
-        return context
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        month, year = get_month_and_year_from_request(self.request)
+        form.fields['expense_category'].queryset = ExpenseCategory.objects.filter(budget_period=get_budget_period(self.request.user, month, year), )
+        return form
 
     def form_valid(self, form):
         user = self.request.user
         form.instance.user = user
-        form.instance.expense_category_id = self.request.get_full_path().split('/')[-4]
-        return super(UpdateExpenseBudgetItem, self).form_valid(form)
+        try:
+            item = ExpenseBudgetItem.objects.get(id=self.request.get_full_path().split('/')[-2])
+            item.expense_category_id = form.instance.expense_category
+            item.save()
+            return super(UpdateExpenseBudgetItem, self).form_valid(form)
+        except IntegrityError:
+            # Set an error message to be displayed and redisplay the form
+            messages.error(self.request, 'Expense Budget Item cannot be moved. Already exists there.')
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                )
+            )
+        except Exception as err:
+            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
 
 
 class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):

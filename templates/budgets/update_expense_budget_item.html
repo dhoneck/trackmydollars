@@ -3,7 +3,12 @@
 {% block page_heading %}Update Expense Budget Item{% endblock %}
 
 {% block main_content %}
-  <p>{{ expense_category.name }}</p>
+  {{ message }}
+  {% if messages %}
+      {% for message in messages %}
+        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+      {% endfor %}
+    {% endif %}
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">
