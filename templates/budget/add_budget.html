@@ -1,0 +1,23 @@
+{% extends 'standard/base.html' %}
+{% block title %}TrackMyDollars | Add Budget{% endblock %}
+{% block script %}{% endblock %}
+{% block page_heading %}Add Budget{% endblock %}
+
+{% block main_content %}
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  <div class="button-container">
+    <button onclick="window.location.href = '../previous';"><</button>
+    <button>{{ month }}</button>
+    <button>{{ year }}</button>
+    <button onclick="window.location.href = '../next';">></button>
+  </div>
+  <p>You do not have a budget for {{ month }}, {{ year }}. Create one below.</p>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

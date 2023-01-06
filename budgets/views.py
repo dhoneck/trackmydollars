@@ -32,12 +32,12 @@ def index(request):
 
 def about(request):
     """ An about page describing the service """
-    return render(request, 'standard/about.html',)
+    return render(request, 'standard/view_about.html', )
 
 
 def contact(request):
     """ A contact page for customer support or other feedback """
-    return render(request, 'standard/contact.html',)
+    return render(request, 'standard/view_contact.html', )
 
 
 # Registration Views
@@ -74,7 +74,7 @@ def register(request):
 # TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
 # TODO: Transfer Out Item Name (e.g. Reserved Funds)
 class EditSettings(FormView, SuccessMessageMixin):
-    template_name = 'user-settings/settings.html'
+    template_name = 'user-settings/view_settings.html'
     form_class = SettingsForm
     success_url = '../'
     success_message = 'Settings successfully added!'
@@ -370,7 +370,7 @@ def dashboard(request):
                                       net_worth_total=net_worth_total)
 
     return render(request,
-                  'dashboard/dashboard.html',
+                  'dashboard/view_dashboard.html',
                   {'asset_total': formatted_totals['asset_total'],
                    'debt_total': formatted_totals['debt_total'],
                    'net_worth_total': formatted_totals['net_worth_total'],
@@ -412,7 +412,7 @@ def assets_debts(request):
                                       debt_total=debt_total,
                                       net_worth_total=net_worth_total)
     return render(request,
-                  'assets-debts/assets_debts.html',
+                  'assets-debts/view_assets_debts.html',
                   {'assets': assets,
                    'installment_debts': installment_debts,
                    'revolving_debts': revolving_debts,
@@ -740,7 +740,7 @@ class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
 class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
     model = IncomeBudgetItem
     fields = ['name', 'planned_amount', 'type']
-    template_name = 'budgets/update_income_budget_item.html'
+    template_name = 'budget/update_income_budget_item.html'
     success_url = '../../'
     pk_url_kwarg = 'ibiid'
     success_message = 'Income budget item successfully updated!'
@@ -762,7 +762,7 @@ class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
 
 class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
     model = IncomeBudgetItem
-    template_name = 'budgets/delete_income_budget_item.html'
+    template_name = 'budget/delete_income_budget_item.html'
     success_url = '../../'
     pk_url_kwarg = 'ibiid'
     success_message = 'Income budget item successfully deleted!'
@@ -775,7 +775,7 @@ class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
 class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
     model = IncomeTransaction
     fields = ['name', 'amount', 'cash', 'date']
-    template_name = 'budgets/update_income_transaction.html'
+    template_name = 'budget/update_income_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'itid'
     success_message = 'Income transaction successfully updated!'
@@ -788,7 +788,7 @@ class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
 
 class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
     model = IncomeTransaction
-    template_name = 'budgets/delete_income_transaction.html'
+    template_name = 'budget/delete_income_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'itid'
     success_message = 'Income transaction successfully deleted!'
@@ -801,7 +801,7 @@ class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
 class UpdateExpenseCategory(SuccessMessageMixin, UpdateView):
     model = ExpenseCategory
     fields = ['name']
-    template_name = 'budgets/update_expense_category.html'
+    template_name = 'budget/update_expense_category.html'
     success_url = '../../'
     pk_url_kwarg = 'ecid'
     success_message = 'Expense category successfully updated!'
@@ -809,7 +809,7 @@ class UpdateExpenseCategory(SuccessMessageMixin, UpdateView):
 
 class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
     model = ExpenseCategory
-    template_name = 'budgets/delete_expense_category.html'
+    template_name = 'budget/delete_expense_category.html'
     success_url = '../../'
     pk_url_kwarg = 'ecid'
     success_message = 'Expense category successfully deleted!'
@@ -822,7 +822,7 @@ class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
 class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
     model = ExpenseBudgetItem
     fields = ['name', 'expense_category', 'planned_amount', 'type']
-    template_name = 'budgets/update_expense_budget_item.html'
+    template_name = 'budget/update_expense_budget_item.html'
     success_url = '../../../../'
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully updated!'
@@ -855,7 +855,7 @@ class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
 
 class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
     model = ExpenseBudgetItem
-    template_name = 'budgets/delete_expense_budget_item.html'
+    template_name = 'budget/delete_expense_budget_item.html'
     success_url = '../../../../'
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully deleted!'
@@ -868,7 +868,7 @@ class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
 class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
     model = ExpenseTransaction
     fields = ['name', 'amount', 'credit_purchase', 'cash', 'date']
-    template_name = 'budgets/update_expense_transaction.html'
+    template_name = 'budget/update_expense_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'etid'
     success_message = 'Expense transaction item successfully updated!'
@@ -882,7 +882,7 @@ class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
 
 class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
     model = ExpenseTransaction
-    template_name = 'budgets/delete_expense_transaction.html'
+    template_name = 'budget/delete_expense_transaction.html'
     success_url = '../../view'
     pk_url_kwarg = 'etid'
     success_message = 'Expense transaction item successfully deleted!'
@@ -961,7 +961,7 @@ def budget(request):
 # TODO: Make the month and year unchangeable
 # TODO: Show the money schedule items
 class AddBudgetPeriod(FormView, SuccessMessageMixin):
-    template_name = 'budgets/add_budget.html'
+    template_name = 'budget/add_budget.html'
     form_class = BudgetPeriodForm
     success_url = '../'
     success_message = 'Budget successfully added!'
@@ -1101,7 +1101,7 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
 class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
     model = BudgetPeriod
     fields = ['starting_bank_balance', 'starting_cash_balance']
-    template_name = 'budgets/update_budget_period.html'
+    template_name = 'budget/update_budget_period.html'
     success_url = '../'
     pk_url_kwarg = 'bp'
     success_message = 'Budget period successfully updated!'
@@ -1275,7 +1275,7 @@ def specific_budget(request, month, year):
     # current_cash_balance = bp.starting_cash_balance + cash_balance_change
 
     return render(request,
-                  'budgets/budget.html',
+                  'budget/view_budget.html',
                   {
                    'month': month.capitalize(),
                    'year': year,
@@ -1325,7 +1325,7 @@ def view_income_budget_item(request, month, year, ibiid):
         context['income_budget_item'] = IncomeBudgetItem.objects.get(id=ibiid)
     except IncomeBudgetItem.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
-    return render(request, 'budgets/view_income_budget_item.html', context)
+    return render(request, 'budget/view_income_budget_item.html', context)
 
 
 def view_expense_budget_item(request, month, year, ecid, ebiid):
@@ -1334,13 +1334,13 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
         context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=ebiid)
     except ExpenseBudgetItem.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
-    return render(request, 'budgets/view_expense_budget_item.html', context)
+    return render(request, 'budget/view_expense_budget_item.html', context)
 
 
 class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
     model = IncomeBudgetItem
     fields = ['name', 'planned_amount', 'type']
-    template_name = 'budgets/add_income_budget_item.html'
+    template_name = 'budget/add_income_budget_item.html'
     success_url = './'
     success_message = 'Income budget item successfully added!'
 
@@ -1362,7 +1362,7 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
 class AddIncomeTransaction(SuccessMessageMixin, CreateView):
     model = IncomeTransaction
     fields = ['name', 'amount', 'cash', 'date']
-    template_name = 'budgets/add_income_transaction.html'
+    template_name = 'budget/add_income_transaction.html'
     success_message = 'Income transaction successfully added!'
 
     def get_success_url(self):
@@ -1398,7 +1398,7 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
 class AddExpenseCategory(SuccessMessageMixin, CreateView):
     model = ExpenseCategory
     fields = ['name']
-    template_name = 'budgets/add_expense_category.html'
+    template_name = 'budget/add_expense_category.html'
     success_url = './'
     success_message = 'Expense category successfully added!'
 
@@ -1430,7 +1430,7 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
 
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(SuccessMessageMixin, CreateView):
-    template_name = 'budgets/add_expense_transaction.html'
+    template_name = 'budget/add_expense_transaction.html'
     form_class = ExpenseTransactionForm
     success_url = '../../../../'
     success_message = 'Expense transaction successfully added!'
@@ -1499,7 +1499,7 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
     fields = ['name', 'planned_amount', 'type']
-    template_name = 'budgets/add_expense_budget_item.html'
+    template_name = 'budget/add_expense_budget_item.html'
     success_url = '../../'
     success_message = 'Expense budget item successfully added!'
 
@@ -1518,7 +1518,7 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
 
 class DeleteBudget(SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
-    template_name = 'budgets/delete_budget.html'
+    template_name = 'budget/delete_budget.html'
     success_url = '/budget/'
     pk_url_kwarg = 'id'
     success_message = 'Budget successfully deleted!'
@@ -1529,7 +1529,7 @@ class DeleteBudget(SuccessMessageMixin, DeleteView):
 
 
 class AddDebtPayment(SuccessMessageMixin, CreateView):
-    template_name = 'budgets/add_debt_payment.html'
+    template_name = 'budget/add_debt_payment.html'
     form_class = ExpenseTransactionDebtPaymentForm
     success_url = '../'
     success_message = 'Debt payment successfully added!'
@@ -1624,14 +1624,14 @@ def view_schedule(request):
 
     # TODO: Fix month column to show the new year next to January
     # TODO: Fix alignment and formatting
-    return render(request, 'schedule/view_schedule.html', context)
+    return render(request, 'money-schedule/view_schedule.html', context)
 
 
 class AddScheduleItem(SuccessMessageMixin, CreateView):
     model = ScheduleItem
     fields = ['name', 'amount', 'category', 'type', 'first_due_date', 'frequency']
-    template_name = 'schedule/add_schedule_item.html'
-    success_url = '/schedule/'
+    template_name = 'money-schedule/add_schedule_item.html'
+    success_url = '/money-schedule/'
     success_message = 'Schedule item successfully added!'
 
     def form_valid(self, form):
@@ -1642,16 +1642,16 @@ class AddScheduleItem(SuccessMessageMixin, CreateView):
 class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
     model = ScheduleItem
     fields = ['name', 'amount', 'category', 'first_due_date', 'frequency']
-    template_name = 'schedule/update_schedule_item.html'
-    success_url = '/schedule/'
+    template_name = 'money-schedule/update_schedule_item.html'
+    success_url = '/money-schedule/'
     pk_url_kwarg = 'siid'
     success_message = 'Schedule item successfully updated!'
 
 
 class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
     model = ScheduleItem
-    template_name = 'schedule/delete_schedule_item.html'
-    success_url = '/schedule/'
+    template_name = 'money-schedule/delete_schedule_item.html'
+    success_url = '/money-schedule/'
     pk_url_kwarg = 'siid'
     success_message = 'Schedule item successfully deleted!'
 
@@ -1676,7 +1676,7 @@ def view_reports(request):
 # TODO: Account balance will be too low to pay future expenses based on money cycle
 # TODO: Upcoming expenses
 def view_offers(request):
-    return render(request, 'offers/offers.html')
+    return render(request, 'offers/view_offers.html')
 
 
 # Support Views

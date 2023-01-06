@@ -1,0 +1,24 @@
+{% extends 'standard/base.html' %}
+{% load static %}
+{% block title %}TrackMyDollars | Offers{% endblock %}
+{% block page_heading %}Offers{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+
+{% block main_content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+  <h4>Credit Cards</h4>
+  <a class="offer-link" href="https://refer.discover.com/s/dustinhoneck1">
+    <div class="offer-listing">
+      <img class="offer-logo" src="{% static 'images/discover-logo.png' %}">
+      <div class="offer-description">
+        <h3>Discover it® Chrome</h3>
+        <p>Discover offers credit cards with excellent perks. Click the listing to apply today!</p>
+      </div>
+    </div>
+  </a>
+
+{% endblock %}

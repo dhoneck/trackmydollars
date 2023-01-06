@@ -38,10 +38,10 @@ urlpatterns = [
     path('assets-debts/revolving-debts/<int:id>/update-balance/<int:bid>', UpdateRevolvingDebtBalance.as_view()),
     path('assets-debts/revolving-debts/<int:id>/delete-balance/<int:bid>', DeleteRevolvingDebtBalance.as_view()),
     # Money Schedule URLs
-    path('schedule/', views.view_schedule, name='schedule'),
-    path('schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-schedule-item'),
-    path('schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
-    path('schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
+    path('money-schedule/', views.view_schedule, name='money_schedule'),
+    path('money-schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-money-schedule-item'),
+    path('money-schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
+    path('money-schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
     # General Budget URLs
     path('budget/', views.budget, name='budget'),
     path('budget/<month>/<int:year>/', views.specific_budget),

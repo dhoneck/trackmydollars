@@ -1,10 +1,11 @@
 {% extends 'standard/base.html' %}
-{% block title %}TrackMyDollars | Delete Revolving Debt{% endblock %}
-{% block page_heading %}Delete Revolving Debt{% endblock %}
+{% block title %}TrackMyDollars | Delete Income Transaction{% endblock %}
+{% block page_heading %}Delete Income Transaction{% endblock %}
 
 {% block main_content %}
   <form method="post">{% csrf_token %}
     <p>Are you sure you want to delete "{{ object }}" and all of its related data?</p>
-    <input type="submit" value="Confirm">
+    {{ form.as_p }}
+    <input type="submit" value="Save">
   </form>
 {% endblock %}

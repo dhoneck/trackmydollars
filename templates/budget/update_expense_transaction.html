@@ -1,13 +1,10 @@
 {% extends 'standard/base.html' %}
-{% block title %}TrackMyDollars | Add Revolving Debt Balance{% endblock %}
+{% block title %}TrackMyDollars | Update Expense Transaction{% endblock %}
 {% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
-{% block page_heading %}Add Revolving Debt Balance{% endblock %}
+{% block page_heading %}Update Expense Transaction{% endblock %}
 
 {% block main_content %}
-  {% if message %}
-  <p class="alert">{{ message }}</p>
-  {% endif %}
-  <p>{{ debt_name }}</p>
+  <p>{{ expense_budget_item.name }}</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">

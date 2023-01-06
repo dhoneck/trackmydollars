@@ -1,0 +1,294 @@
+{% extends 'standard/base.html' %}
+{% load static %}
+{% block title %}TrackMyDollars | Money Schedule{% endblock %}
+{% block page_heading %}Money Schedule{% endblock %}
+{% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{%  endblock %}
+
+{% block main_content %}
+  <script>
+      $(document).ready(function(){
+          $(".success").fadeOut(10000);
+      });
+  </script>
+
+    <div class="button-container">
+      <button onclick="window.location.href = 'add-schedule-item';">Add Schedule Item</button>
+    </div>
+    {% if messages %}
+      {% for message in messages %}
+        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+
+    {% if weekly %}
+      <h3 class="frequency-header">Weekly</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in weekly %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href="">{{ item.amount }}</a></td>
+            <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+            <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.weekly_total }}</pre></p>
+    {% endif %}
+
+    {% if every_two_weeks %}
+      <h3 class="frequency-header">Every Two Weeks</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in every_two_weeks %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href="">{{ item.amount }}</a></td>
+            <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+            <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.every_two_weeks_total }}</pre></p>
+    {% endif %}
+
+    {% if monthly %}
+      <h3 class="frequency-header">Monthly</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in monthly %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href="">{{ item.amount }}</a></td>
+            <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+            <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.monthly_total }}</pre></p>
+    {% endif %}
+
+    {% if every_two_months %}
+    <h3 class="frequency-header">Every Two Months</h3>
+    <table class="money-schedule-table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Start Date</th>
+        <th>Next Due Date</th>
+        <th>Category</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      {% for item in every_two_months %}
+        <tr>
+          <td><a href="">{{ item.name }}</a></td>
+          <td><a href="">{{ item.amount }}</a></td>
+          <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+          <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+          <td><a href=""><pre>{{ item.category }}</pre></a></td>
+          <td>
+            <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+            <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <p><pre>Yearly Total: ${{ totals.every_two_months_total }}</pre></p>
+    {% endif %}
+
+    {% if quarterly %}
+      <h3 class="frequency-header">Quarterly</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in quarterly %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href="">{{ item.amount }}</a></td>
+            <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+            <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.quarterly_total }}</pre></p>
+    {% endif %}
+
+    {% if every_six_months %}
+      <h3 class="frequency-header">Every Six Months</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in every_six_months %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href="">{{ item.amount }}</a></td>
+            <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+            <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.every_six_months_total }}</pre></p>
+    {% endif %}
+
+    {% if yearly %}
+      <h3 class="frequency-header">Yearly</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in yearly %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href=""><pre>{{ item.amount }}</pre></a></td>
+            <td><a href=""><pre>{{ item.first_due_date | date:"M d, Y" }}</pre></a></td>
+            <td><a href=""><pre>{{ item.get_next_payment | date:"M d, Y" }}</pre></a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.yearly_total }}</pre></p>
+    {% endif %}
+
+    {% if one_time %}
+      <h3 class="frequency-header">One Time</h3>
+      <table class="money-schedule-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Start Date</th>
+          <th>Next Due Date</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        {% for item in one_time %}
+          <tr>
+            <td><a href="">{{ item.name }}</a></td>
+            <td><a href="">{{ item.amount }}</a></td>
+            <td><a href="">{{ item.first_due_date | date:"M d, Y" }}</a></td>
+            <td><a href="">{{ item.get_next_payment | date:"M d, Y" }}</a></td>
+            <td><a href=""><pre>{{ item.category }}</pre></a></td>
+            <td>
+              <a href="schedule-item/{{ item.id }}/update"><img src="{% static 'images/edit-icon.png' %}" class="action-imgs"></a>
+              <a href="schedule-item/{{ item.id }}/delete"><img src="{% static 'images/garbage-can-icon.png' %}" class="action-imgs"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <p><pre>Yearly Total: ${{ totals.one_time_total }}</pre></p>
+    {% endif %}
+{% endblock %}
+
+{% block side_content %}
+  <h3>Totals</h3>
+  <table class="money-schedule-side-table">
+    <tr>
+      <th>Totals</th>
+      <th>Amount</th>
+    </tr>
+    <tr>
+      <td><pre>Non Monthly</pre></td>
+      <td><pre>${{ totals.non_monthly_total }}</pre></td>
+    </tr>
+    <tr>
+      <td><pre>Per Month</pre></td>
+      <td><pre>${{ totals.non_monthly_per_month_total }}</pre></td>
+    </tr>
+  </table>
+    <br>
+  <table class="money-schedule-side-table">
+    <tr>
+      <th>Month</th>
+      <th>Amount</th>
+    </tr>
+    {% for month, amount in month_data %}
+    <tr>
+      <td><pre>{{ month }}</pre></td>
+      <td><pre>${{ amount }}</pre></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}

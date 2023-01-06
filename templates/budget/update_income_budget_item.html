@@ -1,13 +1,12 @@
 {% extends 'standard/base.html' %}
-{% block title %}TrackMyDollars | Update Revolving Debt Balance{% endblock %}
-{% block script %}{% include 'widgets/datepicker_id_date.html' %}{% endblock %}
-{% block page_heading %}Update Revolving Debt Balance{% endblock %}
+{% block title %}TrackMyDollars | Update Income Budget Item{% endblock %}
+{% block page_heading %}Update Income Budget Item{% endblock %}
 
 {% block main_content %}
   {% if message %}
     <p class="alert">{{ message }}</p>
   {% endif %}
-  <p>{{ debt_name }}</p>
+  <p>{{ budget_period.get_month_display }}, {{ budget_period.year }}</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">

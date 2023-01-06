@@ -1,21 +1,14 @@
 {% extends 'standard/base.html' %}
 {% load static %}
-{% block title %}TrackMyDollars | Support{% endblock %}
-{% block page_heading %}Contact{% endblock %}
+{% block title %}TrackMyDollars | Settings{% endblock %}
 {% block script %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
-
+{% block page_heading %}Settings{% endblock %}
 {% block main_content %}
   <script>
       $(document).ready(function(){
           $(".success").fadeOut(10000);
       });
   </script>
-
-  {% if messages %}
-    {% for message in messages %}
-      <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-    {% endfor %}
-  {% endif %}
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Save">

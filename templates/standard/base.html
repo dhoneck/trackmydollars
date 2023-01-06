@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".success").fadeOut(10000);
+        });
+        $(document).ready(function(){
+            $(".error").fadeOut(10000);
+        });
+    </script>
+    {% include 'widgets/datepicker_id_date.html' %}
+    {% include 'widgets/datepicker_id_first_due_date.html' %}
+    {% include 'widgets/datepicker_id_payoff_date.html' %}
+    {% include 'widgets/datepicker_source.html' %}
+  </head>
+  <body>
+    <div class="grid">
+      <header>
+        <div class="sidenav">
+          <div id="logo">
+            <h1>TrackMyDollars</h1>
+            <h2>Budgeting Software</h2>
+          </div>
+          <nav>
+            <a class='sidebar-links' href="{% url 'dashboard' %}">Dashboard</a>
+            <a class='sidebar-links' href="{% url 'assets_debts' %}">Assets & Debts</a>
+            <a class='sidebar-links' href="{% url 'money_schedule' %}">Money Schedule</a>
+            <a class='sidebar-links' href="{% url 'budget' %}">Budget</a>
+            <a class='sidebar-links' href="{% url 'reports' %}">Reports</a>
+            <a class='sidebar-links' href="{% url 'offers' %}">Offers</a>
+            <a class='sidebar-links' href="{% url 'contact' %}">Support</a>
+          </nav>
+          <div id="user-section">
+            <a href="{% url 'settings' %}">{{ user.email }}</a>
+            <a href="{% url 'logout' %}">Log Out</a>
+          </div>
+        </div>
+      </header>
+
+      <h2 class="page-heading">
+        {% block page_heading %}
+      {% endblock %}</h2>
+
+      <div class="main-container">
+        {% block main_content %}{% endblock %}
+      </div>
+
+      <div class="side-container">
+        {% block side_content %}{% endblock %}
+      </div>
+
+
+    </div>
+    <script>
+      /* Removes side-container when empty (i.e. innerHTML will be 16 characters when empty) */
+      var sc = document.getElementsByClassName('side-container')[0]
+      if (sc.innerHTML <= 16) {
+        console.log('Removing empty side-container.')
+        sc.remove()
+      } else {
+        console.log('Keeping side-container.')
+      }
+    </script>
+  </body>
+</html>
