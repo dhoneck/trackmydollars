@@ -64,7 +64,7 @@ def register(request):
                 {"form": CustomUserCreationForm}
             )
 
-###########################
+
 # User settings views
 # TODO: Add a user avatar next to their email
 # TODO: Add user settings page
@@ -78,138 +78,6 @@ class EditSettings(FormView, SuccessMessageMixin):
     form_class = SettingsForm
     success_url = '../'
     success_message = 'Settings successfully added!'
-
-    # def get_form_kwargs(self):
-    #     # Get list of money schedule items and their totals
-    #     month, year = get_month_and_year_from_request(self.request)
-    #     print(f'DOES THIS WORK?: {month} {year}')
-    #     month_number = datetime.strptime(month, "%B").month
-    #     print(month_number)
-    #
-    #     money_schedule_items = ''
-    #     for item in ScheduleItem.objects.filter(user=self.request.user.id):
-    #         print('ITEM: ' + str(item))
-    #         match = item.monthly_occurrences(int(year), month_number)
-    #         if match:
-    #             money_schedule_items += item.name + ' $' + str(item.get_monthly_total(int(year), month_number)) + ', '
-    #
-    #     # Remove trailing comma
-    #     if money_schedule_items[-2:] == ', ':
-    #         money_schedule_items = money_schedule_items[:-2]
-    #     else:
-    #         money_schedule_items = 'No Schedule Items This Month'
-    #
-    #
-    #     # Set the user for the form based on the request
-    #     kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
-    #     kwargs.update({
-    #         'user': self.request.user.id,
-    #         'money_schedule_items': money_schedule_items,
-    #     })
-    #     return kwargs
-    #
-    # def get_context_data(self, **kwargs):
-    #     # Provide the month and year to the template
-    #     context = super().get_context_data(**kwargs)
-    #     split_url = self.request.get_full_path().split('/')
-    #     month = split_url[-4]
-    #     year = split_url[-3]
-    #     context['month'] = month.capitalize()
-    #     context['year'] = year
-    #     return context
-    #
-    # def form_valid(self, form):
-    #     current_user = self.request.user.id
-    #
-    #     split_url = self.request.get_full_path().split('/')
-    #     month = datetime.strptime(split_url[-4], '%B').month
-    #     year = split_url[-3]
-    #
-    #     form_sbb = form.cleaned_data['starting_bank_balance']
-    #     form_scb = form.cleaned_data['starting_cash_balance']
-    #
-    #     try:
-    #         # Create a new budget period
-    #         BudgetPeriod(year=year, month=month, starting_bank_balance=form_sbb, starting_cash_balance=form_scb, user_id=current_user).save()
-    #
-    #         # Retrieve the new budget period
-    #         new_bp = BudgetPeriod.objects.get(year=year, month=month, user_id=current_user)
-    #
-    #         # Check to see if there is a template budget period - if there is add those items to current budget
-    #         template_bp = form.cleaned_data['template']
-    #         if template_bp:
-    #             # Add income budget items to the new budget period
-    #             ibi = IncomeBudgetItem.objects.filter(budget_period_id=template_bp)
-    #             for item in ibi:
-    #                 item.pk = None
-    #                 item.budget_period_id = new_bp.id
-    #                 item.save()
-    #             # Add expense categories and expense budget items to the new budget period
-    #             ec = ExpenseCategory.objects.filter(budget_period_id=template_bp)
-    #             for category in ec:
-    #                 original_id = category.id
-    #                 budget_items = category.expense_budget_items.all()
-    #                 category.id = None
-    #                 category.budget_period_id = new_bp.id
-    #                 category.save()
-    #                 new_id = category.id
-    #                 for i in budget_items:
-    #                     i.id = None
-    #                     i.expense_category_id = new_id
-    #                     i.save()
-    #
-    #         usable_bank_balance = form.cleaned_data['usable_bank_balance']
-    #         if usable_bank_balance > 0:
-    #             reserve_bi = IncomeBudgetItem(
-    #                 name='Bank Reserve',
-    #                 planned_amount=usable_bank_balance,
-    #                 budget_period_id=new_bp.id,
-    #                 user_id=current_user,
-    #                 type='Reserve'
-    #             )
-    #             reserve_bi.save()
-    #
-    #         usable_cash_balance = form.cleaned_data['usable_cash_balance']
-    #         if usable_cash_balance > 0:
-    #             reserve_bi = IncomeBudgetItem(
-    #                 name='Cash Reserve',
-    #                 planned_amount=usable_cash_balance,
-    #                 budget_period_id=new_bp.id,
-    #                 user_id=current_user,
-    #                 type='Reserve'
-    #             )
-    #             reserve_bi.save()
-    #
-    #         add_money_schedule_items = form.cleaned_data['add_money_schedule_items']
-    #
-    #         # Check for current month's budget items
-    #         items_for_month = []
-    #         if add_money_schedule_items:
-    #             # for item in ScheduleItem.objects.filter(user=self.request.user.id).exclude(frequency="Monthly"):
-    #             for item in ScheduleItem.objects.filter(user=self.request.user.id):
-    #                 match = item.monthly_occurrences(int(year), int(month))
-    #                 if match:
-    #                     items_for_month.append(item.monthly_occurrences(int(year), int(month)))
-    #
-    #             # Add money schedule items to budget
-    #             for item in items_for_month:
-    #                 # Check if expense category already exists
-    #                 expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=current_user, budget_period=new_bp, name=item[0].category)
-    #
-    #                 expense_item, item_created = ExpenseBudgetItem.objects.get_or_create(
-    #                     expense_category=expense_cat,
-    #                     name=item[0].name,
-    #                     planned_amount=item[0].amount,
-    #                     user_id=item[0].user_id,
-    #                 )
-    #
-    #     except IntegrityError:
-    #         messages.error(self.request, f"Budget already exists for {month}, {year}.")
-    #         return HttpResponseRedirect(self.request.get_full_path())
-    #     except Exception as err:
-    #         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
-    #     return super(AddBudgetPeriod, self).form_valid(form)
-############
 
 
 # Helper Functions
@@ -959,7 +827,6 @@ def budget(request):
 # TODO: Fix conflicts of template and monthly schedule
 # TODO: Add clickable month and year
 # TODO: Make the month and year unchangeable
-# TODO: Show the money schedule items
 class AddBudgetPeriod(FormView, SuccessMessageMixin):
     template_name = 'budget/add_budget.html'
     form_class = BudgetPeriodForm
@@ -984,8 +851,7 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         if money_schedule_items[-2:] == ', ':
             money_schedule_items = money_schedule_items[:-2]
         else:
-           money_schedule_items = 'No Schedule Items This Month'
-
+            money_schedule_items = 'No Schedule Items This Month'
 
         # Set the user for the form based on the request
         kwargs = super(AddBudgetPeriod, self).get_form_kwargs()
@@ -1017,7 +883,12 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
 
         try:
             # Create a new budget period
-            BudgetPeriod(year=year, month=month, starting_bank_balance=form_sbb, starting_cash_balance=form_scb, user_id=current_user).save()
+            BudgetPeriod(year=year,
+                         month=month,
+                         starting_bank_balance=form_sbb,
+                         starting_cash_balance=form_scb,
+                         user_id=current_user)\
+                .save()
 
             # Retrieve the new budget period
             new_bp = BudgetPeriod.objects.get(year=year, month=month, user_id=current_user)
@@ -1034,7 +905,6 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                 # Add expense categories and expense budget items to the new budget period
                 ec = ExpenseCategory.objects.filter(budget_period_id=template_bp)
                 for category in ec:
-                    original_id = category.id
                     budget_items = category.expense_budget_items.all()
                     category.id = None
                     category.budget_period_id = new_bp.id
@@ -1106,6 +976,7 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'bp'
     success_message = 'Budget period successfully updated!'
 
+
 # TODO: Fix auto reserve - only shows cash reserves
 # TODO: Add transaction splitting
 # TODO: Add an add transaction button
@@ -1123,7 +994,6 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
 # TODO: Add the ability to add sinking funds for expense fund to your income
 # TODO: Add the ability to adjust your reserve funds after initial budget period creation
 # TODO: Fix the "Skipping Django collectstatic since the env var DISABLE_COLLECTSTATIC is set."
-
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
     try:
@@ -1137,7 +1007,6 @@ def specific_budget(request, month, year):
         total_bank_expenses = Decimal(0.00)
         total_cash_income = Decimal(0.00)
         total_cash_expenses = Decimal(0.00)
-        total_old_debt = Decimal(0.00)
         total_new_debt = Decimal(0.00)
         total_paid_debt = Decimal(0.00)
         reserved_funds = Decimal(0.00)
@@ -1268,12 +1137,6 @@ def specific_budget(request, month, year):
     cash_balance_change = total_cash_income - total_cash_expenses
     current_cash_balance = bp.starting_cash_balance + cash_balance_change
 
-    # bank_balance_change = total_actual_income - total_actual_expenses - reserved_funds
-    # current_bank_balance = bp.starting_bank_balance + bank_balance_change
-
-    # cash_balance_change = total_actual_income - total_actual_expenses - reserved_funds
-    # current_cash_balance = bp.starting_cash_balance + cash_balance_change
-
     return render(request,
                   'budget/view_budget.html',
                   {
@@ -1402,17 +1265,6 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
     success_url = './'
     success_message = 'Expense category successfully added!'
 
-    # def get_initial(self):
-    #     bpid = None
-    #     try:
-    #         split_url = self.request.get_full_path().split('/')
-    #         month = datetime.strptime(split_url[-3], '%B').month
-    #         year = split_url[-2]
-    #         bpid = BudgetPeriod.objects.get(user=self.request.user, month=month, year=year)
-    #     except Exception as err:
-    #         return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
-    #     return {'budget_period': bpid,}
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         month, year = get_month_and_year_from_request(self.request)
@@ -1455,7 +1307,9 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=self.request.get_full_path().split('/')[-2])
+            context['expense_budget_item'] = ExpenseBudgetItem.objects.get(
+                id=self.request.get_full_path().split('/')[-2]
+            )
         except Exception as err:
             print('There was an error:', err)
             context['expense_budget_item'] = None
@@ -1680,7 +1534,6 @@ def view_offers(request):
 
 
 # Support Views
-# TODO: Create a support form
 # TODO: Create support articles
 class AddContactEntry(SuccessMessageMixin, CreateView):
     model = ContactEntry
