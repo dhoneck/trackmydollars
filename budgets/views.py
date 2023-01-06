@@ -698,7 +698,8 @@ class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class=None)
         month, year = get_month_and_year_from_request(self.request)
-        form.fields['expense_category'].queryset = ExpenseCategory.objects.filter(budget_period=get_budget_period(self.request.user, month, year), )
+        bp = get_budget_period(self.request.user, month, year)
+        form.fields['expense_category'].queryset = ExpenseCategory.objects.filter(budget_period=bp, )
         return form
 
     def form_valid(self, form):
@@ -951,7 +952,10 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
                 # Add money schedule items to budget
                 for item in items_for_month:
                     # Check if expense category already exists
-                    expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user_id=current_user, budget_period=new_bp, name=item[0].category)
+                    expense_cat, cat_created = ExpenseCategory.objects.get_or_create(
+                        user_id=current_user,
+                        budget_period=new_bp,
+                        name=item[0].category)
 
                     expense_item, item_created = ExpenseBudgetItem.objects.get_or_create(
                         expense_category=expense_cat,
@@ -1063,7 +1067,10 @@ def specific_budget(request, month, year):
         if not new_debt_category and cc_purchase_total:
             try:
                 user = request.user
-                expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user=user, budget_period=bp, name='New Debt')
+                expense_cat, cat_created = ExpenseCategory.objects.get_or_create(
+                    user=user,
+                    budget_period=bp,
+                    name='New Debt')
                 expense_bi, created = ExpenseBudgetItem.objects.get_or_create(
                     user=user,
                     expense_category=expense_cat,
@@ -1328,7 +1335,10 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         if form.cleaned_data['credit_purchase']:
             month, year = get_month_and_year_from_request(self.request)
             bp = get_budget_period(user, month, year)
-            expense_cat, cat_created = ExpenseCategory.objects.get_or_create(user=user, budget_period=bp, name='New Debt')
+            expense_cat, cat_created = ExpenseCategory.objects.get_or_create(
+                user=user,
+                budget_period=bp,
+                name='New Debt')
 
             try:
                 expense_bi, created = ExpenseBudgetItem.objects.get_or_create(
@@ -1343,7 +1353,8 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
                 return self.render_to_response(
                     self.get_context_data(
                         form=form,
-                        message=f'Your data has not been saved because there is already an entry for {form.instance.date}.',
+                        message=f'Your data has not been saved because'
+                                f' there is already an entry for {form.instance.date}.',
                     )
                 )
         return super(AddExpenseTransaction, self).form_valid(form)
@@ -1414,16 +1425,23 @@ class AddDebtPayment(SuccessMessageMixin, CreateView):
 
 
 # Schedule Views
+def get_schedule_items(req, freq):
+    return ScheduleItem\
+        .objects\
+        .filter(user=req.user.id, frequency=freq)\
+        .order_by('first_due_date__month', 'first_due_date__day')
+
+
 def view_schedule(request):
     context = {
-        'weekly': ScheduleItem.objects.filter(user=request.user.id, frequency='Weekly').order_by('first_due_date__month', 'first_due_date__day'),
-        'every_two_weeks': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two weeks').order_by('first_due_date__month', 'first_due_date__day'),
-        'monthly': ScheduleItem.objects.filter(user=request.user.id, frequency='Monthly').order_by('first_due_date__month', 'first_due_date__day'),
-        'every_two_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every two months').order_by('first_due_date__month', 'first_due_date__day'),
-        'quarterly': ScheduleItem.objects.filter(user=request.user.id, frequency='Quarterly').order_by('first_due_date__month', 'first_due_date__day'),
-        'every_six_months': ScheduleItem.objects.filter(user=request.user.id, frequency='Every six months').order_by('first_due_date__month', 'first_due_date__day'),
-        'yearly': ScheduleItem.objects.filter(user=request.user.id, frequency='Yearly').order_by('first_due_date__month', 'first_due_date__day'),
-        'one_time': ScheduleItem.objects.filter(user=request.user.id, frequency='One time only').order_by('first_due_date__month', 'first_due_date__day'),
+        'weekly': get_schedule_items(request, 'Weekly'),
+        'every_two_weeks': get_schedule_items(request, 'Every two weeks'),
+        'monthly': get_schedule_items(request, 'Monthly'),
+        'every_two_months': get_schedule_items(request, 'Every two months'),
+        'quarterly': get_schedule_items(request, 'Quarterly'),
+        'every_six_months': get_schedule_items(request, 'Every six months'),
+        'yearly': get_schedule_items(request, 'Yearly'),
+        'one_time': get_schedule_items(request, 'One time only'),
     }
 
     totals = {
