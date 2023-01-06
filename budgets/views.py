@@ -74,7 +74,7 @@ def register(request):
 # TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
 # TODO: Transfer Out Item Name (e.g. Reserved Funds)
 class EditSettings(FormView, SuccessMessageMixin):
-    template_name = 'budgets/settings.html'
+    template_name = 'user-settings/settings.html'
     form_class = SettingsForm
     success_url = '../'
     success_message = 'Settings successfully added!'
@@ -370,7 +370,7 @@ def dashboard(request):
                                       net_worth_total=net_worth_total)
 
     return render(request,
-                  'budgets/dashboard.html',
+                  'dashboard/dashboard.html',
                   {'asset_total': formatted_totals['asset_total'],
                    'debt_total': formatted_totals['debt_total'],
                    'net_worth_total': formatted_totals['net_worth_total'],
@@ -412,7 +412,7 @@ def assets_debts(request):
                                       debt_total=debt_total,
                                       net_worth_total=net_worth_total)
     return render(request,
-                  'budgets/assets_debts.html',
+                  'assets-debts/assets_debts.html',
                   {'assets': assets,
                    'installment_debts': installment_debts,
                    'revolving_debts': revolving_debts,
@@ -427,7 +427,7 @@ class AddAsset(SuccessMessageMixin, CreateView):
     # https://stackoverflow.com/questions/21652073/django-how-to-set-a-hidden-field-on-a-generic-create-view
     model = Asset
     fields = ['name', 'type']
-    template_name = 'budgets/add_asset.html'
+    template_name = 'assets-debts/add_asset.html'
     success_url = '../assets-debts'
     success_message = 'Asset successfully added!'
 
@@ -439,7 +439,7 @@ class AddAsset(SuccessMessageMixin, CreateView):
 class UpdateAsset(SuccessMessageMixin, UpdateView):
     model = Asset
     fields = ['name', 'type']
-    template_name = 'budgets/update_asset.html'
+    template_name = 'assets-debts/update_asset.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
     success_message = 'Asset successfully updated!'
@@ -451,12 +451,12 @@ def view_asset_details(request, id):
         context['asset'] = Asset.objects.get(id=id)
     except Asset.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
-    return render(request, 'budgets/view_asset.html', context)
+    return render(request, 'assets-debts/view_asset.html', context)
 
 
 class DeleteAsset(SuccessMessageMixin, DeleteView):
     model = Asset
-    template_name = 'budgets/delete_asset.html'
+    template_name = 'assets-debts/delete_asset.html'
     success_url = '../../../'
     pk_url_kwarg = 'id'
     success_message = 'Asset successfully deleted!'
@@ -471,7 +471,7 @@ class DeleteAsset(SuccessMessageMixin, DeleteView):
 class AddAssetBalance(SuccessMessageMixin, CreateView):
     model = AssetBalance
     fields = ['balance', 'date']
-    template_name = 'budgets/add_asset_balance.html'
+    template_name = 'assets-debts/add_asset_balance.html'
     success_url = '../view'
     success_message = 'Asset balance successfully added!'
 
@@ -502,7 +502,7 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
 class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
     model = AssetBalance
     fields = ['balance', 'date']
-    template_name = 'budgets/update_asset_balance.html'
+    template_name = 'assets-debts/update_asset_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Asset balance successfully updated!'
@@ -528,7 +528,7 @@ class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
 
 class DeleteAssetBalance(SuccessMessageMixin, DeleteView):
     model = AssetBalance
-    template_name = 'budgets/delete_asset_balance.html'
+    template_name = 'assets-debts/delete_asset_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Asset balance successfully deleted!'
@@ -542,7 +542,7 @@ class DeleteAssetBalance(SuccessMessageMixin, DeleteView):
 class AddInstallmentDebt(SuccessMessageMixin, CreateView):
     model = InstallmentDebt
     fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
-    template_name = 'budgets/add_installment_debt.html'
+    template_name = 'assets-debts/add_installment_debt.html'
     success_url = '../assets-debts'
     success_message = 'Installment debt successfully added!'
 
@@ -554,7 +554,7 @@ class AddInstallmentDebt(SuccessMessageMixin, CreateView):
 class AddRevolvingDebt(SuccessMessageMixin, CreateView):
     model = RevolvingDebt
     fields = ['name', 'type', 'interest_rate', 'credit_limit']
-    template_name = 'budgets/add_revolving_debt.html'
+    template_name = 'assets-debts/add_revolving_debt.html'
     success_url = '../assets-debts'
     success_message = 'Revolving debt successfully added!'
 
@@ -566,7 +566,7 @@ class AddRevolvingDebt(SuccessMessageMixin, CreateView):
 class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
     model = RevolvingDebtBalance
     fields = ['balance', 'date']
-    template_name = 'budgets/add_revolving_debt_balance.html'
+    template_name = 'assets-debts/add_revolving_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
 
@@ -599,7 +599,7 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
 class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
     fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
-    template_name = 'budgets/update_installment_debt.html'
+    template_name = 'assets-debts/update_installment_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
     success_message = 'Installment debt successfully updated!'
@@ -607,7 +607,7 @@ class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
 
 class DeleteInstallmentDebt(SuccessMessageMixin, DeleteView):
     model = InstallmentDebt
-    template_name = 'budgets/delete_installment_debt.html'
+    template_name = 'assets-debts/delete_installment_debt.html'
     success_url = '../../../'
     pk_url_kwarg = 'id'
     success_message = 'Installment debt successfully deleted!'
@@ -620,7 +620,7 @@ class DeleteInstallmentDebt(SuccessMessageMixin, DeleteView):
 class UpdateRevolvingDebt(SuccessMessageMixin, UpdateView):
     model = RevolvingDebt
     fields = ['name', 'type', 'interest_rate', 'credit_limit']
-    template_name = 'budgets/update_revolving_debt.html'
+    template_name = 'assets-debts/update_revolving_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
     success_message = 'Revolving debt successfully updated!'
@@ -628,7 +628,7 @@ class UpdateRevolvingDebt(SuccessMessageMixin, UpdateView):
 
 class DeleteRevolvingDebt(SuccessMessageMixin, DeleteView):
     model = RevolvingDebt
-    template_name = 'budgets/delete_revolving_debt.html'
+    template_name = 'assets-debts/delete_revolving_debt.html'
     success_url = '../../../'
     pk_url_kwarg = 'id'
     success_message = 'Revolving debt successfully deleted!'
@@ -641,7 +641,7 @@ class DeleteRevolvingDebt(SuccessMessageMixin, DeleteView):
 class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
     model = InstallmentDebtBalance
     fields = ['balance', 'date']
-    template_name = 'budgets/add_installment_debt_balance.html'
+    template_name = 'assets-debts/add_installment_debt_balance.html'
     success_url = '../view'
     success_message = 'Debt balance successfully added!'
 
@@ -674,7 +674,7 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
 class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
     model = InstallmentDebtBalance
     fields = ['balance', 'date']
-    template_name = 'budgets/update_installment_debt_balance.html'
+    template_name = 'assets-debts/update_installment_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully updated!'
@@ -700,7 +700,7 @@ class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
 
 class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
     model = InstallmentDebtBalance
-    template_name = 'budgets/delete_installment_debt_balance.html'
+    template_name = 'assets-debts/delete_installment_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully deleted!'
@@ -713,7 +713,7 @@ class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
 class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
     model = RevolvingDebtBalance
     fields = ['balance', 'date']
-    template_name = 'budgets/update_revolving_debt_balance.html'
+    template_name = 'assets-debts/update_revolving_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully updated!'
@@ -894,7 +894,7 @@ class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
 
 class DeleteRevolvingDebtBalance(SuccessMessageMixin, DeleteView):
     model = RevolvingDebtBalance
-    template_name = 'budgets/delete_revolving_debt_balance.html'
+    template_name = 'assets-debts/delete_revolving_debt_balance.html'
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully deleted!'
@@ -910,7 +910,7 @@ def view_installment_debt_details(request, id):
         context['debt'] = InstallmentDebt.objects.get(id=id)
     except Debt.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
-    return render(request, 'budgets/view_installment_debt.html', context)
+    return render(request, 'assets-debts/view_installment_debt.html', context)
 
 
 def view_revolving_debt_details(request, id):
@@ -919,7 +919,7 @@ def view_revolving_debt_details(request, id):
         context['debt'] = RevolvingDebt.objects.get(id=id)
     except Debt.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
-    return render(request, 'budgets/view_revolving_debt.html', context)
+    return render(request, 'assets-debts/view_revolving_debt.html', context)
 
 
 def get_month_and_year_from_request(request):
@@ -1665,7 +1665,7 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
 # TODO: Money schedule reports
 # TODO: Budget reports
 def view_reports(request):
-    return render(request, 'budgets/reports.html')
+    return render(request, 'reports/reports.html')
 
 
 # Offer Views
@@ -1676,7 +1676,7 @@ def view_reports(request):
 # TODO: Account balance will be too low to pay future expenses based on money cycle
 # TODO: Upcoming expenses
 def view_offers(request):
-    return render(request, 'budgets/offers.html')
+    return render(request, 'offers/offers.html')
 
 
 # Support Views
@@ -1685,7 +1685,7 @@ def view_offers(request):
 class AddContactEntry(SuccessMessageMixin, CreateView):
     model = ContactEntry
     fields = ['reason_for_contact', 'description']
-    template_name = 'budgets/add_contact_entry.html'
+    template_name = 'support/add_contact_entry.html'
     success_url = './'
     success_message = 'Contact form successfully submitted!'
 
