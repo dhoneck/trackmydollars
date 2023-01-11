@@ -1,1 +1,0 @@
-web: gunicorn --pythonpath TrackMyDollars TrackMyDollars.deploy --log-file -
