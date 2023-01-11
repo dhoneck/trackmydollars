@@ -10,6 +10,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from budgets.forms import *
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 # TODO: Add a template budget page and functionality
 # TODO: Allow users to delete expense categories
@@ -73,7 +75,7 @@ def register(request):
 # TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
 # TODO: Transfer Out Category Name (e.g. Everything Else) - for when automatic transfers happen such as 
 # TODO: Transfer Out Item Name (e.g. Reserved Funds)
-class EditSettings(FormView, SuccessMessageMixin):
+class EditSettings(LoginRequiredMixin, FormView, SuccessMessageMixin):
     template_name = 'user-settings/view_settings.html'
     form_class = SettingsForm
     success_url = '../'
@@ -187,7 +189,7 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
 # TODO: Add content from your budget
 # TODO: Prevent future month assets and debt balances from showing up in current month
 # TODO: Provide more options for viewing net worth (e.g. week, month, year, all time)
-@login_required(login_url='../accounts/login/')
+@login_required
 def dashboard(request):
     """ Shows an overview of the user's account """
     # TODO: Fix rounding issues for the net worth line - I see it has a rounding issue with too many decimals
@@ -251,7 +253,7 @@ def dashboard(request):
 
 
 # Asset Views
-@login_required(login_url='../accounts/login/')
+@login_required
 def assets_debts(request):
     # TODO: Fix number alignment
     # TODO: Fix months to be abbreviated - e.g. March should be mar instead of March
@@ -290,8 +292,7 @@ def assets_debts(request):
                   )
 
 
-# @login_required(login_url='../accounts/login/')
-class AddAsset(SuccessMessageMixin, CreateView):
+class AddAsset(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     # https://stackoverflow.com/questions/21652073/django-how-to-set-a-hidden-field-on-a-generic-create-view
     model = Asset
     fields = ['name', 'type']
@@ -304,7 +305,7 @@ class AddAsset(SuccessMessageMixin, CreateView):
         return super(AddAsset, self).form_valid(form)
 
 
-class UpdateAsset(SuccessMessageMixin, UpdateView):
+class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Asset
     fields = ['name', 'type']
     template_name = 'assets-debts/update_asset.html'
@@ -312,7 +313,7 @@ class UpdateAsset(SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'id'
     success_message = 'Asset successfully updated!'
 
-
+@login_required
 def view_asset_details(request, id):
     context = {}
     try:
@@ -322,7 +323,7 @@ def view_asset_details(request, id):
     return render(request, 'assets-debts/view_asset.html', context)
 
 
-class DeleteAsset(SuccessMessageMixin, DeleteView):
+class DeleteAsset(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Asset
     template_name = 'assets-debts/delete_asset.html'
     success_url = '../../../'
@@ -336,7 +337,7 @@ class DeleteAsset(SuccessMessageMixin, DeleteView):
 
 # TODO: Remove asset from the form and add it to the template
 # TODO: Handle form when values are not unique
-class AddAssetBalance(SuccessMessageMixin, CreateView):
+class AddAssetBalance(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = AssetBalance
     fields = ['balance', 'date']
     template_name = 'assets-debts/add_asset_balance.html'
@@ -367,7 +368,7 @@ class AddAssetBalance(SuccessMessageMixin, CreateView):
             )
 
 
-class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
+class UpdateAssetBalance(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = AssetBalance
     fields = ['balance', 'date']
     template_name = 'assets-debts/update_asset_balance.html'
@@ -394,7 +395,7 @@ class UpdateAssetBalance(SuccessMessageMixin, UpdateView):
             )
 
 
-class DeleteAssetBalance(SuccessMessageMixin, DeleteView):
+class DeleteAssetBalance(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = AssetBalance
     template_name = 'assets-debts/delete_asset_balance.html'
     success_url = '../view'
@@ -407,7 +408,7 @@ class DeleteAssetBalance(SuccessMessageMixin, DeleteView):
 
 
 # Debt Views
-class AddInstallmentDebt(SuccessMessageMixin, CreateView):
+class AddInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = InstallmentDebt
     fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
     template_name = 'assets-debts/add_installment_debt.html'
@@ -419,7 +420,7 @@ class AddInstallmentDebt(SuccessMessageMixin, CreateView):
         return super(AddInstallmentDebt, self).form_valid(form)
 
 
-class AddRevolvingDebt(SuccessMessageMixin, CreateView):
+class AddRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = RevolvingDebt
     fields = ['name', 'type', 'interest_rate', 'credit_limit']
     template_name = 'assets-debts/add_revolving_debt.html'
@@ -431,7 +432,7 @@ class AddRevolvingDebt(SuccessMessageMixin, CreateView):
         return super(AddRevolvingDebt, self).form_valid(form)
 
 
-class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
+class AddRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = RevolvingDebtBalance
     fields = ['balance', 'date']
     template_name = 'assets-debts/add_revolving_debt_balance.html'
@@ -464,7 +465,7 @@ class AddRevolvingDebtBalance(SuccessMessageMixin, CreateView):
             )
 
 
-class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
+class UpdateInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
     fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
     template_name = 'assets-debts/update_installment_debt.html'
@@ -473,7 +474,7 @@ class UpdateInstallmentDebt(SuccessMessageMixin, UpdateView):
     success_message = 'Installment debt successfully updated!'
 
 
-class DeleteInstallmentDebt(SuccessMessageMixin, DeleteView):
+class DeleteInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = InstallmentDebt
     template_name = 'assets-debts/delete_installment_debt.html'
     success_url = '../../../'
@@ -485,7 +486,7 @@ class DeleteInstallmentDebt(SuccessMessageMixin, DeleteView):
         return super(DeleteInstallmentDebt, self).delete(request, *args, **kwargs)
 
 
-class UpdateRevolvingDebt(SuccessMessageMixin, UpdateView):
+class UpdateRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = RevolvingDebt
     fields = ['name', 'type', 'interest_rate', 'credit_limit']
     template_name = 'assets-debts/update_revolving_debt.html'
@@ -494,7 +495,7 @@ class UpdateRevolvingDebt(SuccessMessageMixin, UpdateView):
     success_message = 'Revolving debt successfully updated!'
 
 
-class DeleteRevolvingDebt(SuccessMessageMixin, DeleteView):
+class DeleteRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = RevolvingDebt
     template_name = 'assets-debts/delete_revolving_debt.html'
     success_url = '../../../'
@@ -506,7 +507,7 @@ class DeleteRevolvingDebt(SuccessMessageMixin, DeleteView):
         return super(DeleteRevolvingDebt, self).delete(request, *args, **kwargs)
 
 
-class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
+class AddInstallmentDebtBalance(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = InstallmentDebtBalance
     fields = ['balance', 'date']
     template_name = 'assets-debts/add_installment_debt_balance.html'
@@ -539,7 +540,7 @@ class AddInstallmentDebtBalance(SuccessMessageMixin, CreateView):
             )
 
 
-class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
+class UpdateInstallmentDebtBalance(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = InstallmentDebtBalance
     fields = ['balance', 'date']
     template_name = 'assets-debts/update_installment_debt_balance.html'
@@ -566,7 +567,7 @@ class UpdateInstallmentDebtBalance(SuccessMessageMixin, UpdateView):
             )
 
 
-class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
+class DeleteInstallmentDebtBalance(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = InstallmentDebtBalance
     template_name = 'assets-debts/delete_installment_debt_balance.html'
     success_url = '../view'
@@ -578,7 +579,7 @@ class DeleteInstallmentDebtBalance(SuccessMessageMixin, DeleteView):
         return super(DeleteInstallmentDebtBalance, self).delete(request, *args, **kwargs)
 
 
-class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
+class UpdateRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = RevolvingDebtBalance
     fields = ['balance', 'date']
     template_name = 'assets-debts/update_revolving_debt_balance.html'
@@ -605,7 +606,7 @@ class UpdateRevolvingDebtBalance(SuccessMessageMixin, UpdateView):
             )
 
 
-class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
+class UpdateIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = IncomeBudgetItem
     fields = ['name', 'planned_amount', 'type']
     template_name = 'budget/update_income_budget_item.html'
@@ -628,7 +629,7 @@ class UpdateIncomeBudgetItem(SuccessMessageMixin, UpdateView):
         return super(UpdateIncomeBudgetItem, self).form_valid(form)
 
 
-class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
+class DeleteIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = IncomeBudgetItem
     template_name = 'budget/delete_income_budget_item.html'
     success_url = '../../'
@@ -640,7 +641,7 @@ class DeleteIncomeBudgetItem(SuccessMessageMixin, DeleteView):
         return super(DeleteIncomeBudgetItem, self).delete(request, *args, **kwargs)
 
 
-class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
+class UpdateIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = IncomeTransaction
     fields = ['name', 'amount', 'cash', 'date']
     template_name = 'budget/update_income_transaction.html'
@@ -654,7 +655,7 @@ class UpdateIncomeTransaction(SuccessMessageMixin, UpdateView):
         return super(UpdateIncomeTransaction, self).form_valid(form)
 
 
-class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
+class DeleteIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = IncomeTransaction
     template_name = 'budget/delete_income_transaction.html'
     success_url = '../../view'
@@ -666,7 +667,7 @@ class DeleteIncomeTransaction(SuccessMessageMixin, DeleteView):
         return super(DeleteIncomeTransaction, self).delete(request, *args, **kwargs)
 
 
-class UpdateExpenseCategory(SuccessMessageMixin, UpdateView):
+class UpdateExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ExpenseCategory
     fields = ['name']
     template_name = 'budget/update_expense_category.html'
@@ -675,7 +676,7 @@ class UpdateExpenseCategory(SuccessMessageMixin, UpdateView):
     success_message = 'Expense category successfully updated!'
 
 
-class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
+class DeleteExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ExpenseCategory
     template_name = 'budget/delete_expense_category.html'
     success_url = '../../'
@@ -687,7 +688,7 @@ class DeleteExpenseCategory(SuccessMessageMixin, DeleteView):
         return super(DeleteExpenseCategory, self).delete(request, *args, **kwargs)
 
 
-class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
+class UpdateExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ExpenseBudgetItem
     fields = ['name', 'expense_category', 'planned_amount', 'type']
     template_name = 'budget/update_expense_budget_item.html'
@@ -722,7 +723,7 @@ class UpdateExpenseBudgetItem(SuccessMessageMixin, UpdateView):
             return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
 
 
-class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
+class DeleteExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ExpenseBudgetItem
     template_name = 'budget/delete_expense_budget_item.html'
     success_url = '../../../../'
@@ -734,7 +735,7 @@ class DeleteExpenseBudgetItem(SuccessMessageMixin, DeleteView):
         return super(DeleteExpenseBudgetItem, self).delete(request, *args, **kwargs)
 
 
-class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
+class UpdateExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ExpenseTransaction
     fields = ['name', 'amount', 'credit_purchase', 'cash', 'date']
     template_name = 'budget/update_expense_transaction.html'
@@ -749,7 +750,7 @@ class UpdateExpenseTransaction(SuccessMessageMixin, UpdateView):
         return super(UpdateExpenseTransaction, self).form_valid(form)
 
 
-class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
+class DeleteExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ExpenseTransaction
     template_name = 'budget/delete_expense_transaction.html'
     success_url = '../../view'
@@ -761,7 +762,7 @@ class DeleteExpenseTransaction(SuccessMessageMixin, DeleteView):
         return super(DeleteExpenseTransaction, self).delete(request, *args, **kwargs)
 
 
-class DeleteRevolvingDebtBalance(SuccessMessageMixin, DeleteView):
+class DeleteRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = RevolvingDebtBalance
     template_name = 'assets-debts/delete_revolving_debt_balance.html'
     success_url = '../view'
@@ -773,6 +774,7 @@ class DeleteRevolvingDebtBalance(SuccessMessageMixin, DeleteView):
         return super(DeleteRevolvingDebtBalance, self).delete(request, *args, **kwargs)
 
 
+@login_required
 def view_installment_debt_details(request, id):
     context = {}
     try:
@@ -782,6 +784,7 @@ def view_installment_debt_details(request, id):
     return render(request, 'assets-debts/view_installment_debt.html', context)
 
 
+@login_required
 def view_revolving_debt_details(request, id):
     context = {}
     try:
@@ -791,6 +794,7 @@ def view_revolving_debt_details(request, id):
     return render(request, 'assets-debts/view_revolving_debt.html', context)
 
 
+@login_required
 def get_month_and_year_from_request(request):
     split_url = request.get_full_path().split('/')
     month = split_url[2]
@@ -799,6 +803,7 @@ def get_month_and_year_from_request(request):
 
 
 # Add Budget Views
+# Do not use @login_required as it will cause an error
 def get_budget_period(user, month, year):
     month = str(month)  # Convert for testing
     bp = None
@@ -817,6 +822,7 @@ def get_budget_period(user, month, year):
     return bp
 
 
+@login_required
 def budget(request):
     # Get current month and year to pass onto another view as a default
     current_month = datetime.today().strftime('%B').lower()
@@ -828,7 +834,7 @@ def budget(request):
 # TODO: Fix conflicts of template and monthly schedule
 # TODO: Add clickable month and year
 # TODO: Make the month and year unchangeable
-class AddBudgetPeriod(FormView, SuccessMessageMixin):
+class AddBudgetPeriod(LoginRequiredMixin, FormView, SuccessMessageMixin):
     template_name = 'budget/add_budget.html'
     form_class = BudgetPeriodForm
     success_url = '../'
@@ -972,7 +978,7 @@ class AddBudgetPeriod(FormView, SuccessMessageMixin):
         return super(AddBudgetPeriod, self).form_valid(form)
 
 
-class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
+class UpdateBudgetPeriod(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = BudgetPeriod
     fields = ['starting_bank_balance', 'starting_cash_balance']
     template_name = 'budget/update_budget_period.html'
@@ -998,6 +1004,7 @@ class UpdateBudgetPeriod(SuccessMessageMixin, UpdateView):
 # TODO: Add the ability to add sinking funds for expense fund to your income
 # TODO: Add the ability to adjust your reserve funds after initial budget period creation
 # TODO: Fix the "Skipping Django collectstatic since the env var DISABLE_COLLECTSTATIC is set."
+@login_required
 def specific_budget(request, month, year):
     """ Shows a breakdown of monthly budget """
     try:
@@ -1173,6 +1180,7 @@ def specific_budget(request, month, year):
                   )
 
 
+@login_required
 def change_budget(request, month, year):
     month = datetime.strptime(month, '%B').month
     current_budget = datetime(day=1, month=month, year=year)
@@ -1189,6 +1197,7 @@ def change_budget(request, month, year):
     return HttpResponseRedirect(f'../../{adjusted_month}/{adjusted_year}')
 
 
+@login_required
 def view_income_budget_item(request, month, year, ibiid):
     context = {}
     try:
@@ -1197,7 +1206,7 @@ def view_income_budget_item(request, month, year, ibiid):
         return HttpResponseNotFound("Page not found!")
     return render(request, 'budget/view_income_budget_item.html', context)
 
-
+@login_required
 def view_expense_budget_item(request, month, year, ecid, ebiid):
     context = {}
     try:
@@ -1207,7 +1216,7 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
     return render(request, 'budget/view_expense_budget_item.html', context)
 
 
-class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
+class AddIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = IncomeBudgetItem
     fields = ['name', 'planned_amount', 'type']
     template_name = 'budget/add_income_budget_item.html'
@@ -1229,7 +1238,7 @@ class AddIncomeBudgetItem(SuccessMessageMixin, CreateView):
         return super(AddIncomeBudgetItem, self).form_valid(form)
 
 
-class AddIncomeTransaction(SuccessMessageMixin, CreateView):
+class AddIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = IncomeTransaction
     fields = ['name', 'amount', 'cash', 'date']
     template_name = 'budget/add_income_transaction.html'
@@ -1265,7 +1274,7 @@ class AddIncomeTransaction(SuccessMessageMixin, CreateView):
         return super(AddIncomeTransaction, self).form_valid(form)
 
 
-class AddExpenseCategory(SuccessMessageMixin, CreateView):
+class AddExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = ExpenseCategory
     fields = ['name']
     template_name = 'budget/add_expense_category.html'
@@ -1288,7 +1297,7 @@ class AddExpenseCategory(SuccessMessageMixin, CreateView):
 
 
 # TODO: Look this over, success url may need to be modified
-class AddExpenseTransaction(SuccessMessageMixin, CreateView):
+class AddExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'budget/add_expense_transaction.html'
     form_class = ExpenseTransactionForm
     success_url = '../../../../'
@@ -1360,7 +1369,7 @@ class AddExpenseTransaction(SuccessMessageMixin, CreateView):
         return super(AddExpenseTransaction, self).form_valid(form)
 
 
-class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
+class AddExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     # TODO: Only show expense categories in that budget period
     model = ExpenseBudgetItem
     fields = ['name', 'planned_amount', 'type']
@@ -1381,7 +1390,7 @@ class AddExpenseBudgetItem(SuccessMessageMixin, CreateView):
         return super(AddExpenseBudgetItem, self).form_valid(form)
 
 
-class DeleteBudget(SuccessMessageMixin, DeleteView):
+class DeleteBudget(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
     template_name = 'budget/delete_budget.html'
     success_url = '/budget/'
@@ -1393,7 +1402,7 @@ class DeleteBudget(SuccessMessageMixin, DeleteView):
         return super(DeleteBudget, self).delete(request, *args, **kwargs)
 
 
-class AddDebtPayment(SuccessMessageMixin, CreateView):
+class AddDebtPayment(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'budget/add_debt_payment.html'
     form_class = ExpenseTransactionDebtPaymentForm
     success_url = '../'
@@ -1425,13 +1434,14 @@ class AddDebtPayment(SuccessMessageMixin, CreateView):
 
 
 # Schedule Views
+# TODO: does this need @required_login
 def get_schedule_items(req, freq):
     return ScheduleItem\
         .objects\
         .filter(user=req.user.id, frequency=freq)\
         .order_by('first_due_date__month', 'first_due_date__day')
 
-
+@login_required
 def view_schedule(request):
     context = {
         'weekly': get_schedule_items(request, 'Weekly'),
@@ -1499,7 +1509,7 @@ def view_schedule(request):
     return render(request, 'money-schedule/view_schedule.html', context)
 
 
-class AddScheduleItem(SuccessMessageMixin, CreateView):
+class AddScheduleItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = ScheduleItem
     fields = ['name', 'amount', 'category', 'type', 'first_due_date', 'frequency']
     template_name = 'money-schedule/add_schedule_item.html'
@@ -1511,7 +1521,7 @@ class AddScheduleItem(SuccessMessageMixin, CreateView):
         return super(AddScheduleItem, self).form_valid(form)
 
 
-class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
+class UpdateScheduleItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ScheduleItem
     fields = ['name', 'amount', 'category', 'first_due_date', 'frequency']
     template_name = 'money-schedule/update_schedule_item.html'
@@ -1520,7 +1530,7 @@ class UpdateScheduleItem(SuccessMessageMixin, UpdateView):
     success_message = 'Schedule item successfully updated!'
 
 
-class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
+class DeleteScheduleItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ScheduleItem
     template_name = 'money-schedule/delete_schedule_item.html'
     success_url = '/money-schedule/'
@@ -1536,6 +1546,7 @@ class DeleteScheduleItem(SuccessMessageMixin, DeleteView):
 # TODO: Asset and debts reports
 # TODO: Money schedule reports
 # TODO: Budget reports
+@login_required
 def view_reports(request):
     return render(request, 'reports/reports.html')
 
@@ -1547,13 +1558,14 @@ def view_reports(request):
 # TODO: Account balance is currently low
 # TODO: Account balance will be too low to pay future expenses based on money cycle
 # TODO: Upcoming expenses
+@login_required
 def view_offers(request):
     return render(request, 'offers/view_offers.html')
 
 
 # Support Views
 # TODO: Create support articles
-class AddContactEntry(SuccessMessageMixin, CreateView):
+class AddContactEntry(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = ContactEntry
     fields = ['reason_for_contact', 'description']
     template_name = 'support/add_contact_entry.html'
