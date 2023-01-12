@@ -6,7 +6,7 @@ from .models import *
 from django.db import IntegrityError
 from functools import partial
 from django.contrib.auth import login
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from budgets.forms import *
 from django.contrib.auth.decorators import login_required
@@ -313,11 +313,14 @@ class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'id'
     success_message = 'Asset successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(Asset, id=self.kwargs['id'], user=self.request.user.id)
+
 @login_required
 def view_asset_details(request, id):
     context = {}
     try:
-        context['asset'] = Asset.objects.get(id=id)
+        context['asset'] = Asset.objects.get(id=id, user=request.user.id)
     except Asset.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'assets-debts/view_asset.html', context)
@@ -778,8 +781,8 @@ class DeleteRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, Delete
 def view_installment_debt_details(request, id):
     context = {}
     try:
-        context['debt'] = InstallmentDebt.objects.get(id=id)
-    except Debt.DoesNotExist:
+        context['debt'] = InstallmentDebt.objects.get(id=id, user=request.user.id)
+    except InstallmentDebt.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'assets-debts/view_installment_debt.html', context)
 
@@ -788,8 +791,8 @@ def view_installment_debt_details(request, id):
 def view_revolving_debt_details(request, id):
     context = {}
     try:
-        context['debt'] = RevolvingDebt.objects.get(id=id)
-    except Debt.DoesNotExist:
+        context['debt'] = RevolvingDebt.objects.get(id=id, user=request.user.id)
+    except RevolvingDebt.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'assets-debts/view_revolving_debt.html', context)
 
