@@ -3,6 +3,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormVi
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from .models import *
+from django.http import Http404
 from django.db import IntegrityError
 from functools import partial
 from django.contrib.auth import login
@@ -314,13 +315,13 @@ class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = 'Asset successfully updated!'
 
     def get_object(self):
-        return get_object_or_404(Asset, id=self.kwargs['id'], user=self.request.user.id)
+        return get_object_or_404(Asset, id=self.kwargs['id'], user_id=self.request.user.id)
 
 @login_required
 def view_asset_details(request, id):
     context = {}
     try:
-        context['asset'] = Asset.objects.get(id=id, user=request.user.id)
+        context['asset'] = Asset.objects.get(id=id, user_id=request.user.id)
     except Asset.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'assets-debts/view_asset.html', context)
@@ -332,6 +333,9 @@ class DeleteAsset(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_url = '../../../'
     pk_url_kwarg = 'id'
     success_message = 'Asset successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(Asset, id=self.kwargs['id'], user=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -350,7 +354,7 @@ class AddAssetBalance(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         asset_id = int(self.request.get_full_path().split('/')[-3])
-        asset_name = Asset.objects.get(id=asset_id).name
+        asset_name = get_object_or_404(AssetBalance, id=asset_id, user_id=self.request.user.id).name
         context['asset_name'] = asset_name
         return context
 
@@ -379,10 +383,13 @@ class UpdateAssetBalance(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'bid'
     success_message = 'Asset balance successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(AssetBalance, id=self.kwargs['bid'], user_id=self.request.user.id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         asset_id = int(self.request.get_full_path().split('/')[-3])
-        asset_name = Asset.objects.get(id=asset_id).name
+        asset_name = get_object_or_404(Asset, id=asset_id, user_id=self.request.user.id).name
         context['asset_name'] = asset_name
         return context
 
@@ -404,6 +411,9 @@ class DeleteAssetBalance(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Asset balance successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(AssetBalance, id=self.kwargs['bid'], user_id=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -445,7 +455,7 @@ class AddRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, CreateVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         debt_id = int(self.request.get_full_path().split('/')[-3])
-        debt_name = RevolvingDebt.objects.get(id=debt_id).name
+        debt_name = RevolvingDebt.objects.get(id=debt_id, user_id=self.request.user.id).name
         context['debt_name'] = debt_name
         return context
 
@@ -476,6 +486,8 @@ class UpdateInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     pk_url_kwarg = 'id'
     success_message = 'Installment debt successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(InstallmentDebt, id=self.kwargs['id'], user_id=self.request.user.id)
 
 class DeleteInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = InstallmentDebt
@@ -483,6 +495,9 @@ class DeleteInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView)
     success_url = '../../../'
     pk_url_kwarg = 'id'
     success_message = 'Installment debt successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(InstallmentDebt, id=self.kwargs['id'], user_id=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -497,6 +512,8 @@ class UpdateRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'id'
     success_message = 'Revolving debt successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(RevolvingDebt, id=self.kwargs['id'], user_id=self.request.user.id)
 
 class DeleteRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = RevolvingDebt
@@ -504,6 +521,9 @@ class DeleteRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_url = '../../../'
     pk_url_kwarg = 'id'
     success_message = 'Revolving debt successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(RevolvingDebt, id=self.kwargs['id'], user_id=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -520,7 +540,7 @@ class AddInstallmentDebtBalance(LoginRequiredMixin, SuccessMessageMixin, CreateV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         debt_id = int(self.request.get_full_path().split('/')[-3])
-        debt_name = InstallmentDebt.objects.get(id=debt_id).name
+        debt_name = InstallmentDebt.objects.get(id=debt_id, user_id=self.request.user.id).name
         context['debt_name'] = debt_name
         return context
 
@@ -551,6 +571,9 @@ class UpdateInstallmentDebtBalance(LoginRequiredMixin, SuccessMessageMixin, Upda
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(InstallmentDebtBalance, id=self.kwargs['bid'], user_id=self.request.user.id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         debt_id = int(self.request.get_full_path().split('/')[-3])
@@ -577,6 +600,9 @@ class DeleteInstallmentDebtBalance(LoginRequiredMixin, SuccessMessageMixin, Dele
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully deleted!'
 
+    def get_object(self):
+        return get_object_or_404(InstallmentDebtBalance, id=self.kwargs['bid'], user_id=self.request.user.id)
+
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteInstallmentDebtBalance, self).delete(request, *args, **kwargs)
@@ -589,6 +615,9 @@ class UpdateRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, Update
     success_url = '../view'
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully updated!'
+
+    def get_object(self):
+        return get_object_or_404(RevolvingDebtBalance, id=self.kwargs['bid'], user_id=self.request.user.id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -617,6 +646,9 @@ class UpdateIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView
     pk_url_kwarg = 'ibiid'
     success_message = 'Income budget item successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(IncomeBudgetItem, id=self.kwargs['ibiid'], user_id=self.request.user.id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         month, year = get_month_and_year_from_request(self.request)
@@ -639,6 +671,9 @@ class DeleteIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView
     pk_url_kwarg = 'ibiid'
     success_message = 'Income budget item successfully deleted!'
 
+    def get_object(self):
+        return get_object_or_404(IncomeBudgetItem, id=self.kwargs['ibiid'], user_id=self.request.user.id)
+
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteIncomeBudgetItem, self).delete(request, *args, **kwargs)
@@ -651,6 +686,9 @@ class UpdateIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, UpdateVie
     success_url = '../../view'
     pk_url_kwarg = 'itid'
     success_message = 'Income transaction successfully updated!'
+
+    def get_object(self):
+        return get_object_or_404(IncomeTransaction, id=self.kwargs['etid'], user_id=self.request.user.id)
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -665,6 +703,9 @@ class DeleteIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, DeleteVie
     pk_url_kwarg = 'itid'
     success_message = 'Income transaction successfully deleted!'
 
+    def get_object(self):
+        return get_object_or_404(IncomeTransaction, id=self.kwargs['itid'], user_id=self.request.user.id)
+
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteIncomeTransaction, self).delete(request, *args, **kwargs)
@@ -678,6 +719,8 @@ class UpdateExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     pk_url_kwarg = 'ecid'
     success_message = 'Expense category successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(ExpenseCategory, id=self.kwargs['ecid'], user_id=self.request.user.id)
 
 class DeleteExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ExpenseCategory
@@ -685,6 +728,9 @@ class DeleteExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, DeleteView)
     success_url = '../../'
     pk_url_kwarg = 'ecid'
     success_message = 'Expense category successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(ExpenseCategory, id=self.kwargs['ecid'], user_id=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -699,11 +745,15 @@ class UpdateExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateVie
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully updated!'
 
+    # TODO: URLs with several keys may not be verified such as the expense category ID - doesn't affect anything at this time though
+    def get_object(self):
+        return get_object_or_404(ExpenseBudgetItem, id=self.kwargs['ebiid'], user_id=self.request.user.id)
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class=None)
         month, year = get_month_and_year_from_request(self.request)
         bp = get_budget_period(self.request.user, month, year)
-        form.fields['expense_category'].queryset = ExpenseCategory.objects.filter(budget_period=bp, )
+        form.fields['expense_category'].queryset = ExpenseCategory.objects.filter(budget_period=bp)
         return form
 
     def form_valid(self, form):
@@ -733,6 +783,9 @@ class DeleteExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteVie
     pk_url_kwarg = 'ebiid'
     success_message = 'Expense budget item successfully deleted!'
 
+    def get_object(self):
+        return get_object_or_404(ExpenseBudgetItem, id=self.kwargs['ebiid'], user_id=self.request.user.id)
+
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteExpenseBudgetItem, self).delete(request, *args, **kwargs)
@@ -745,6 +798,9 @@ class UpdateExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, UpdateVi
     success_url = '../../view'
     pk_url_kwarg = 'etid'
     success_message = 'Expense transaction item successfully updated!'
+
+    def get_object(self):
+        return get_object_or_404(ExpenseTransaction, id=self.kwargs['etid'], user_id=self.request.user.id)
 
     def form_valid(self, form):
         user = self.request.user
@@ -760,6 +816,9 @@ class DeleteExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, DeleteVi
     pk_url_kwarg = 'etid'
     success_message = 'Expense transaction item successfully deleted!'
 
+    def get_object(self):
+        return get_object_or_404(ExpenseTransaction, id=self.kwargs['etid'], user_id=self.request.user.id)
+
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteExpenseTransaction, self).delete(request, *args, **kwargs)
@@ -772,6 +831,9 @@ class DeleteRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, Delete
     pk_url_kwarg = 'bid'
     success_message = 'Debt balance successfully deleted!'
 
+    def get_object(self):
+        return get_object_or_404(RevolvingDebtBalance, id=self.kwargs['bid'], user_id=self.request.user.id)
+
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteRevolvingDebtBalance, self).delete(request, *args, **kwargs)
@@ -781,7 +843,7 @@ class DeleteRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, Delete
 def view_installment_debt_details(request, id):
     context = {}
     try:
-        context['debt'] = InstallmentDebt.objects.get(id=id, user=request.user.id)
+        context['debt'] = InstallmentDebt.objects.get(id=id, user_id=request.user.id)
     except InstallmentDebt.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'assets-debts/view_installment_debt.html', context)
@@ -791,7 +853,7 @@ def view_installment_debt_details(request, id):
 def view_revolving_debt_details(request, id):
     context = {}
     try:
-        context['debt'] = RevolvingDebt.objects.get(id=id, user=request.user.id)
+        context['debt'] = RevolvingDebt.objects.get(id=id, user_id=request.user.id)
     except RevolvingDebt.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'assets-debts/view_revolving_debt.html', context)
@@ -802,6 +864,7 @@ def get_month_and_year_from_request(request):
     split_url = request.get_full_path().split('/')
     month = split_url[2]
     year = split_url[3]
+    # TODO: Throw 404 if month is not valid - year already errors if not number because of URL mapping
     return month, year
 
 
@@ -988,6 +1051,9 @@ class UpdateBudgetPeriod(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_url = '../'
     pk_url_kwarg = 'bp'
     success_message = 'Budget period successfully updated!'
+
+    def get_object(self):
+        return get_object_or_404(BudgetPeriod, id=self.kwargs['bid'], user_id=self.request.user.id)
 
 
 # TODO: Fix auto reserve - only shows cash reserves
@@ -1204,7 +1270,7 @@ def change_budget(request, month, year):
 def view_income_budget_item(request, month, year, ibiid):
     context = {}
     try:
-        context['income_budget_item'] = IncomeBudgetItem.objects.get(id=ibiid)
+        context['income_budget_item'] = IncomeBudgetItem.objects.get(id=ibiid, user_id=request.user.id)
     except IncomeBudgetItem.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'budget/view_income_budget_item.html', context)
@@ -1213,7 +1279,7 @@ def view_income_budget_item(request, month, year, ibiid):
 def view_expense_budget_item(request, month, year, ecid, ebiid):
     context = {}
     try:
-        context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=ebiid)
+        context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=ebiid, user_id=request.user.id)
     except ExpenseBudgetItem.DoesNotExist:
         return HttpResponseNotFound("Page not found!")
     return render(request, 'budget/view_expense_budget_item.html', context)
@@ -1261,7 +1327,10 @@ class AddIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            context['income_budget_item'] = IncomeBudgetItem.objects.get(id=self.request.get_full_path().split('/')[-2])
+            context['income_budget_item'] = IncomeBudgetItem.objects.get(
+                id=self.request.get_full_path().split('/')[-2],
+                user_id=self.request.user.id,
+            )
         except Exception as err:
             print('There was an error:', err)
             context['income_budget_item'] = None
@@ -1327,7 +1396,8 @@ class AddExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView)
         context = super().get_context_data(**kwargs)
         try:
             context['expense_budget_item'] = ExpenseBudgetItem.objects.get(
-                id=self.request.get_full_path().split('/')[-2]
+                id=self.request.get_full_path().split('/')[-2],
+                user_id=self.request.user.id,
             )
         except Exception as err:
             print('There was an error:', err)
@@ -1383,7 +1453,7 @@ class AddExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         expense_category_id = int(self.request.get_full_path().split('/')[-2])
-        expense_category = ExpenseCategory.objects.get(id=expense_category_id)
+        expense_category = get_object_or_404(id=expense_category_id, user_id=self.request.user.id)
         context['expense_category'] = expense_category
         return context
 
@@ -1399,6 +1469,9 @@ class DeleteBudget(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_url = '/budget/'
     pk_url_kwarg = 'id'
     success_message = 'Budget successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(BudgetPeriod, id=self.kwargs['id'], user_id=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -1422,19 +1495,26 @@ class AddDebtPayment(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         }
 
     def form_valid(self, form):
-        month, year = get_month_and_year_from_request(self.request)
-        user = self.request.user.id
-        bp = get_budget_period(user, month, year)
-        new_debt_bi = bp.expense_categories.get(name='New Debt').expense_budget_items.get(name='New Debt').id
+        try:
+            month, year = get_month_and_year_from_request(self.request)
+            user = self.request.user.id
+            bp = get_budget_period(user, month, year)
+            new_debt_bi = bp.expense_categories.get(name='New Debt').expense_budget_items.get(name='New Debt').id
 
-        self.object = form.save(commit=False)
-        self.object.user_id = user
-        self.object.expense_budget_item_id = new_debt_bi
-        self.object.credit_payoff = True
-        self.object.save()
+            self.object = form.save(commit=False)
+            self.object.user_id = user
+            self.object.expense_budget_item_id = new_debt_bi
+            self.object.credit_payoff = True
+            self.object.save()
 
-        return super(AddDebtPayment, self).form_valid(form)
-
+            return super(AddDebtPayment, self).form_valid(form)
+        except Exception as e:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'There is an issue. Month or year may be wrong in URL.',
+                )
+            )
 
 # Schedule Views
 # TODO: does this need @required_login
@@ -1532,6 +1612,9 @@ class UpdateScheduleItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     pk_url_kwarg = 'siid'
     success_message = 'Schedule item successfully updated!'
 
+    def get_object(self):
+        return get_object_or_404(ScheduleItem, id=self.kwargs['siid'], user_id=self.request.user.id)
+
 
 class DeleteScheduleItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ScheduleItem
@@ -1539,6 +1622,9 @@ class DeleteScheduleItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_url = '/money-schedule/'
     pk_url_kwarg = 'siid'
     success_message = 'Schedule item successfully deleted!'
+
+    def get_object(self):
+        return get_object_or_404(ScheduleItem, id=self.kwargs['siid'], user_id=self.request.user.id)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
