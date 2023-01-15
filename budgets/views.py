@@ -22,6 +22,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # TODO: Make date picker close after selection
 # TODO: Fix table formatting - column spacing, alignment, currency
 # TODO: Fix the errors when importing templates and money schedule items
+# TODO: Should integrity error apply on cap differences - eg Shopping vs shopping
 
 
 # General Views
@@ -302,9 +303,15 @@ class AddAsset(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = 'Asset successfully added!'
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(AddAsset, self).form_valid(form)
-
+        try:
+            form.instance.user = self.request.user
+            return super(AddAsset, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Asset
@@ -317,13 +324,24 @@ class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def get_object(self):
         return get_object_or_404(Asset, id=self.kwargs['id'], user_id=self.request.user.id)
 
+    def form_valid(self, form):
+        try:
+            return super(UpdateAsset, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                )
+            )
+
 @login_required
 def view_asset_details(request, id):
     context = {}
     try:
         context['asset'] = Asset.objects.get(id=id, user_id=request.user.id)
     except Asset.DoesNotExist:
-        return HttpResponseNotFound("Page not found!")
+        raise Http404
     return render(request, 'assets-debts/view_asset.html', context)
 
 
@@ -354,7 +372,7 @@ class AddAssetBalance(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         asset_id = int(self.request.get_full_path().split('/')[-3])
-        asset_name = get_object_or_404(AssetBalance, id=asset_id, user_id=self.request.user.id).name
+        asset_name = get_object_or_404(Asset, id=asset_id, user_id=self.request.user.id).name
         context['asset_name'] = asset_name
         return context
 
@@ -429,8 +447,15 @@ class AddInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = 'Installment debt successfully added!'
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(AddInstallmentDebt, self).form_valid(form)
+        try:
+            form.instance.user = self.request.user
+            return super(AddInstallmentDebt, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 
 class AddRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -441,8 +466,16 @@ class AddRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = 'Revolving debt successfully added!'
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(AddRevolvingDebt, self).form_valid(form)
+        try:
+            form.instance.user = self.request.user
+            return super(AddRevolvingDebt, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                )
+            )
 
 
 class AddRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -489,6 +522,18 @@ class UpdateInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     def get_object(self):
         return get_object_or_404(InstallmentDebt, id=self.kwargs['id'], user_id=self.request.user.id)
 
+    def form_valid(self, form):
+        try:
+            return super(UpdateInstallmentDebt, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                )
+            )
+
+
 class DeleteInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = InstallmentDebt
     template_name = 'assets-debts/delete_installment_debt.html'
@@ -514,6 +559,18 @@ class UpdateRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     def get_object(self):
         return get_object_or_404(RevolvingDebt, id=self.kwargs['id'], user_id=self.request.user.id)
+
+    def form_valid(self, form):
+        try:
+            return super(UpdateRevolvingDebt, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                )
+            )
+
 
 class DeleteRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = RevolvingDebt
@@ -772,7 +829,7 @@ class UpdateExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateVie
                     form=form,
                 )
             )
-        except Exception as err:
+        except Exception as err: # TODO: Is this needed? What exceptions could happen?
             return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
 
 
@@ -845,7 +902,7 @@ def view_installment_debt_details(request, id):
     try:
         context['debt'] = InstallmentDebt.objects.get(id=id, user_id=request.user.id)
     except InstallmentDebt.DoesNotExist:
-        return HttpResponseNotFound("Page not found!")
+        raise Http404
     return render(request, 'assets-debts/view_installment_debt.html', context)
 
 
@@ -855,7 +912,7 @@ def view_revolving_debt_details(request, id):
     try:
         context['debt'] = RevolvingDebt.objects.get(id=id, user_id=request.user.id)
     except RevolvingDebt.DoesNotExist:
-        return HttpResponseNotFound("Page not found!")
+        raise Http404
     return render(request, 'assets-debts/view_revolving_debt.html', context)
 
 
@@ -1272,7 +1329,7 @@ def view_income_budget_item(request, month, year, ibiid):
     try:
         context['income_budget_item'] = IncomeBudgetItem.objects.get(id=ibiid, user_id=request.user.id)
     except IncomeBudgetItem.DoesNotExist:
-        return HttpResponseNotFound("Page not found!")
+        raise Http404
     return render(request, 'budget/view_income_budget_item.html', context)
 
 @login_required
@@ -1281,7 +1338,7 @@ def view_expense_budget_item(request, month, year, ecid, ebiid):
     try:
         context['expense_budget_item'] = ExpenseBudgetItem.objects.get(id=ebiid, user_id=request.user.id)
     except ExpenseBudgetItem.DoesNotExist:
-        return HttpResponseNotFound("Page not found!")
+        raise Http404
     return render(request, 'budget/view_expense_budget_item.html', context)
 
 
@@ -1453,7 +1510,7 @@ class AddExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         expense_category_id = int(self.request.get_full_path().split('/')[-2])
-        expense_category = get_object_or_404(id=expense_category_id, user_id=self.request.user.id)
+        expense_category = get_object_or_404(ExpenseCategory, id=expense_category_id, user_id=self.request.user.id)
         context['expense_category'] = expense_category
         return context
 

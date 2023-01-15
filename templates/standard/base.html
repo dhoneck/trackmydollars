@@ -50,6 +50,9 @@
       {% endblock %}</h2>
 
       <div class="main-container">
+        {% if message %}
+        <p class="alert">{{ message }}</p>
+        {% endif %}
         {% block main_content %}{% endblock %}
       </div>
 

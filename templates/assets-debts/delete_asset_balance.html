@@ -4,7 +4,7 @@
 
 {% block main_content %}
   <form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete the {{ object.date }} entry for ${{ object }} for "{{ object.asset }}"?</p>
+    <p>Are you sure you want to delete the {{ object.date }} entry of ${{ object }} for "{{ object.asset }}"?</p>
     <input type="submit" value="Confirm">
   </form>
 {% endblock %}

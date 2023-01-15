@@ -4,9 +4,6 @@
 {% block page_heading %}Update Asset Balance{% endblock %}
 
 {% block main_content %}
-  {% if message %}
-  <p class="alert">{{ message }}</p>
-  {% endif %}
   <p>{{ asset_name }}</p>
   <form method="post">{% csrf_token %}
     {{ form.as_p }}
