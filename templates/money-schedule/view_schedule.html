@@ -19,7 +19,6 @@
         <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
       {% endfor %}
     {% endif %}
-
     {% if weekly %}
       <h3 class="frequency-header">Weekly</h3>
       <table class="money-schedule-table">
@@ -277,7 +276,7 @@
       <td><pre>${{ totals.non_monthly_per_month_total }}</pre></td>
     </tr>
   </table>
-    <br>
+  <br>
   <table class="money-schedule-side-table">
     <tr>
       <th>Month</th>
@@ -290,5 +289,7 @@
     </tr>
     {% endfor %}
   </table>
+  <br>
+  <a href="{% url 'calculate_expense_fund' %}">Calculate Expense Fund</a>
 
 {% endblock %}

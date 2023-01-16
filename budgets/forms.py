@@ -82,3 +82,8 @@ class SettingsForm(forms.Form):
         choices=SECTIONS,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'settings'})
     )
+
+
+class CalculateExpenseFundForm(forms.Form):
+    initial_amount = forms.DecimalField(max_digits=9, decimal_places=2)
+    # last_name = forms.CharField()

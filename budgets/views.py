@@ -15,11 +15,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 # TODO: Add a template budget page and functionality
-# TODO: Allow users to delete expense categories
-# TODO: Implement money schedule imports into budget
 # TODO: Figure out old and new debt in budget
 # TODO: Add message script to each page - sometimes the message won't pop up until you go to a certain page
-# TODO: Make date picker close after selection
 # TODO: Fix table formatting - column spacing, alignment, currency
 # TODO: Fix the errors when importing templates and money schedule items
 # TODO: Should integrity error apply on cap differences - eg Shopping vs shopping
@@ -46,7 +43,6 @@ def contact(request):
 
 # Registration Views
 # TODO: Get users to sign in by email
-# TODO: Prevent users from being able to access each other's data
 def register(request):
     """ User registration page """
     print('REQUEST:', request)
@@ -71,7 +67,7 @@ def register(request):
 
 # User settings views
 # TODO: Add a user avatar next to their email
-# TODO: Add user settings page
+# TODO: Finish user settings page
 # TODO: Allow user to disable pages
 # TODO: Allow user to disable checking account tracking
 # TODO: Transfer In Item Name (e.g. Extra Funds) - for when automatic transfers happen such as 
@@ -1715,6 +1711,30 @@ class DeleteScheduleItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super(DeleteScheduleItem, self).delete(request, *args, **kwargs)
 
+
+def calculate_expense_fund(request):
+    """ A form to figure out your emergency fund """
+    print('REQUEST:', request)
+    if request.method == "GET":
+        return render(
+            request, "money-schedule/calculate_expense_fund.html",
+            {"form": CalculateExpenseFundForm}
+        )
+    elif request.method == "POST":
+        form = CalculateExpenseFundForm(request.POST)
+        if form.is_valid():
+            print('Checking validity')
+            return render(
+                request, "money-schedule/calculate_expense_fund.html",
+                {"form": CalculateExpenseFundForm,
+                 "suggestion": "Eat rice and beans"}
+            )
+        else:
+            messages.error(request, form.errors)
+            return render(
+                request, "money-schedule/calculate_expense_fund.html",
+                {"form": CustomUserCreationForm}
+            )
 
 # Report Views
 # TODO: Asset and debts reports

@@ -39,6 +39,7 @@ urlpatterns = [
     path('assets-debts/revolving-debts/<int:id>/delete-balance/<int:bid>', DeleteRevolvingDebtBalance.as_view()),
     # Money Schedule URLs
     path('money-schedule/', views.view_schedule, name='money_schedule'),
+    path('money-schedule/calculate', views.calculate_expense_fund, name='calculate_expense_fund'),
     path('money-schedule/add-schedule-item', AddScheduleItem.as_view(), name='add-money-schedule-item'),
     path('money-schedule/schedule-item/<siid>/update', UpdateScheduleItem.as_view()),
     path('money-schedule/schedule-item/<siid>/delete', DeleteScheduleItem.as_view()),
