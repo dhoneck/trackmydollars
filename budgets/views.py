@@ -714,12 +714,18 @@ class UpdateIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView
         return context
 
     def form_valid(self, form):
-        month, year = get_month_and_year_from_request(self.request)
-        user = self.request.user
-        form.instance.budget_period = get_budget_period(user, month, year)
-        form.instance.user = user
-        return super(UpdateIncomeBudgetItem, self).form_valid(form)
-
+        try:
+            month, year = get_month_and_year_from_request(self.request)
+            user = self.request.user
+            form.instance.budget_period = get_budget_period(user, month, year)
+            form.instance.user = user
+            return super(UpdateIncomeBudgetItem, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 class DeleteIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = IncomeBudgetItem
@@ -745,7 +751,7 @@ class UpdateIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, UpdateVie
     success_message = 'Income transaction successfully updated!'
 
     def get_object(self):
-        return get_object_or_404(IncomeTransaction, id=self.kwargs['etid'], user_id=self.request.user.id)
+        return get_object_or_404(IncomeTransaction, id=self.kwargs['itid'], user_id=self.request.user.id)
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -778,6 +784,17 @@ class UpdateExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
 
     def get_object(self):
         return get_object_or_404(ExpenseCategory, id=self.kwargs['ecid'], user_id=self.request.user.id)
+
+    def form_valid(self, form):
+        try:
+            return super(UpdateExpenseCategory, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
+
 
 class DeleteExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ExpenseCategory
@@ -814,23 +831,15 @@ class UpdateExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateVie
         return form
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.user = user
         try:
-            item = ExpenseBudgetItem.objects.get(id=self.request.get_full_path().split('/')[-2])
-            item.expense_category_id = form.instance.expense_category
-            item.save()
+            form.instance.user = self.request.user
             return super(UpdateExpenseBudgetItem, self).form_valid(form)
         except IntegrityError:
-            # Set an error message to be displayed and redisplay the form
-            messages.error(self.request, 'Expense Budget Item cannot be moved. Already exists there.')
             return self.render_to_response(
                 self.get_context_data(
                     form=form,
-                )
-            )
-        except Exception as err: # TODO: Is this needed? What exceptions could happen?
-            return HttpResponseNotFound(f"Page not found! Here is the error: {err} {type(err)}")
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 
 class DeleteExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
@@ -1110,7 +1119,7 @@ class UpdateBudgetPeriod(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = 'Budget period successfully updated!'
 
     def get_object(self):
-        return get_object_or_404(BudgetPeriod, id=self.kwargs['bid'], user_id=self.request.user.id)
+        return get_object_or_404(BudgetPeriod, id=self.kwargs['bp'], user_id=self.request.user.id)
 
 
 # TODO: Fix auto reserve - only shows cash reserves
@@ -1357,11 +1366,18 @@ class AddIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        month, year = get_month_and_year_from_request(self.request)
-        user = self.request.user
-        form.instance.budget_period = get_budget_period(user, month, year)
-        form.instance.user = user
-        return super(AddIncomeBudgetItem, self).form_valid(form)
+        try:
+            month, year = get_month_and_year_from_request(self.request)
+            user = self.request.user
+            form.instance.budget_period = get_budget_period(user, month, year)
+            form.instance.user = user
+            return super(AddIncomeBudgetItem, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 
 class AddIncomeTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -1418,12 +1434,18 @@ class AddExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        month, year = get_month_and_year_from_request(self.request)
-        user = self.request.user
-        form.instance.budget_period = get_budget_period(user, month, year)
-        form.instance.user = user
-        return super(AddExpenseCategory, self).form_valid(form)
-
+        try:
+            month, year = get_month_and_year_from_request(self.request)
+            user = self.request.user
+            form.instance.budget_period = get_budget_period(user, month, year)
+            form.instance.user = user
+            return super(AddExpenseCategory, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -1515,10 +1537,16 @@ class AddExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.expense_category_id = self.request.get_full_path().split('/')[-2]
-        return super(AddExpenseBudgetItem, self).form_valid(form)
-
+        try:
+            form.instance.user = self.request.user
+            form.instance.expense_category_id = self.request.get_full_path().split('/')[-2]
+            return super(AddExpenseBudgetItem, self).form_valid(form)
+        except IntegrityError:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    message=f'Your data has not been saved because there is already an entry for {form.instance}.',
+                ))
 
 class DeleteBudget(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = BudgetPeriod

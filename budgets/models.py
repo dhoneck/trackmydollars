@@ -348,7 +348,7 @@ class ExpenseBudgetItem(models.Model):
     type = models.CharField(max_length=50, choices=EXPENSE_CHOICES, default='Expense')
 
     def __str__(self):
-        return self.name + ' for $' + str(self.planned_amount) + ' : ' + str(self.expense_category)
+        return self.name + ' - ' + str(self.expense_category)
 
     def __float__(self):
         if self.planned_amount is None:
