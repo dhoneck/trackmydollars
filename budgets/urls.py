@@ -1,7 +1,8 @@
-from django.urls import path
 from django.conf.urls import include, url
-from . import views
+from django.urls import path
+
 from budgets.views import *
+from . import views
 
 urlpatterns = [
     # General URLs

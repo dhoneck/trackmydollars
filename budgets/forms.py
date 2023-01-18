@@ -1,22 +1,17 @@
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+
 from .models import BudgetPeriod, ExpenseTransaction
 
-CHOICES = (
-    (1, 'Jan'),
-    (2, 'Feb'),
-    (3, 'Mar'),
-    (4, 'Apr'),
-    (5, 'May'),
-    (6, 'Jun'),
-    (7, 'Jul'),
-    (8, 'Aug'),
-    (9, 'Sep'),
-    (10, 'Oct'),
-    (11, 'Nov'),
-    (12, 'Dec'),
+WEBSITE_SECTIONS = (
+    ('dashboard', 'Dashboard'),
+    ('assets & debts', 'Assets & Debts'),
+    ('money schedule', 'Money Schedule'),
+    ('budget', 'Budget'),
+    ('reports', 'Reports'),
+    ('offers', 'Offers'),
+    ('support', 'Support'),
 )
-
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -64,26 +59,14 @@ class ExpenseTransactionDebtPaymentForm(forms.ModelForm):
         super(ExpenseTransactionDebtPaymentForm, self).__init__(*args, **kwargs)
 
 
-SECTIONS = (
-    ('dashboard', 'Dashboard'),
-    ('assets & debts', 'Assets & Debts'),
-    ('money schedule', 'Money Schedule'),
-    ('budget', 'Budget'),
-    ('reports', 'Reports'),
-    ('offers', 'Offers'),
-    ('support', 'Support'),
-)
-
-
 class SettingsForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
     hide_sections = forms.MultipleChoiceField(
-        choices=SECTIONS,
+        choices=WEBSITE_SECTIONS,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'settings'})
     )
 
 
 class CalculateExpenseFundForm(forms.Form):
     initial_amount = forms.DecimalField(max_digits=9, decimal_places=2)
-    # last_name = forms.CharField()

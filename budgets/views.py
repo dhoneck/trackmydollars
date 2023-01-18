@@ -1,17 +1,19 @@
-from django.http import HttpResponseRedirect, HttpResponseNotFound
-from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
-from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib import messages
-from .models import *
-from django.http import Http404
-from django.db import IntegrityError
 from functools import partial
+
+from django.contrib import messages
 from django.contrib.auth import login
-from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse
-from budgets.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.db import IntegrityError
+from django.http import Http404
+from django.http import HttpResponseRedirect, HttpResponseNotFound
+from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+
+from budgets.forms import *
+from .models import *
 
 
 # TODO: Add a template budget page and functionality
@@ -43,6 +45,8 @@ def contact(request):
 
 # Registration Views
 # TODO: Get users to sign in by email
+# TODO: Send email verification emails
+# TODO: Allow users to reset password
 def register(request):
     """ User registration page """
     print('REQUEST:', request)

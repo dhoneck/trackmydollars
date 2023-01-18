@@ -1,9 +1,9 @@
+from datetime import datetime, date
 from decimal import Decimal
-from datetime import datetime, timedelta, date
 
+from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import Sum
-from dateutil.relativedelta import relativedelta
 
 INCOME_OR_EXPENSE = (
     ('Income', 'Income'),
@@ -55,12 +55,6 @@ INCOME_EXPENSE_CHOICES = (
     ('Expense', 'Expense'),
     ('Transfer', 'Expense Transfer'),
     ('Reserve', 'Expense Reserve'),
-)
-
-NEED_WANT_SAVINGS_DEBT = (
-    ('Need', 'Need'),
-    ('Want', 'Want'),
-    ('Savings & Debt', 'Savings & Debt'),
 )
 
 
@@ -166,10 +160,16 @@ class ScheduleItem(models.Model):
         return f'{self.name} - {self.amount} - {self.first_due_date} - {self.frequency}'
 
     def get_time_delta(self):
+        """
+        Gets the time delta based on frequency.
+
+        Returns:
+            dateutil.relativedelta.relativedelta: The difference in time between due dates
+        """
         if self.frequency == 'Weekly':
-            return timedelta(weeks=1)
+            return relativedelta(weeks=+1)
         elif self.frequency == 'Every two weeks':
-            return timedelta(weeks=2)
+            return relativedelta(weeks=+2)
         elif self.frequency == 'Monthly':
             return relativedelta(months=+1)
         elif self.frequency == 'Every two months':
@@ -184,16 +184,24 @@ class ScheduleItem(models.Model):
             return relativedelta(days=0)
 
     def get_next_payment(self):
-        """Calculates the next payment date"""
+        """
+        Returns the next payment date.
+
+        Returns:
+            datetime.date or None: The date of the next payment.
+        """
         current_date = date.today()
 
         # If the first due date hasn't happened yet, that will be the next payment
         if self.first_due_date >= current_date:
             return self.first_due_date
 
-        # Assign Time Delta Based On Frequency
-        td = self.get_time_delta()
+        # If item is one time only and is already past due it will return None
+        if self.frequency == 'One time only':
+            return 'No due date'
 
+        # Assign time delta based on frequency
+        td = self.get_time_delta()
         date_to_check = self.first_due_date
 
         # Increment the date until it is past the current date and then return that date
@@ -201,13 +209,23 @@ class ScheduleItem(models.Model):
             date_to_check += td
         return date_to_check
 
-    def get_budget_period_occurrences(self, month, year):
-        """Will check the schedule item to see if it exists that month"""
-        # TODO: add functionality to this method
-        pass
-
     def get_monthly_total(self, year, month):
-        """Returns the total amount due for a money schedule item in a particular year/month pair"""
+        """
+        Returns the total amount due for a money schedule item in a particular year/month pair.
+
+        Parameters:
+            year (int): The year of which you are tryin to get a total from.
+            month (int): The month of which you are tryin to get a total from. Jan is 1 and Dec is 12.
+        Returns:
+            Decimal: The total amount for this item in this year/month pair.
+        """
+        # Check if item is one time only
+        if self.frequency == 'One time only':
+            # Check if item is happening this month/year
+            if self.first_due_date.month == month and self.first_due_date.year == year:
+                return self.amount
+            else:
+                return Decimal(0.00)
 
         # Get the time delta to find due dates
         time_delta = self.get_time_delta()
@@ -224,12 +242,28 @@ class ScheduleItem(models.Model):
                 total_amount += self.amount
             date_to_check += time_delta
 
-        # print(f'The total for {self.name} for the date ({year}, {month}) is ${total_amount}')
         return total_amount
 
     def monthly_occurrences(self, year, month):
-        """Returns the money schedule item and total for a particular year/month pair"""
+        """
+        Returns the total amount due for a money schedule item in a particular year/month pair.
+
+        Parameters:
+            year (int): The year of which you are tryin to get a total from.
+            month (int): The month of which you are tryin to get a total from. Jan is 1 and Dec is 12.
+
+        Returns:
+            List or None: A list containing self and total for the year/month pair or None
+        """
         occurrences = [self, Decimal(0.00)]
+
+        # Check if item is one time only
+        if self.frequency == 'One time only':
+            # Check if item is happening this month/year
+            if self.first_due_date.month == month and self.first_due_date.year == year:
+                return [self, Decimal(0.00)]
+            else:
+                return None
 
         # Get the time delta to find due dates
         time_delta = self.get_time_delta()
@@ -289,9 +323,6 @@ class IncomeBudgetItem(models.Model):
 
 
 class IncomeTransaction(models.Model):
-    # TODO: Add limited_choices_to in budget_item to prevent seeing other months items
-    # https://stackoverflow.com/questions/31578559/django-foreignkey-limit-choices-to-a-different-foreignkey-id
-    # https://stackoverflow.com/questions/7133455/django-limit-choices-to-doesnt-work-on-manytomanyfield
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     budget_item = models.ForeignKey('IncomeBudgetItem',
                                     on_delete=models.CASCADE,
