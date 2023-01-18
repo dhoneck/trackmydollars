@@ -5,12 +5,8 @@ from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import Sum
 
-INCOME_OR_EXPENSE = (
-    ('Income', 'Income'),
-    ('Expense', 'Expense'),
-)
-
-FREQUENCY = (
+# For schedule item objects
+FREQUENCY_CHOICES = (
     ('Weekly', 'Weekly'),
     ('Every two weeks', 'Every two weeks'),
     ('Monthly', 'Monthly'),
@@ -21,7 +17,18 @@ FREQUENCY = (
     ('One time only', 'One time only'),
 )
 
-MONTHS = (
+# For schedule item objects
+INCOME_EXPENSE_CHOICES = (
+    ('Income', 'Income'),
+    ('Transfer', 'Income Transfer'),
+    ('Reserve', 'Income Reserve'),
+    ('Expense', 'Expense'),
+    ('Transfer', 'Expense Transfer'),
+    ('Reserve', 'Expense Reserve'),
+)
+
+# For budget period objects
+MONTH_CHOICES = (
     (1, 'Jan'),
     (2, 'Feb'),
     (3, 'Mar'),
@@ -36,27 +43,19 @@ MONTHS = (
     (12, 'Dec'),
 )
 
+# For income budget item objects
 INCOME_CHOICES = (
     ('Income', 'Income'),
     ('Transfer', 'Transfer'),
     ('Reserve', 'Reserve'),
 )
 
+# For expense budget item objects
 EXPENSE_CHOICES = (
     ('Expense', 'Expense'),
     ('Transfer', 'Transfer'),
     ('Reserve', 'Reserve'),
 )
-
-INCOME_EXPENSE_CHOICES = (
-    ('Income', 'Income'),
-    ('Transfer', 'Income Transfer'),
-    ('Reserve', 'Income Reserve'),
-    ('Expense', 'Expense'),
-    ('Transfer', 'Expense Transfer'),
-    ('Reserve', 'Expense Reserve'),
-)
-
 
 # Asset and Debt Models
 class Asset(models.Model):
@@ -154,7 +153,7 @@ class ScheduleItem(models.Model):
     type = models.CharField(max_length=50, choices=INCOME_EXPENSE_CHOICES, default='Expense')
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     first_due_date = models.DateField()
-    frequency = models.CharField(max_length=50, choices=FREQUENCY)
+    frequency = models.CharField(max_length=50, choices=FREQUENCY_CHOICES)
 
     def __str__(self):
         return f'{self.name} - {self.amount} - {self.first_due_date} - {self.frequency}'
@@ -185,10 +184,10 @@ class ScheduleItem(models.Model):
 
     def get_next_payment(self):
         """
-        Returns the next payment date.
+        Returns the next payment date or None if no next payment found.
 
         Returns:
-            datetime.date or None: The date of the next payment.
+            date | None: The next payment date or none if object is one time only and the due date has passed.
         """
         current_date = date.today()
 
@@ -198,15 +197,15 @@ class ScheduleItem(models.Model):
 
         # If item is one time only and is already past due it will return None
         if self.frequency == 'One time only':
-            return 'No due date'
+            return None
 
         # Assign time delta based on frequency
-        td = self.get_time_delta()
+        time_delta = self.get_time_delta()
         date_to_check = self.first_due_date
 
         # Increment the date until it is past the current date and then return that date
         while current_date > date_to_check:
-            date_to_check += td
+            date_to_check += time_delta
         return date_to_check
 
     def get_monthly_total(self, year, month):
@@ -215,7 +214,7 @@ class ScheduleItem(models.Model):
 
         Parameters:
             year (int): The year of which you are tryin to get a total from.
-            month (int): The month of which you are tryin to get a total from. Jan is 1 and Dec is 12.
+            month (int): The month of which you are tryin to get a total from.
         Returns:
             Decimal: The total amount for this item in this year/month pair.
         """
@@ -253,33 +252,31 @@ class ScheduleItem(models.Model):
             month (int): The month of which you are tryin to get a total from. Jan is 1 and Dec is 12.
 
         Returns:
-            List or None: A list containing self and total for the year/month pair or None
+            list[ScheduleItem, Decimal] or None: A list containing item object and total for the year/month pair or None
         """
-        occurrences = [self, Decimal(0.00)]
-
         # Check if item is one time only
         if self.frequency == 'One time only':
             # Check if item is happening this month/year
-            if self.first_due_date.month == month and self.first_due_date.year == year:
-                return [self, Decimal(0.00)]
-            else:
+            if self.first_due_date.month == month and self.first_due_date.year == year: # Happening this month
+                return [self, self.amount]
+            else: # Not happening this month
                 return None
 
         # Get the time delta to find due dates
         time_delta = self.get_time_delta()
 
-        # Set the date cutoff - 1st day of the following month
+        # Set the initial due date and date cutoff (1st day of the month)
+        date_to_check = self.first_due_date
         date_cutoff = date(year, month, 1) + relativedelta(months=+1)
 
-        date_to_check = self.first_due_date
-
-        # Check for recurring due dates
+        # Check for recurring due dates for this month/year and total the payments
+        occurrences = [self, Decimal(0.00)]
         while date_cutoff > date_to_check:
             if date_to_check.month == month and date_to_check.year == year:
                 occurrences[1] += self.amount
             date_to_check += time_delta
 
-        if occurrences[1]:
+        if occurrences[1]: # If balanced is not 0
             return occurrences
         else:
             return None
@@ -288,7 +285,7 @@ class ScheduleItem(models.Model):
 # Budget Models
 class BudgetPeriod(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    month = models.IntegerField(choices=MONTHS, default=datetime.today().month)
+    month = models.IntegerField(choices=MONTH_CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
     starting_bank_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True, default=0.00)
     starting_cash_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True, default=0.00)
@@ -298,7 +295,7 @@ class BudgetPeriod(models.Model):
         verbose_name_plural = 'Monthly budget info'
 
     def __str__(self):
-        return str(self.year) + ' - ' + str(MONTHS[self.month-1][1])
+        return str(self.year) + ' - ' + str(MONTH_CHOICES[self.month - 1][1])
 
 
 class IncomeBudgetItem(models.Model):

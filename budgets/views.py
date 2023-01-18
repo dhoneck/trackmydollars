@@ -1,3 +1,4 @@
+import datetime
 from functools import partial
 
 from django.contrib import messages
@@ -1602,25 +1603,45 @@ class AddDebtPayment(LoginRequiredMixin, SuccessMessageMixin, CreateView):
             )
 
 # Schedule Views
-# TODO: does this need @required_login
-def get_schedule_items(req, freq):
+def get_items_by_frequency(request, frequency):
+    """
+    Get schedule items by frequency and user ID
+    Parameters:
+        request (django.core.handlers.wsgi.WSGIRequest): The current request
+        frequency (str): The schedule item frequency
+
+    Returns:
+        django.db.models.query.QuerySet: Schedule items
+    """
     return ScheduleItem\
         .objects\
-        .filter(user=req.user.id, frequency=freq)\
+        .filter(user=request.user.id, frequency=frequency)\
         .order_by('first_due_date__month', 'first_due_date__day')
+
+
+def get_all_schedule_items(request):
+    """
+    Gets a dictionary of all the schedule items for a particular user.
+    Parameters:
+        request (django.core.handlers.wsgi.WSGIRequest): The current request
+
+    Returns:
+        dict: Contains frequency (str) and schedule items (QuerySet)
+    """
+    return {
+        'weekly': get_items_by_frequency(request, 'Weekly'),
+        'every_two_weeks': get_items_by_frequency(request, 'Every two weeks'),
+        'monthly': get_items_by_frequency(request, 'Monthly'),
+        'every_two_months': get_items_by_frequency(request, 'Every two months'),
+        'quarterly': get_items_by_frequency(request, 'Quarterly'),
+        'every_six_months': get_items_by_frequency(request, 'Every six months'),
+        'yearly': get_items_by_frequency(request, 'Yearly'),
+        'one_time': get_items_by_frequency(request, 'One time only'),
+    }
 
 @login_required
 def view_schedule(request):
-    context = {
-        'weekly': get_schedule_items(request, 'Weekly'),
-        'every_two_weeks': get_schedule_items(request, 'Every two weeks'),
-        'monthly': get_schedule_items(request, 'Monthly'),
-        'every_two_months': get_schedule_items(request, 'Every two months'),
-        'quarterly': get_schedule_items(request, 'Quarterly'),
-        'every_six_months': get_schedule_items(request, 'Every six months'),
-        'yearly': get_schedule_items(request, 'Yearly'),
-        'one_time': get_schedule_items(request, 'One time only'),
-    }
+    context = get_all_schedule_items(request)
 
     totals = {
         'weekly_total': (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52,
@@ -1720,6 +1741,39 @@ def calculate_expense_fund(request):
     """ A form to figure out your emergency fund """
     print('REQUEST:', request)
     if request.method == "GET":
+        # Get current month/year
+        currentDay = datetime.today()
+        currentMonth = currentDay.month
+        currentYear = currentDay.year
+
+        # Track recurring expenses
+        context = {
+            'weekly': get_items_by_frequency(request, 'Weekly'),
+            'every_two_weeks': get_items_by_frequency(request, 'Every two weeks'),
+            'monthly': get_items_by_frequency(request, 'Monthly'),
+            'every_two_months': get_items_by_frequency(request, 'Every two months'),
+            'quarterly': get_items_by_frequency(request, 'Quarterly'),
+            'every_six_months': get_items_by_frequency(request, 'Every six months'),
+            'yearly': get_items_by_frequency(request, 'Yearly'),
+            'one_time': get_items_by_frequency(request, 'One time only'),
+        }
+
+        totals = {
+            'weekly_total': (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52,
+            'every_two_weeks_total': (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26,
+            'monthly_total': (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12,
+            'every_two_months_total': (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6,
+            'quarterly_total': (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4,
+            'every_six_months_total': (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2,
+            'yearly_total': (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
+            'one_time_total': (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
+        }
+
+        # Add one-time expenses that haven't happened
+        # Calculate options
+            # One-time breakpoints
+            #
+
         return render(
             request, "money-schedule/calculate_expense_fund.html",
             {"form": CalculateExpenseFundForm}
