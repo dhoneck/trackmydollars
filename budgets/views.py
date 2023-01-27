@@ -87,7 +87,13 @@ class EditSettings(LoginRequiredMixin, FormView, SuccessMessageMixin):
 
 # Helper Functions
 def format_numbers(**kwargs):
-    """Formats strings to the correct amount of spaces based on longest number"""
+    """
+    Formats strings to the correct amount of spaces based on longest number
+    Parameters:
+        
+    Returns:
+        dict {int}: A dictionary containing numbers formatted to the same amount of numbers.
+    """
     # Get the length of the longest integral number
     max_integral_length = 0
     for value in kwargs.values():
@@ -1737,6 +1743,13 @@ class DeleteScheduleItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super(DeleteScheduleItem, self).delete(request, *args, **kwargs)
 
 
+def get_active_items(request):
+    items = ScheduleItem.objects.filter(user_id=request.user.id)
+    print(items)
+    active_item_ids = [item.id for item in items if item.is_active() == True]
+    active_items = items.filter(id__in=active_item_ids)
+    return active_items
+
 def calculate_expense_fund(request):
     """ A form to figure out your emergency fund """
     print('REQUEST:', request)
@@ -1770,22 +1783,26 @@ def calculate_expense_fund(request):
         }
 
         # Add one-time expenses that haven't happened
-        # Calculate options
-            # One-time breakpoints
-            #
+        active_items = get_active_items(request).exclude(frequency="Monthly");
+        sorted(active_items, key=lambda a: a.name)
+        active_items = sorted(active_items, key=lambda a: a.get_next_payment())
 
         return render(
             request, "money-schedule/calculate_expense_fund.html",
-            {"form": CalculateExpenseFundForm}
+            {"form": CalculateExpenseFundForm,
+             "items": active_items,
+             }
         )
     elif request.method == "POST":
         form = CalculateExpenseFundForm(request.POST)
         if form.is_valid():
-            print('Checking validity')
+            initial_amount = form.cleaned_data['initial_amount']
+            next_12_months = get_last_12_months_labels(True)[0];
             return render(
                 request, "money-schedule/calculate_expense_fund.html",
                 {"form": CalculateExpenseFundForm,
-                 "suggestion": "Eat rice and beans"}
+                 "next_12_months": next_12_months,
+                 "initial_amount": initial_amount}
             )
         else:
             messages.error(request, form.errors)

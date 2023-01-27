@@ -163,7 +163,7 @@ class ScheduleItem(models.Model):
         Gets the time delta based on frequency.
 
         Returns:
-            dateutil.relativedelta.relativedelta: The difference in time between due dates
+            dateutil.relativedelta.relativedelta: The difference in time between due dates.
         """
         if self.frequency == 'Weekly':
             return relativedelta(weeks=+1)
@@ -252,7 +252,7 @@ class ScheduleItem(models.Model):
             month (int): The month of which you are tryin to get a total from. Jan is 1 and Dec is 12.
 
         Returns:
-            list[ScheduleItem, Decimal] or None: A list containing item object and total for the year/month pair or None
+            list[ScheduleItem, Decimal] or None: A list containing object and total for the year/month pair or None.
         """
         # Check if item is one time only
         if self.frequency == 'One time only':
@@ -280,6 +280,22 @@ class ScheduleItem(models.Model):
             return occurrences
         else:
             return None
+
+    def is_active(self):
+        """
+        Check if there is a future due date. All are true except one time only items that have past already.
+
+        Returns:
+            bool: A boolean that states whether there is a future due date.
+        """
+        if self.frequency != 'One time only':
+            return True
+        else:
+            today = date.today();
+            if self.first_due_date >= today:
+                return True
+            else:
+                return False
 
 
 # Budget Models

@@ -3,30 +3,52 @@
 {% block page_heading %}Calculate Expense Fund{% endblock %}
 
 {% block main_content %}
-  <h3>What is an expense fund?</h3>
-  <p>An expense fund is an allocation of money to cover future expenses. You can create a separate savings account and
-      deposit money into it every month and withdraw from it when those expenses are due. The purpose of this is to make
-      our budgets more consistent and easier to stick to. Things that we would put in our expense fund are expenses that
-      are not normal monthly expenses such as birthdays, holidays, annual subscription renewals, quarterly bills, etc.
-  </p>
-  <br>
-  <h3>Steps To Calculate Expense Fund</h3>
-  <ol>
-    <li>Pick initial amount that you can put into your fund</li>
-    <li>Calculate the monthly contribution</li>
-    <li>See if there will be conflicts and present suggestions</li>
-  </ol>
-  <br>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Calculate">
-  </form>
-  <br>
-  {{ suggestion }}
-  {% for message in messages %}
-  <div class="alert">
-    {{ message }}
-  </div>
-  {% endfor %}
+    <h3>What is an expense fund?</h3>
+    <p>An expense fund is an allocation of money to cover future expenses. You can create a separate savings account and
+        deposit money into it every month and withdraw from it when those expenses are due. The purpose of this is to make
+        our budgets more consistent and easier to stick to. Things that we would put in our expense fund are expenses that
+        are not normal monthly expenses such as birthdays, holidays, annual subscription renewals, quarterly bills, etc.
+    </p>
+    <br>
+    <h3>Steps To Calculate Expense Fund</h3>
+    <ol>
+        <li>Pick initial amount that you can put into your fund</li>
+        <li>Calculate the monthly contribution</li>
+        <li>See if there will be conflicts and present suggestions</li>
+    </ol>
+    <br>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Calculate">
+    </form>
+    <br>
+    <table>
+        <tr>
+            <th style="width: 80px;">Month</th>
+            <th style="width: 100px;">Expenses</th>
+            <th style="width: 100px;">Fund In</th>
+            <th style="width: 100px;">Fund Out</th>
+            <th style="width: 120px;">Fund Balance</th>
+        </tr>
+        {% for month in next_12_months %}
+        <tr>
+            <td>{{ month }}</td>
+            <td>X</td>
+            <td>{{ initial_amount }}</td>
+            <td>x</td>
+            <td>x</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    {{ suggestion }}
+    {% for item in items %}
+        <p>{{ item.name }} | ${{ item.amount }} | {{ item.frequency }} | {{ item.get_next_payment }}</p>
+    {% endfor %}
+    {% for message in messages %}
+        <div class="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endblock %}
