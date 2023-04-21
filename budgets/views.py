@@ -116,6 +116,9 @@ def format_numbers(**kwargs):
         formatted_numbers[key] = format_string.format(value)
     return formatted_numbers
 
+def format_to_currency_str(num):
+    """Formats a number in"""
+    return '{:.2f}'.format(num)
 
 def add_lists(x, y):
     return x + y
@@ -1776,6 +1779,18 @@ def get_active_items(request):
 def calculate_expense_fund(request):
     """ A form to figure out how much to contribute to your emergency fund """
     print('REQUEST:', request)
+    # Get total of all items except 'monthly' items
+    # TODO: Figure out how to handle weekly and every two weeks - add only the extra amounts to the non-monthly total?
+    totals = get_all_schedule_totals(request)
+    non_monthly_total = Decimal(0.00)
+    for key, value in totals.items():
+        entire_total = 0
+        if key != 'monthly_total':
+            non_monthly_total += value
+        entire_total += value
+    non_monthly_total = non_monthly_total;
+    non_monthly_total_avg = non_monthly_total/12;
+
     if request.method == "GET":
         # TODO: Add expenses that may happen outside of the next year to make sure they are accounted for
         active_items = get_active_items(request).exclude(frequency="Monthly");
@@ -1787,6 +1802,8 @@ def calculate_expense_fund(request):
                 "form": CalculateExpenseFundForm,
                 "is_get": True,
                 "items": active_items,
+                "non_monthly_total": format_to_currency_str(non_monthly_total),
+                "non_monthly_total_avg": format_to_currency_str(non_monthly_total_avg),
             }
         )
     elif request.method == "POST":
@@ -1803,13 +1820,34 @@ def calculate_expense_fund(request):
             print(next_12_months)
             table_data = []
             last_month_balance = 0
-            for month in next_12_months:
-                fund_in = initial_amount
-                fund_out = 20
+            print('get_all_schedule_totals(request)')
+            print(get_all_schedule_totals(request))
+            for idx in range(12):
+                print('idx:', idx)
+                if idx == 0:
+                    fund_in = initial_amount
+                else:
+                    fund_in = 0
+
+
+                # Get month and year based on index of loop
+                current_month = year_month_tuples[idx][1]
+                current_year = year_month_tuples[idx][0]
+
+                # Loop through all objects
+                print('Month/Year: ' + current_month + '/' + current_year)
+                active_items = get_active_items(request)
+                month_total = 0
+                for item in active_items:
+                    # item.get_monthly_total(current_year, current_month)
+                    print(item.name, '-', item.get_monthly_total(current_year, current_month))
+                    month_total += item.get_monthly_total(current_year, current_month)
+                print('Month Total: ' + str(month_total))
+                fund_out = month_total
                 current_month_balance = last_month_balance + fund_in - fund_out
                 last_month_balance = current_month_balance
                 month_data = {
-                    'month': month,
+                    'month': next_12_months[idx],
                     'fund_in': fund_in,
                     'fund_out': fund_out,
                     'fund_balance': current_month_balance,
@@ -1822,10 +1860,14 @@ def calculate_expense_fund(request):
 
             return render(
                 request, "money-schedule/calculate_expense_fund.html",
-                {"form": CalculateExpenseFundForm,
-                 "next_12_months": next_12_months,
-                 "initial_amount": initial_amount,
-                 "table_data": table_data}
+                {
+                    "form": CalculateExpenseFundForm,
+                    "next_12_months": next_12_months,
+                    "initial_amount": initial_amount,
+                    "table_data": table_data,
+                    "non_monthly_total": format_to_currency_str(non_monthly_total),
+                    "non_monthly_total_avg": format_to_currency_str(non_monthly_total_avg),
+                 }
             )
         else:
             messages.error(request, form.errors)

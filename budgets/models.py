@@ -218,6 +218,8 @@ class ScheduleItem(models.Model):
         Returns:
             Decimal: The total amount for this item in this year/month pair.
         """
+        year = int(year)
+        month = int(month)
         # Check if item is one time only
         if self.frequency == 'One time only':
             # Check if item is happening this month/year
