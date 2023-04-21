@@ -90,7 +90,7 @@ def format_numbers(**kwargs):
     """
     Formats strings to the correct amount of spaces based on longest number
     Parameters:
-        
+
     Returns:
         dict {int}: A dictionary containing numbers formatted to the same amount of numbers.
     """
@@ -1634,7 +1634,7 @@ def get_all_schedule_items(request):
     Returns:
         dict: Contains frequency (str) and schedule items (QuerySet)
     """
-    return {
+    all_schedule_items = {
         'weekly': get_items_by_frequency(request, 'Weekly'),
         'every_two_weeks': get_items_by_frequency(request, 'Every two weeks'),
         'monthly': get_items_by_frequency(request, 'Monthly'),
@@ -1644,25 +1644,43 @@ def get_all_schedule_items(request):
         'yearly': get_items_by_frequency(request, 'Yearly'),
         'one_time': get_items_by_frequency(request, 'One time only'),
     }
+    return all_schedule_items
+
+def get_all_schedule_totals(request):
+    """
+        Gets a dictionary of all the schedule item totals for a particular user.
+        Parameters:
+            request (django.core.handlers.wsgi.WSGIRequest): The current request
+
+        Returns:
+            dict
+        """
+    all_items = get_all_schedule_items(request)
+    all_totals = {
+        'weekly_total': (all_items['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52,
+        'every_two_weeks_total': (all_items['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26,
+        'monthly_total': (all_items['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12,
+        'every_two_months_total': (all_items['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6,
+        'quarterly_total': (all_items['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4,
+        'every_six_months_total': (all_items['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2,
+        'yearly_total': (all_items['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
+        'one_time_total': (all_items['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
+    }
+    return all_totals
 
 @login_required
 def view_schedule(request):
+    # Grab all schedule items
     context = get_all_schedule_items(request)
 
-    totals = {
-        'weekly_total': (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52,
-        'every_two_weeks_total': (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26,
-        'monthly_total': (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12,
-        'every_two_months_total': (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6,
-        'quarterly_total': (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4,
-        'every_six_months_total': (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2,
-        'yearly_total': (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
-        'one_time_total': (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
-    }
+    #  Grab all schedule item totals
+    totals = get_all_schedule_totals(request)
 
     entire_total = Decimal(0.00)
     non_monthly_total = Decimal(0.00)
 
+    # Get total of all items except 'monthly' items
+    # TODO: Figure out how to handle weekly and every two weeks - add only the extra amounts to the non-monthly total?
     for key, value in totals.items():
         if key != 'monthly_total':
             non_monthly_total += value
@@ -1674,8 +1692,12 @@ def view_schedule(request):
     totals['non_monthly_per_month_total'] = Decimal("{:.2f}".format(non_monthly_total / 12))
 
     context['totals'] = totals
+    print('Context')
+    print(context)
 
     month_labels, year_month_tuple = get_last_12_months_labels(get_next_12=True)
+    print(month_labels)
+    print(year_month_tuple)
 
     # Separate the month from the year on the last element in the list and add them to separate variables
     month_labels[11], year = month_labels[11].split(' ')
@@ -1744,6 +1766,7 @@ class DeleteScheduleItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 
 
 def get_active_items(request):
+    """ Return only active schedule items for requested user """
     items = ScheduleItem.objects.filter(user_id=request.user.id)
     print(items)
     active_item_ids = [item.id for item in items if item.is_active() == True]
@@ -1751,64 +1774,64 @@ def get_active_items(request):
     return active_items
 
 def calculate_expense_fund(request):
-    """ A form to figure out your emergency fund """
+    """ A form to figure out how much to contribute to your emergency fund """
     print('REQUEST:', request)
     if request.method == "GET":
-        # Get current month/year
-        currentDay = datetime.today()
-        currentMonth = currentDay.month
-        currentYear = currentDay.year
-
-        # Track recurring expenses
-        context = {
-            'weekly': get_items_by_frequency(request, 'Weekly'),
-            'every_two_weeks': get_items_by_frequency(request, 'Every two weeks'),
-            'monthly': get_items_by_frequency(request, 'Monthly'),
-            'every_two_months': get_items_by_frequency(request, 'Every two months'),
-            'quarterly': get_items_by_frequency(request, 'Quarterly'),
-            'every_six_months': get_items_by_frequency(request, 'Every six months'),
-            'yearly': get_items_by_frequency(request, 'Yearly'),
-            'one_time': get_items_by_frequency(request, 'One time only'),
-        }
-
-        totals = {
-            'weekly_total': (context['weekly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 52,
-            'every_two_weeks_total': (context['every_two_weeks'].aggregate(Sum('amount'))['amount__sum'] or 0) * 26,
-            'monthly_total': (context['monthly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 12,
-            'every_two_months_total': (context['every_two_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 6,
-            'quarterly_total': (context['quarterly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 4,
-            'every_six_months_total': (context['every_six_months'].aggregate(Sum('amount'))['amount__sum'] or 0) * 2,
-            'yearly_total': (context['yearly'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
-            'one_time_total': (context['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
-        }
-
-        # Add one-time expenses that haven't happened
+        # TODO: Add expenses that may happen outside of the next year to make sure they are accounted for
         active_items = get_active_items(request).exclude(frequency="Monthly");
-        sorted(active_items, key=lambda a: a.name)
         active_items = sorted(active_items, key=lambda a: a.get_next_payment())
 
         return render(
             request, "money-schedule/calculate_expense_fund.html",
-            {"form": CalculateExpenseFundForm,
-             "items": active_items,
-             }
+            {
+                "form": CalculateExpenseFundForm,
+                "is_get": True,
+                "items": active_items,
+            }
         )
     elif request.method == "POST":
         form = CalculateExpenseFundForm(request.POST)
         if form.is_valid():
+            # Create one object containing:
+            # Month, Fund In, Fund Out / Expenses (same as expenses), Fund Balance
+
             initial_amount = form.cleaned_data['initial_amount']
-            next_12_months = get_last_12_months_labels(True)[0];
+
+            next_12_months, year_month_tuples = get_last_12_months_labels(True)
+            print('year_month_tuples')
+            print(year_month_tuples)
+            print(next_12_months)
+            table_data = []
+            last_month_balance = 0
+            for month in next_12_months:
+                fund_in = initial_amount
+                fund_out = 20
+                current_month_balance = last_month_balance + fund_in - fund_out
+                last_month_balance = current_month_balance
+                month_data = {
+                    'month': month,
+                    'fund_in': fund_in,
+                    'fund_out': fund_out,
+                    'fund_balance': current_month_balance,
+                }
+                table_data.append(month_data)
+
+
+
+            print(table_data)
+
             return render(
                 request, "money-schedule/calculate_expense_fund.html",
                 {"form": CalculateExpenseFundForm,
                  "next_12_months": next_12_months,
-                 "initial_amount": initial_amount}
+                 "initial_amount": initial_amount,
+                 "table_data": table_data}
             )
         else:
             messages.error(request, form.errors)
             return render(
                 request, "money-schedule/calculate_expense_fund.html",
-                {"form": CustomUserCreationForm}
+                {"form": CalculateExpenseFundForm}
             )
 
 # Report Views

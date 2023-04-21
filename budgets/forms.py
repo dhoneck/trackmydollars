@@ -70,3 +70,4 @@ class SettingsForm(forms.Form):
 
 class CalculateExpenseFundForm(forms.Form):
     initial_amount = forms.DecimalField(max_digits=9, decimal_places=2)
+
