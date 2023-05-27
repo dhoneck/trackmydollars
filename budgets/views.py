@@ -1,4 +1,5 @@
 import datetime
+import math
 from functools import partial
 
 from django.contrib import messages
@@ -1776,11 +1777,12 @@ def get_active_items(request):
     active_items = items.filter(id__in=active_item_ids)
     return active_items
 
+
 def calculate_expense_fund(request):
     """ A form to figure out how much to contribute to your emergency fund """
-    print('REQUEST:', request)
-    # Get total of all items except 'monthly' items
+
     # TODO: Figure out how to handle weekly and every two weeks - add only the extra amounts to the non-monthly total?
+    # Get total of all items except 'monthly' items
     totals = get_all_schedule_totals(request)
     non_monthly_total = Decimal(0.00)
     for key, value in totals.items():
@@ -1790,91 +1792,67 @@ def calculate_expense_fund(request):
         entire_total += value
     non_monthly_total = non_monthly_total;
     non_monthly_total_avg = non_monthly_total/12;
+    suggestion = math.ceil(non_monthly_total_avg / 10) * 10
 
-    if request.method == "GET":
-        # TODO: Add expenses that may happen outside of the next year to make sure they are accounted for
-        active_items = get_active_items(request).exclude(frequency="Monthly");
-        active_items = sorted(active_items, key=lambda a: a.get_next_payment())
-
-        return render(
-            request, "money-schedule/calculate_expense_fund.html",
-            {
-                "form": CalculateExpenseFundForm,
-                "is_get": True,
-                "items": active_items,
-                "non_monthly_total": format_to_currency_str(non_monthly_total),
-                "non_monthly_total_avg": format_to_currency_str(non_monthly_total_avg),
-            }
-        )
-    elif request.method == "POST":
-        form = CalculateExpenseFundForm(request.POST)
-        if form.is_valid():
-            # Create one object containing:
-            # Month, Fund In, Fund Out / Expenses (same as expenses), Fund Balance
-
-            initial_amount = form.cleaned_data['initial_amount']
-
-            next_12_months, year_month_tuples = get_last_12_months_labels(True)
-            print('year_month_tuples')
-            print(year_month_tuples)
-            print(next_12_months)
-            table_data = []
-            last_month_balance = 0
-            print('get_all_schedule_totals(request)')
-            print(get_all_schedule_totals(request))
-            for idx in range(12):
-                print('idx:', idx)
-                if idx == 0:
-                    fund_in = initial_amount
-                else:
-                    fund_in = 0
-
-
-                # Get month and year based on index of loop
-                current_month = year_month_tuples[idx][1]
-                current_year = year_month_tuples[idx][0]
-
-                # Loop through all objects
-                print('Month/Year: ' + current_month + '/' + current_year)
-                active_items = get_active_items(request)
-                month_total = 0
-                for item in active_items:
-                    # item.get_monthly_total(current_year, current_month)
-                    print(item.name, '-', item.get_monthly_total(current_year, current_month))
-                    month_total += item.get_monthly_total(current_year, current_month)
-                print('Month Total: ' + str(month_total))
-                fund_out = month_total
-                current_month_balance = last_month_balance + fund_in - fund_out
-                last_month_balance = current_month_balance
-                month_data = {
-                    'month': next_12_months[idx],
-                    'fund_in': fund_in,
-                    'fund_out': fund_out,
-                    'fund_balance': current_month_balance,
-                }
-                table_data.append(month_data)
-
-
-
-            print(table_data)
-
-            return render(
-                request, "money-schedule/calculate_expense_fund.html",
-                {
-                    "form": CalculateExpenseFundForm,
-                    "next_12_months": next_12_months,
-                    "initial_amount": initial_amount,
-                    "table_data": table_data,
-                    "non_monthly_total": format_to_currency_str(non_monthly_total),
-                    "non_monthly_total_avg": format_to_currency_str(non_monthly_total_avg),
-                 }
-            )
+    next_12_months, year_month_tuples = get_last_12_months_labels(True)
+    print('year_month_tuples')
+    print(year_month_tuples)
+    print(next_12_months)
+    table_data = []
+    last_month_balance = 0
+    print('get_all_schedule_totals(request)')
+    print(get_all_schedule_totals(request))
+    for idx in range(12):
+        print('idx:', idx)
+        if idx == 0:
+            fund_in = suggestion
         else:
-            messages.error(request, form.errors)
-            return render(
-                request, "money-schedule/calculate_expense_fund.html",
-                {"form": CalculateExpenseFundForm}
-            )
+            fund_in = suggestion
+
+        # Get month and year based on index of loop
+        current_month = year_month_tuples[idx][1]
+        current_year = year_month_tuples[idx][0]
+
+        # Loop through all objects
+        print('Month/Year: ' + current_month + '/' + current_year)
+        active_items = get_active_items(request)
+        month_total = 0
+        for item in active_items:
+            # item.get_monthly_total(current_year, current_month)
+            print(item.name, '-', item.get_monthly_total(current_year, current_month))
+            month_total += item.get_monthly_total(current_year, current_month)
+        print('Month Total: ' + str(month_total))
+        fund_out = month_total
+        current_month_balance = last_month_balance + fund_in - fund_out
+        last_month_balance = current_month_balance
+        month_data = {
+            'month': next_12_months[idx],
+            'fund_in': fund_in,
+            'fund_out': fund_out,
+            'fund_balance': current_month_balance,
+        }
+        table_data.append(month_data)
+
+    print(table_data)
+
+    # TODO: Add expenses that may happen outside of the next year to make sure they are accounted for
+    active_items = get_active_items(request).exclude(frequency="Monthly");
+    active_items = sorted(active_items, key=lambda a: a.get_next_payment())
+
+    return render(
+        request, "money-schedule/calculate_expense_fund.html",
+        {
+            "items": active_items,
+            "suggestion": suggestion,
+            "non_monthly_total": format_to_currency_str(non_monthly_total),
+            "non_monthly_total_avg": format_to_currency_str(non_monthly_total_avg),
+            "next_12_months": next_12_months,
+            "table_data": table_data,
+            "non_monthly_total": format_to_currency_str(non_monthly_total),
+            "non_monthly_total_avg": format_to_currency_str(non_monthly_total_avg),
+        }
+    )
+
 
 # Report Views
 # TODO: Asset and debts reports

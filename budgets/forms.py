@@ -66,10 +66,3 @@ class SettingsForm(forms.Form):
         choices=WEBSITE_SECTIONS,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'settings'})
     )
-
-
-class CalculateExpenseFundForm(forms.Form):
-    initial_amount = forms.DecimalField(max_digits=9, decimal_places=2)
-    monthly_contribution = forms.DecimalField(max_digits=9, decimal_places=2)
-    contribute_first_month = forms.BooleanField()
-

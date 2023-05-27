@@ -10,22 +10,10 @@
     are not normal monthly expenses such as birthdays, holidays, annual subscription renewals, quarterly bills, etc.
   </p>
   <br>
-  <h3>Steps To Calculate Expense Fund</h3>
-  <ol>
-    <li>Pick initial amount that you can put into your fund</li>
-    <li>Calculate the monthly contribution</li>
-    <li>See if there will be conflicts and present suggestions</li>
-  </ol>
-  <br>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Calculate">
-  </form>
-  <br>
   <p>Monthly Amt ${{ non_monthly_total }}</p>
   <p>Monthly Avg ${{ non_monthly_total_avg }}</p>
-  {% if is_get %}
+  <p>Suggested Monthly Amount ${{ suggestion }}</p>
+  <br>
     <h3>Upcoming Money Items</h3>
     <table>
       <tr>
@@ -43,7 +31,8 @@
         </tr>
       {% endfor %}
     </table>
-  {% else %}
+    <br>
+  <br>
     <table>
       <tr>
         <th style="width: 80px;">Month</th>
@@ -61,8 +50,6 @@
       {% endfor %}
     </table>
     <br>
-    {{ suggestion }}
-  {% endif %}
   {% for message in messages %}
     <div class="alert">
       {{ message }}
