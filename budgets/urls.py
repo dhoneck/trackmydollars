@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 from django.urls import path
 
 from budgets.views import *
@@ -10,8 +10,8 @@ urlpatterns = [
     # path('about/', views.about, name='about'),
     # path('contact/', views.contact, name='contact'),
     # Registration and User URLs
-    url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^register/', views.register, name='register'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('register/', views.register, name='register'),
     path('settings', EditSettings.as_view(), name='settings'),
     # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
