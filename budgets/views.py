@@ -1051,15 +1051,23 @@ class AddBudgetPeriod(LoginRequiredMixin, FormView, SuccessMessageMixin):
                 for item in ibi:
                     item.pk = None
                     item.budget_period_id = new_bp.id
+                    # TODO: Figure out how to delete this print statement - expense budget items won't transfer without
+                    # Possibly a sync issue
+                    print('item')
+                    print(item)
                     item.save()
                 # Add expense categories and expense budget items to the new budget period
-                ec = ExpenseCategory.objects.filter(budget_period_id=template_bp)
+                ec = ExpenseCategory.objects.filter(budget_period_id=template_bp).exclude(name='New Debt')
                 for category in ec:
                     budget_items = category.expense_budget_items.all()
+                    print('Budget Items')
+                    print(budget_items)
                     category.id = None
                     category.budget_period_id = new_bp.id
                     category.save()
+                    print(category)
                     new_id = category.id
+
                     for i in budget_items:
                         i.id = None
                         i.expense_category_id = new_id
