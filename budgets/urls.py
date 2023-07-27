@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, re_path
 from django.urls import path
 
 from budgets.views import *
@@ -12,6 +12,8 @@ urlpatterns = [
     # Registration and User URLs
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
+    re_path(r'^signup/$', views.signup, name='signup'),
+    re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,35})/$', views.activate, name='activate'),
     path('settings', EditSettings.as_view(), name='settings'),
     # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
