@@ -1,0 +1,9 @@
+{% extends 'standard/base_bare.html' %}
+{% block title %}TrackMyDollars | Email Not Verified{% endblock %}
+{% block main_content %}
+  <h2>Email Not Verified</h2>
+  <div style="text-align:center;">
+    <p>Activation link is expired or invalid.</p>
+    <a href="{% url 'register' %}">Go to registration screen</a>
+  </div>
+{% endblock %}

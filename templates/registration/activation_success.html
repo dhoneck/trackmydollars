@@ -1,0 +1,9 @@
+{% extends 'standard/base_bare.html' %}
+{% block title %}TrackMyDollars | Email Verified{% endblock %}
+{% block main_content %}
+  <h2>Email Verified</h2>
+  <div style="text-align:center;">
+    <p>Thank you for your email confirmation. You can now log into your account.</p>
+    <a href="{% url 'login' %}">Go to login screen</a>
+  </div>
+{% endblock %}

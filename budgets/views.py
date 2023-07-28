@@ -20,7 +20,6 @@ from .models import *
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from .forms import SignupForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -57,39 +56,6 @@ def contact(request):
 
 
 # Registration Views
-def signup(request):
-    if request.method == 'POST':
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            current_site = get_current_site(request)
-            mail_subject = 'Activate your blog account.'
-            context = {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            }
-            print('user: ', context['user'])
-            print('domain: ', context['domain'])
-            print('uid: ', context['uid'])
-            print('token: ', context['token'])
-            message = render_to_string('registration/acc_active_email.html', context)
-            print('message: ', message)
-            to_email = form.cleaned_data.get('email')
-            print('to_email: ', to_email)
-            email = EmailMessage(
-                        mail_subject, message, to=[to_email]
-            )
-            email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
-    else:
-        form = SignupForm()
-    return render(request, 'registration/signup.html', {'form': form})
-
-
 def activate(request, uidb64, token):
     print('In activate')
     try:
@@ -103,9 +69,9 @@ def activate(request, uidb64, token):
         user.save()
         login(request, user)
         # return redirect('home')
-        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+        return render(request, 'registration/activation_success.html')
     else:
-        return HttpResponse('Activation link is invalid!')
+        return render(request, 'registration/activation_failed.html')
 
 
 # TODO: Get users to sign in by email
@@ -113,24 +79,30 @@ def activate(request, uidb64, token):
 # TODO: Allow users to reset password
 def register(request):
     """ User registration page """
-    print('REQUEST:', request)
-    if request.method == "GET":
-        return render(
-            request, "registration/register.html",
-            {"form": CustomUserCreationForm}
-        )
-    elif request.method == "POST":
-        form = CustomUserCreationForm(request.POST)
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect(reverse("dashboard"))
-        else:
-            messages.error(request, form.errors)
-            return render(
-                request, "registration/register.html",
-                {"form": CustomUserCreationForm}
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            current_site = get_current_site(request)
+            mail_subject = 'Activate Your Track My Dollars Account'
+            context = {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+            }
+            message = render_to_string('registration/account_active_email.html', context)
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(
+                        mail_subject, message, to=[to_email]
             )
+            email.send()
+            return render(request, 'registration/check_email.html')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 
 # User settings views

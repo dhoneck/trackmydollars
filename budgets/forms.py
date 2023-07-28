@@ -15,12 +15,7 @@ WEBSITE_SECTIONS = (
 )
 
 
-class CustomUserCreationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        fields = UserCreationForm.Meta.fields + ("email",)
-
-
-class SignupForm(UserCreationForm):
+class RegisterForm(UserCreationForm):
     email = forms.EmailField(max_length=200, help_text='Required')
 
     class Meta:
