@@ -8,6 +8,15 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".success").fadeOut(10000);
+        });
+        $(document).ready(function(){
+            $(".error").fadeOut(10000);
+        });
+    </script>
     {% block script %}{% endblock %}
   </head>
   <body>

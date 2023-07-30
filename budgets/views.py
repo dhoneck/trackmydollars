@@ -3,29 +3,27 @@ import math
 from functools import partial
 
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.db import IntegrityError
 from django.http import Http404
 from django.http import HttpResponseRedirect, HttpResponseNotFound
-from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.contrib.auth.forms import AuthenticationForm
 
 from budgets.forms import *
 from .models import *
-
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
 from .tokens import account_activation_token
-from django.core.mail import EmailMessage
+
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -87,7 +85,7 @@ def register(request):
             current_site = get_current_site(request)
             mail_subject = 'Activate Your Track My Dollars Account'
             context = {
-                'user': user,
+                # 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
@@ -100,8 +98,41 @@ def register(request):
             email.send()
             return render(request, 'registration/check_email.html')
     else:
+        messages.error(request, 'Issue with registration - please try again')
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
+
+
+def custom_login(request):
+    """ Login view that sends email verification if user is not active """
+    if request.POST:
+        # Username is actually email
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, email=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('dashboard')
+            else:
+                current_site = get_current_site(request)
+                mail_subject = 'Activate Your Track My Dollars Account'
+                context = {
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user),
+                }
+                message = render_to_string('registration/account_active_email.html', context)
+                to_email = request.POST['username']
+                email = EmailMessage(
+                    mail_subject, message, to=[to_email]
+                )
+                email.send()
+                return render(request, 'registration/check_email.html')
+        else:
+            messages.error(request, 'Invalid username or password')
+
+    return render(request, 'registration/login.html', {'form': AuthenticationForm})
 
 
 # User settings views

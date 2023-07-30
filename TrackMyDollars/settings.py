@@ -140,6 +140,7 @@ USE_L10N = True
 USE_TZ = True
 
 # User adjustments
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 AUTH_USER_MODEL = 'budgets.CustomUser'
 
 

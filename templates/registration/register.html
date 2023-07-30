@@ -2,16 +2,16 @@
 {% block title %}TrackMyDollars | Register{% endblock %}
 {% block main_content %}
   <h2>Register</h2>
+  {% if messages %}
+    {% for message in messages %}
+      <p {% if message.tags %} style="margin: 0;" class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Register">
   </form>
-  {% for message in messages %}
-  <div class="alert">
-    {{ message }}
-  </div>
-  {% endfor %}
   <br>
   <a href="{% url 'login' %}">Back to login</a>
 {% endblock %}
