@@ -25,8 +25,10 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from .tokens import account_activation_token
-from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 # TODO: Add a template budget page and functionality
 # TODO: Figure out old and new debt in budget
@@ -57,10 +59,8 @@ def contact(request):
 
 # Registration Views
 def activate(request, uidb64, token):
-    print('In activate')
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
-        print('uid: ', uid)
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
@@ -68,7 +68,6 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-        # return redirect('home')
         return render(request, 'registration/activation_success.html')
     else:
         return render(request, 'registration/activation_failed.html')

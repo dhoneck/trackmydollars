@@ -5,6 +5,10 @@ from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import Sum
 
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import BaseUserManager
+
 # For schedule item objects
 FREQUENCY_CHOICES = (
     ('Weekly', 'Weekly'),
@@ -57,9 +61,55 @@ EXPENSE_CHOICES = (
     ('Reserve', 'Reserve'),
 )
 
+
+# User Models
+class CustomUserManager(BaseUserManager):
+    """ Manager for user profiles """
+
+    def create_user(self, email, password):
+        """ Create a new user profile """
+        if not email:
+            raise ValueError('User must have an email address')
+        if not password:
+            raise ValueError('User must have a password')
+        email = self.normalize_email(email)
+        user = self.model(email=email)
+
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_superuser(self, email, password):
+        """ Create a new superuser profile """
+        user = self.create_user(email, password)
+        user.is_superuser = True
+        user.is_staff = True
+
+        user.save(using=self._db)
+
+        return user
+
+
+class CustomUser(AbstractUser, PermissionsMixin):
+    """ Database model for users in the system """
+    email = models.EmailField(max_length=255, unique=True)
+    username = None
+    id = models.AutoField(primary_key=True)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['password']
+
+    def __str__(self):
+        """ Return string representation of our user """
+        return self.email
+
+
 # Asset and Debt Models
 class Asset(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True)
 
@@ -75,7 +125,7 @@ class Asset(models.Model):
 
 
 class Debt(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True)
     interest_rate = models.DecimalField(max_digits=11, decimal_places=4, blank=True, null=True)
@@ -103,7 +153,7 @@ class RevolvingDebt(Debt):
 
 
 class Balance(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=11, decimal_places=2)
     date = models.DateField(blank=True, null=True)
 
@@ -147,7 +197,7 @@ class RevolvingDebtBalance(Balance):
 
 # Money Schedule Models
 class ScheduleItem(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     category = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=INCOME_EXPENSE_CHOICES, default='Expense')
@@ -302,7 +352,7 @@ class ScheduleItem(models.Model):
 
 # Budget Models
 class BudgetPeriod(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     month = models.IntegerField(choices=MONTH_CHOICES, default=datetime.today().month)
     year = models.PositiveIntegerField(default=datetime.today().year)
     starting_bank_balance = models.DecimalField(max_digits=11, decimal_places=2, null=True, default=0.00)
@@ -317,7 +367,7 @@ class BudgetPeriod(models.Model):
 
 
 class IncomeBudgetItem(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='income_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=11, decimal_places=2)
@@ -338,7 +388,7 @@ class IncomeBudgetItem(models.Model):
 
 
 class IncomeTransaction(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     budget_item = models.ForeignKey('IncomeBudgetItem',
                                     on_delete=models.CASCADE,
                                     related_name='income_transactions',
@@ -368,7 +418,7 @@ class IncomeTransaction(models.Model):
 
 
 class ExpenseCategory(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     budget_period = models.ForeignKey('BudgetPeriod', on_delete=models.CASCADE, related_name='expense_categories')
     name = models.CharField(max_length=50)
 
@@ -387,7 +437,7 @@ class ExpenseCategory(models.Model):
 
 
 class ExpenseBudgetItem(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     expense_category = models.ForeignKey('ExpenseCategory', on_delete=models.CASCADE, related_name='expense_budget_items')
     name = models.CharField(max_length=50)
     planned_amount = models.DecimalField(max_digits=11, decimal_places=2)
@@ -413,7 +463,7 @@ class ExpenseBudgetItem(models.Model):
 
 
 class ExpenseTransaction(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     expense_budget_item = models.ForeignKey('ExpenseBudgetItem', on_delete=models.CASCADE, related_name='expense_transactions')
     name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
@@ -442,7 +492,7 @@ class ExpenseTransaction(models.Model):
 
 
 class ContactEntry(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     reason_for_contact = models.CharField(max_length=100)
     description = models.TextField()
     date_submitted = models.DateField(auto_now=True)
