@@ -97,9 +97,9 @@ def register(request):
             )
             email.send()
             return render(request, 'registration/check_email.html')
-    else:
-        messages.error(request, 'Issue with registration - please try again')
-        form = RegisterForm()
+        else:
+            messages.error(request, 'Issue with registration - please try again')
+    form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
 
 

@@ -1,9 +1,11 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-User = get_user_model()
-
+from django.contrib.auth.forms import UserCreationForm
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Checkbox
 from .models import BudgetPeriod, ExpenseTransaction
+
+User = get_user_model()
 
 WEBSITE_SECTIONS = (
     ('dashboard', 'Dashboard'),
@@ -18,10 +20,11 @@ WEBSITE_SECTIONS = (
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(max_length=255, help_text='Required')
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox, label='', required=True)
 
     class Meta:
         model = User
-        fields = ('email', 'password1', 'password2')
+        fields = ('email', 'password1', 'password2', 'captcha',)
 
 
 class BudgetPeriodForm(forms.Form):
