@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, _unicode_ci_compare
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox
 from .models import BudgetPeriod, ExpenseTransaction
@@ -25,6 +25,27 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('email', 'password1', 'password2', 'captcha',)
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox, label='', required=True)
+
+    def get_users(self, email):
+        """Given an email, return matching user(s) who should receive a reset.
+
+        This allows subclasses to more easily customize the default policies
+        that prevent inactive users and users with unusable passwords from
+        resetting their password.
+        """
+        email_field_name = User.get_email_field_name()
+        active_users = User._default_manager.filter(**{
+            '%s__iexact' % email_field_name: email
+        })
+        return (
+            u for u in active_users
+            if u.has_usable_password() and
+               _unicode_ci_compare(email, getattr(u, email_field_name))
+        )
 
 
 class BudgetPeriodForm(forms.Form):

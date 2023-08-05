@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
@@ -71,11 +72,8 @@ def activate(request, uidb64, token):
         return render(request, 'registration/activation_failed.html')
 
 
-# TODO: Get users to sign in by email
-# TODO: Send email verification emails
-# TODO: Allow users to reset password
 def register(request):
-    """ User registration page """
+    """ User registration page that sends email verification """
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -85,7 +83,6 @@ def register(request):
             current_site = get_current_site(request)
             mail_subject = 'Activate Your Track My Dollars Account'
             context = {
-                # 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
@@ -133,6 +130,11 @@ def custom_login(request):
             messages.error(request, 'Invalid username or password')
 
     return render(request, 'registration/login.html', {'form': AuthenticationForm})
+
+
+class CustomPasswordResetView(PasswordResetView):
+    """ Custom password reset view that uses reCaptcha """
+    form_class = CustomPasswordResetForm
 
 
 # User settings views

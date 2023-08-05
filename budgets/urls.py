@@ -11,6 +11,7 @@ urlpatterns = [
     # path('contact/', views.contact, name='contact'),
     # Registration and User URLs
     path('accounts/login/', views.custom_login, name='login'),
+    path('accounts/password_reset/', views.CustomPasswordResetView.as_view(), name="password_reset"),
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
     re_path(r'^register/$', views.register, name='register'),
