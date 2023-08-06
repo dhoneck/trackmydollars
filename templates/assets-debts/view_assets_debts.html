@@ -15,11 +15,11 @@
       {% endfor %}
     {% endif %}
   {% if show_all %}
-  <button onclick="window.location.href = '{% url 'assets_debts' show_all='' %}';">Show Hidden Items</button>
+  <button onclick="window.location.href = '{% url 'assets_debts' show_all='' %}';">Remove Hidden Items</button>
   <p style="color: lightcoral;">* Items in red are currently set as hidden *</p>
   {% else %}
   <div class="button-container">
-    <button onclick="window.location.href = '{% url 'assets_debts' show_all='all' %}';">Remove Hidden Items</button>
+    <button onclick="window.location.href = '{% url 'assets_debts' show_all='all' %}';">Show Hidden Items</button>
   </div>
   {% endif %}
   <h3>Assets</h3>
