@@ -20,7 +20,8 @@ urlpatterns = [
     # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
     # Asset & Debt URLs
-    path('assets-debts/', views.assets_debts, name='assets_debts'),
+    # path('assets-debts/', views.assets_debts, name='assets_debts'),
+    re_path('assets-debts/(?P<show_all>(all)?$)', views.assets_debts, name='assets_debts'),
     path('assets-debts/add-asset', AddAsset.as_view(), name='add-asset'),
     path('assets-debts/add-installment-debt', AddInstallmentDebt.as_view(), name='add-installment-debt'),
     path('assets-debts/add-revolving-debt', AddRevolvingDebt.as_view(), name='add-revolving-debt'),

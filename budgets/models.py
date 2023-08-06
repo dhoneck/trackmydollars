@@ -2,14 +2,13 @@ from datetime import datetime, date
 from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.db.models import Sum
 
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import PermissionsMixin
-from django.contrib.auth.models import BaseUserManager
-
-# For schedule item objects
+# Schedule item choices
 FREQUENCY_CHOICES = (
     ('Weekly', 'Weekly'),
     ('Every two weeks', 'Every two weeks'),
@@ -21,7 +20,6 @@ FREQUENCY_CHOICES = (
     ('One time only', 'One time only'),
 )
 
-# For schedule item objects
 INCOME_EXPENSE_CHOICES = (
     ('Income', 'Income'),
     ('Transfer', 'Income Transfer'),
@@ -108,10 +106,12 @@ class CustomUser(AbstractUser, PermissionsMixin):
 
 
 # Asset and Debt Models
-class Asset(models.Model):
+class AssetOrDebt(models.Model):
+    """ Base class for Asset and Debt models """
     user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True)
+    hidden = models.BooleanField(default=False)
 
     def __str__(self):
         if self.type == '':
@@ -122,23 +122,18 @@ class Asset(models.Model):
     class Meta:
         ordering = ('name',)
         unique_together = ('user', 'name',)
+        abstract = True
 
 
-class Debt(models.Model):
-    user = models.ForeignKey('budgets.CustomUser', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50, blank=True)
+class Asset(AssetOrDebt):
+    """ Asset model """
+
+
+class Debt(AssetOrDebt):
+    """ Debt model """
     interest_rate = models.DecimalField(max_digits=11, decimal_places=4, blank=True, null=True)
 
-    def __str__(self):
-        if self.type == '':
-            return self.name
-        else:
-            return self.name + ' - ' + self.type
-
-    class Meta:
-        ordering = ('name',)
-        unique_together = ('user', 'name',)
+    class Meta(AssetOrDebt.Meta):
         abstract = True
 
 

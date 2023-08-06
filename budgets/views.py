@@ -183,9 +183,11 @@ def format_numbers(**kwargs):
         formatted_numbers[key] = format_string.format(value)
     return formatted_numbers
 
+
 def format_to_currency_str(num):
     """Formats a number in"""
     return '{:.2f}'.format(num)
+
 
 def add_lists(x, y):
     return x + y
@@ -333,19 +335,32 @@ def dashboard(request):
 
 # Asset Views
 @login_required
-def assets_debts(request):
+def assets_debts(request, show_all):
     # TODO: Fix number alignment
     # TODO: Fix months to be abbreviated - e.g. March should be mar instead of March
-    assets = Asset.objects.filter(user=request.user.id).order_by('name')
-    installment_debts = InstallmentDebt.objects.filter(user=request.user.id).order_by('name')
-    revolving_debts = RevolvingDebt.objects.filter(user=request.user.id).order_by('name')
+
+    # Get all assets and debts
+    assets = Asset.objects.filter(user=request.user.id)
+    installment_debts = InstallmentDebt.objects.filter(user=request.user.id)
+    revolving_debts = RevolvingDebt.objects.filter(user=request.user.id)
+
+    # Exclude hidden assets and debts
+    if not show_all:
+        assets = assets.exclude(hidden=True)
+        installment_debts = installment_debts.exclude(hidden=True)
+        revolving_debts = revolving_debts.exclude(hidden=True)
+
+    # Order by name
+    assets = assets.order_by('name')
+    installment_debts = installment_debts.order_by('name')
+    revolving_debts = revolving_debts.order_by('name')
 
     # Net Worth Stats
     asset_total = 0
     for a in assets:
         if a.balances.first() is not None:
             asset_total += float(a.balances.first())
-    #
+
     debt_total = 0
     for d in installment_debts:
         if d.balances.first() is not None:
@@ -362,7 +377,8 @@ def assets_debts(request):
                                       net_worth_total=net_worth_total)
     return render(request,
                   'assets-debts/view_assets_debts.html',
-                  {'assets': assets,
+                  {'show_all': bool(show_all),
+                   'assets': assets,
                    'installment_debts': installment_debts,
                    'revolving_debts': revolving_debts,
                    'asset_total': formatted_totals['asset_total'],
@@ -390,9 +406,10 @@ class AddAsset(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                     message=f'Your data has not been saved because there is already an entry for {form.instance}.',
                 ))
 
+
 class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Asset
-    fields = ['name', 'type']
+    fields = ['name', 'type', 'hidden']
     template_name = 'assets-debts/update_asset.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -411,6 +428,7 @@ class UpdateAsset(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                     message=f'Your data has not been saved because there is already an entry for {form.instance}.',
                 )
             )
+
 
 @login_required
 def view_asset_details(request, id):
@@ -590,7 +608,7 @@ class AddRevolvingDebtBalance(LoginRequiredMixin, SuccessMessageMixin, CreateVie
 
 class UpdateInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = InstallmentDebt
-    fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date']
+    fields = ['name', 'type', 'initial_amount', 'interest_rate', 'minimum_payment', 'payoff_date', 'hidden']
     template_name = 'assets-debts/update_installment_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -628,7 +646,7 @@ class DeleteInstallmentDebt(LoginRequiredMixin, SuccessMessageMixin, DeleteView)
 
 class UpdateRevolvingDebt(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = RevolvingDebt
-    fields = ['name', 'type', 'interest_rate', 'credit_limit']
+    fields = ['name', 'type', 'interest_rate', 'credit_limit', 'hidden']
     template_name = 'assets-debts/update_revolving_debt.html'
     success_url = '../view'
     pk_url_kwarg = 'id'
@@ -803,6 +821,7 @@ class UpdateIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, UpdateView
                     form=form,
                     message=f'Your data has not been saved because there is already an entry for {form.instance}.',
                 ))
+
 
 class DeleteIncomeBudgetItem(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = IncomeBudgetItem
@@ -1426,6 +1445,7 @@ def view_income_budget_item(request, month, year, ibiid):
         raise Http404
     return render(request, 'budget/view_income_budget_item.html', context)
 
+
 @login_required
 def view_expense_budget_item(request, month, year, ecid, ebiid):
     context = {}
@@ -1532,6 +1552,7 @@ class AddExpenseCategory(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                     message=f'Your data has not been saved because there is already an entry for {form.instance}.',
                 ))
 
+
 # TODO: Look this over, success url may need to be modified
 class AddExpenseTransaction(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'budget/add_expense_transaction.html'
@@ -1633,6 +1654,7 @@ class AddExpenseBudgetItem(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                     message=f'Your data has not been saved because there is already an entry for {form.instance}.',
                 ))
 
+
 class DeleteBudget(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = BudgetPeriod
     template_name = 'budget/delete_budget.html'
@@ -1686,6 +1708,7 @@ class AddDebtPayment(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                 )
             )
 
+
 # Schedule Views
 def get_items_by_frequency(request, frequency):
     """
@@ -1724,6 +1747,7 @@ def get_all_schedule_items(request):
     }
     return all_schedule_items
 
+
 def get_all_schedule_totals(request):
     """
         Gets a dictionary of all the schedule item totals for a particular user.
@@ -1745,6 +1769,7 @@ def get_all_schedule_totals(request):
         'one_time_total': (all_items['one_time'].aggregate(Sum('amount'))['amount__sum'] or 0) * 1,
     }
     return all_totals
+
 
 @login_required
 def view_schedule(request):
@@ -1864,8 +1889,8 @@ def calculate_expense_fund(request):
         if key != 'monthly_total':
             non_monthly_total += value
         entire_total += value
-    non_monthly_total = non_monthly_total;
-    non_monthly_total_avg = non_monthly_total/12;
+    non_monthly_total = non_monthly_total
+    non_monthly_total_avg = non_monthly_total / 12
     suggestion = math.ceil(non_monthly_total_avg / 10) * 10
 
     next_12_months, year_month_tuples = get_last_12_months_labels(True)
@@ -1910,7 +1935,7 @@ def calculate_expense_fund(request):
     print(table_data)
 
     # TODO: Add expenses that may happen outside of the next year to make sure they are accounted for
-    active_items = get_active_items(request).exclude(frequency="Monthly");
+    active_items = get_active_items(request).exclude(frequency="Monthly")
     active_items = sorted(active_items, key=lambda a: a.get_next_payment())
 
     return render(

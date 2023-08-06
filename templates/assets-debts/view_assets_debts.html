@@ -14,6 +14,14 @@
         <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
       {% endfor %}
     {% endif %}
+  {% if show_all %}
+  <button onclick="window.location.href = '{% url 'assets_debts' show_all='' %}';">Show Hidden Items</button>
+  <p style="color: lightcoral;">* Items in red are currently set as hidden *</p>
+  {% else %}
+  <div class="button-container">
+    <button onclick="window.location.href = '{% url 'assets_debts' show_all='all' %}';">Remove Hidden Items</button>
+  </div>
+  {% endif %}
   <h3>Assets</h3>
   <div class="button-container">
     <button onclick="window.location.href = '{% url 'add-asset' %}';">Add Asset</button>
@@ -27,7 +35,7 @@
       <th class="right-align">Last Updated</th>
     {% for item in assets %}
       <tr>
-        <td><a href="assets/{{ item.id }}/view">{{ item.name }}</a></td>
+        <td><a href="assets/{{ item.id }}/view" {% if item.hidden %}style="color: lightcoral;"{% endif %}>{{ item.name }}</a></td>
 
         {% if item.type %}
           <td><a href="assets/{{ item.id }}/view">{{ item.type }}</a></td>
@@ -65,7 +73,7 @@
       <th class="right-align">Last Updated</th>
       {% for item in installment_debts %}
         <tr>
-          <td><a href="installment-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+          <td><a href="installment-debts/{{ item.id }}/view" {% if item.hidden %}style="color: lightcoral;"{% endif %}>{{ item.name }}</a></td>
 
           {% if item.type %}
             <td><a href="installment-debts/{{ item.id }}/view">{{ item.type }}</a></td>
@@ -109,7 +117,7 @@
       <th class="right-align">Last Updated</th>
       {% for item in revolving_debts %}
         <tr>
-          <td><a href="revolving-debts/{{ item.id }}/view">{{ item.name }}</a></td>
+          <td><a href="revolving-debts/{{ item.id }}/view" {% if item.hidden %}style="color: lightcoral;"{% endif %}>{{ item.name }}</a></td>
 
           {% if item.type %}
             <td><a href="revolving-debts/{{ item.id }}/view">{{ item.type }}</a></td>
