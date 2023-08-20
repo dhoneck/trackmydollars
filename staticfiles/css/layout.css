@@ -2,7 +2,7 @@
 General
 *******************************/
 :root {
-  --green: mediumseagreen;
+  --green: #3ab54b;
   --dark-blue: #0F74B7;
   --light-blue: #1592D7;
   --white: #FFFFFF;
@@ -74,14 +74,16 @@ header {
 Header, Logo, Nav
 *******************************/
 #logo-dark {
-  background-color: var(--green);
+  border-bottom: 8px solid var(--green);
   padding: 20px;
+  text-align: center;
 }
 
-#logo-dark h1, #logo-dark h2 {
+#logo-dark img {
   color: var(--gray);
   margin: 0;
   text-align: center;
+  max-width: 100%;
 }
 
 #logo {
@@ -89,6 +91,10 @@ Header, Logo, Nav
   margin: 28px 16px 10px 16px;
   color: var(--green);
   font-family: Bahnschrift;
+}
+
+#logo img {
+  max-width: 150px;
 }
 
 #logo h1 {
@@ -515,18 +521,7 @@ Media Queries
   .page-heading, .main-container, .side-container {
     margin-left: 16px;
   }
-
-  nav a {
-    /*padding-top: 0;*/
-  }
 }
 
 @media only screen and (max-width: 480px) {
-  #logo-dark h1 {
-    font-size: 1.5em;
-  }
-
-  #logo-dark h2 {
-    font-size: 1em;
-  }
 }
