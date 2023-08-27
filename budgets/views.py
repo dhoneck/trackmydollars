@@ -11,7 +11,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import IntegrityError
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
@@ -265,6 +265,35 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
     return float(total_for_month)
 
 
+# Session Views
+# Define which session variables can be accessed and modified
+USABLE_SESSION_VARS = [
+    'nav_collapsed',
+]
+
+
+def get_session_var(request, key):
+    """ Returns the value of a session variable"""
+    if key not in USABLE_SESSION_VARS:
+        return JsonResponse({'error': 'Invalid session variable'})
+    return JsonResponse({key: request.session.get(key)})
+
+
+def toggle_session_var(request, key):
+    """ Toggles the boolean value of a session variable"""
+    if key not in USABLE_SESSION_VARS:
+        return JsonResponse({'error': 'Invalid session variable'})
+
+    # Set session variable if it doesn't exist
+    if key not in request.session:
+        print(f'{key} not in session')
+        request.session[key] = False
+
+    # Toggle session variable
+    request.session[key] = not request.session[key]
+    print('request.session["nav_collapsed"]', request.session[key], type(request.session[key]))
+    return JsonResponse({key: request.session[key]})
+
 # User Based Views
 # TODO: Add content from your money schedule
 # TODO: Add content from your budget
@@ -273,6 +302,7 @@ def get_last_12_months_data(year, month, obj, obj_bal, user):
 @login_required
 def dashboard(request):
     """ Shows an overview of the user's account """
+    print('SESSION', request.session.get('nav_collapsed'))
     # TODO: Fix rounding issues for the net worth line - I see it has a rounding issue with too many decimals
     # Sum Assets
     asset_total = Decimal(0.00)

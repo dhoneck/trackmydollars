@@ -7,6 +7,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
@@ -35,12 +36,13 @@
             <a class='sidebar-links' href="{% url 'budget' %}">Budget</a>
             <a class='sidebar-links' href="{% url 'reports' %}">Reports</a>
             <a class='sidebar-links' href="{% url 'offers' %}">Offers</a>
-            <a class='sidebar-links' href="{% url 'contact' %}">Support</a>
+            <a class='sidebar-links' href="{% url 'support' %}">Support</a>
           </nav>
           <div id="user-section">
             <a href="{% url 'settings' %}">{{ user.email }}</a>
             <a href="{% url 'logout' %}">Log Out</a>
           </div>
+          <i class="fa-solid fa-circle-chevron-left nav-collapse"></i>
         </div>
       </header>
 
@@ -71,5 +73,6 @@
         console.log('Keeping side-container.')
       }
     </script>
+    <script src={% static 'js/base.js' %}></script>
   </body>
 </html>

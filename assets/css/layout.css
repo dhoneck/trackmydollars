@@ -45,7 +45,7 @@ Grid Container
 .grid {
   height: 100vh;
   display: grid;
-  grid-template-columns: auto 5fr 2fr;
+  grid-template-columns: 185px 5fr 2fr;
   grid-template-rows: min-content 1fr;
   grid-column-gap: 20px;
   grid-template-areas:
@@ -136,14 +136,12 @@ Header, Logo, Nav
 nav {
   border-top: 3px solid var(--gray);
 }
+
 nav a {
   padding: 7px 16px 7px 16px;
-  /*background-color: lightcoral;*/
-  /*color: var(--gray);*/
   display: block;
   margin-top: 10px;
   font-weight: bold;
-  /*box-shadow: 0px 2px 2px #888888;*/
 }
 
 nav a:hover, .topnav a:hover {
@@ -151,8 +149,19 @@ nav a:hover, .topnav a:hover {
   color: var(--green);
 }
 
+/* make .nav-collapse not be overlapped */
+.nav-collapse {
+  position: absolute;
+  left: 177px;
+  bottom: 20px;
+}
+
+.nav-collapse:hover {
+  cursor: pointer !important;
+}
+
 .active {
-  color: var(--light-blue);
+  color: var(--green);
 }
 
 .modified-content-container {
@@ -248,8 +257,6 @@ button:hover {
   opacity: 0.8;
 }
 
-
-
 #transaction-table {
   width: 100%;
   /*display: block;*/
@@ -319,6 +326,7 @@ button:hover {
   background-color: lightgray;
   padding: 10px;
   border-radius: 10px;
+  flex-grow: 1;
 }
 
 #budget-credit-container {
@@ -520,6 +528,10 @@ Media Queries
 
   .page-heading, .main-container, .side-container {
     margin-left: 16px;
+  }
+
+  .nav-collapse {
+    display: none !important;
   }
 }
 

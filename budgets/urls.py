@@ -17,10 +17,12 @@ urlpatterns = [
     re_path(r'^register/$', views.register, name='register'),
     re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,35})/$', views.activate, name='activate'),
     path('settings', EditSettings.as_view(), name='settings'),
+    # Session URLs
+    path('session/<key>/get', views.get_session_var, name='get-session-var'),
+    path('session/<key>/toggle', views.toggle_session_var, name='toggle-session-var'),
     # Dashboard URLs
     path('dashboard/', views.dashboard, name='dashboard'),
     # Asset & Debt URLs
-    # path('assets-debts/', views.assets_debts, name='assets_debts'),
     re_path('assets-debts/(?P<show_all>(all)?$)', views.assets_debts, name='assets_debts'),
     path('assets-debts/add-asset', AddAsset.as_view(), name='add-asset'),
     path('assets-debts/add-installment-debt', AddInstallmentDebt.as_view(), name='add-installment-debt'),
@@ -82,5 +84,5 @@ urlpatterns = [
     # Offers URLS
     path('offers/', views.view_offers, name='offers'),
     # Support URLS
-    path('contact/', AddContactEntry.as_view(), name='contact'),
+    path('support/', AddContactEntry.as_view(), name='support'),
 ]
